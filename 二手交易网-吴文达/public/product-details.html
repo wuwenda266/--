@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详细信息</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .product-detail {
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            display: flex;
+        }
+
+        .product-carousel-container {
+            flex: 0 0 300px; /* 左侧盒子的宽度 */
+            margin-right: 20px; /* 右侧盒子与左侧盒子之间的间距 */
+            display: flex; /* 使用 flex 布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+        }
+
+        .carousel-inner {
+            height: 250px; /* 设定固定高度 */
+            width: 100%; /* 宽度100% */
+            position: relative; /* 为了绝对定位子元素 */
+        }
+
+        .carousel-item {
+            height: 100%; /* 使轮播项高度占满容器 */
+        }
+
+        .carousel-item img {
+            max-width: 100%; /* 最大宽度不超出容器 */
+            max-height: 100%; /* 最大高度不超出容器 */
+            object-fit: contain; /* 保持图片比例 */
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px; /* 增加箭头宽度 */
+            height: 50px; /* 增加箭头高度 */
+            background-color: rgba(255, 255, 255, 0.8); /* 白色背景，稍微透明 */
+            border-radius: 50%; /* 圆形按钮 */
+            display: flex; /* 使用 flex 布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            position: absolute; /* 绝对定位 */
+            top: 50%; /* 垂直居中 */
+            transform: translateY(-50%); /* 调整箭头垂直居中 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+            transition: background-color 0.3s ease; /* 平滑过渡效果 */
+        }
+
+        .carousel-control-prev {
+            left: 15px; /* 左侧箭头距离左边的距离 */
+        }
+
+        .carousel-control-next {
+            right: 15px; /* 右侧箭头距离右边的距离 */
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-image: none; /* 去掉默认箭头图标 */
+        }
+
+        .carousel-control-prev::after {
+            content: '←'; /* 自定义箭头 */
+            font-size: 24px; /* 自定义箭头字体大小 */
+            color: #007bff; /* 箭头颜色 */
+            line-height: 50px; /* 与圆圈高度相同，确保箭头垂直居中 */
+        }
+
+        .carousel-control-next::after {
+            content: '→'; /* 自定义箭头 */
+            font-size: 24px; /* 自定义箭头字体大小 */
+            color: #007bff; /* 箭头颜色 */
+            line-height: 50px; /* 与圆圈高度相同，确保箭头垂直居中 */
+        }
+
+        .carousel-control-prev:hover,
+        .carousel-control-next:hover {
+            background-color: rgba(255, 255, 255, 1); /* 鼠标悬停时背景变为完全不透明 */
+        }
+        .carousel-indicators {
+            bottom: -30px; /* 调整分页器位置 */
+        }
+
+        .carousel-indicators li {
+            background-color: #007bff; /* 分页器的颜色 */
+        }
+
+        .carousel-indicators .active {
+            background-color: #0056b3; /* 活动分页器的颜色 */
+        }
+
+        .product-info {
+            flex: 1; /* 右侧盒子占据剩余空间 */
+        }
+
+        .btn-primary {
+            margin-top: 20px;
+            background-color: #007bff;
+            border: none;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .details-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+        .product-info {
+            flex: 1; /* 右侧盒子占据剩余空间 */
+            background: #ffffff; /* 背景颜色 */
+            border-radius: 10px; /* 圆角 */
+            padding: 20px; /* 内边距 */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 阴影 */
+            transition: box-shadow 0.3s ease; /* 阴影过渡效果 */
+        }
+
+        .product-info:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* 鼠标悬停时的阴影效果 */
+        }
+
+        .product-info h2 {
+            font-size: 1.75rem; /* 标题字体大小 */
+            font-weight: bold; /* 加粗 */
+            color: #007bff; /* 标题颜色 */
+            margin-bottom: 20px; /* 标题下方间距 */
+            text-align: center; /* 居中对齐 */
+        }
+
+        .product-info p {
+            font-size: 1rem; /* 段落字体大小 */
+            color: #495057; /* 段落颜色 */
+            line-height: 1.5; /* 行高 */
+            margin-bottom: 15px; /* 段落下方间距 */
+        }
+
+        .product-info strong {
+            color: #212529; /* 加粗文本颜色 */
+        }
+
+        .product-info .form-group {
+            margin-top: 20px; /* 表单组顶部间距 */
+        }
+
+        .product-info .form-control {
+            border-radius: 5px; /* 输入框圆角 */
+            border: 1px solid #ced4da; /* 边框颜色 */
+            box-shadow: none; /* 去掉阴影 */
+        }
+
+        .product-info .btn {
+            display: block; /* 按钮块级元素 */
+            width: 100%; /* 按钮宽度100% */
+            padding: 10px; /* 按钮内边距 */
+            font-size: 1.1rem; /* 按钮字体大小 */
+            text-align: center; /* 按钮文本居中 */
+            border-radius: 5px; /* 按钮圆角 */
+            margin-top: 20px; /* 按钮顶部间距 */
+        }
+
+        .product-info .btn-primary {
+            background-color: #007bff; /* 主按钮背景颜色 */
+            border: none; /* 去掉边框 */
+        }
+
+        .product-info .btn-primary:hover {
+            background-color: #0056b3; /* 悬停效果 */
+        }
+
+        .product-info .btn-secondary {
+            background-color: #6c757d; /* 次按钮背景颜色 */
+            border: none; /* 去掉边框 */
+        }
+
+        .product-info .btn-secondary:hover {
+            background-color: #5a6268; /* 悬停效果 */
+        }
+
+        .product-info .details-section {
+            border-top: 1px solid #e9ecef; /* 分割线 */
+            padding-top: 15px; /* 内边距 */
+            margin-top: 20px; /* 顶部间距 */
+        }
+
+        /* 媒体查询 */
+        @media (max-width: 576px) {
+            .product-detail {
+                flex-direction: column; /* 移动端垂直排列 */
+            }
+
+            .product-carousel-container {
+                margin-bottom: 15px; /* 给轮播图和商品信息之间添加间距 */
+            }
+
+            .carousel {
+                height: 180px; /* 限制轮播图高度 */
+            }
+
+            .carousel-item img {
+                width: 100%; /* 图片宽度填满容器 */
+                height: auto; /* 高度自适应 */
+                object-fit: contain; /* 保持图片比例，裁剪 */
+            }
+
+            .product-info {
+                padding: 10px; /* 减小内边距 */
+            }
+        }
+        .product-info {
+            padding: 10px; /* 保持原有的内边距 */
+            max-width: 100%; /* 限制最大宽度 */
+        }
+
+        .product-info #productPrice {
+            color: red; /* 将价格字体颜色设置为红色 */
+            font-size: 3rem; /* 适当增大字体大小以突出显示 */
+            font-weight: bold; /* 设置字体加粗 */
+        }
+
+        .magnifier {
+            position: absolute; /* 绝对定位 */
+            width: 100px;      /* 放大镜的宽度 */
+            height: 100px;     /* 放大镜的高度 */
+            overflow: hidden;  /* 隐藏超出部分 */
+            border: 2px solid #000; /* 放大镜边框样式 */
+            pointer-events: none; /* 禁用事件以防止干扰 */
+            z-index: 10;       /* 确保放大镜在上方 */
+        }
+
+        .magnified-image {
+            position: absolute; /* 绝对定位 */
+            width: 200px;      /* 放大图的宽度，调整为所需的放大比例 */
+            height: 200px;     /* 放大图的高度 */
+            top: 0;            /* 放大图的顶部位置 */
+            left: 0;           /* 放大图的左侧位置 */
+            transform: scale(4); /* 放大图的缩放比例，2倍 */
+            transform-origin: 0 0; /* 缩放的原点设置为左上角 */
+        }
+
+        .magnification-control {
+            margin-bottom: 10px; /* 调整与轮播图之间的间距 */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 居中显示 */
+        }
+
+        #magnificationRange {
+            -webkit-appearance: none; /* 去掉默认样式 */
+            appearance: none;
+            width: 150px; /* 调整滑动条的宽度 */
+            height: 8px; /* 滑动条高度 */
+            border-radius: 5px; /* 圆角 */
+            background: linear-gradient(to right, #ff7f50, #ff4500, #ffd700, #adff2f, #00fa9a); /* 渐变背景 */
+            outline: none; /* 去掉外边框 */
+            cursor: pointer; /* 光标样式 */
+        }
+
+        #magnificationRange::-webkit-slider-thumb {
+            -webkit-appearance: none; /* 去掉默认样式 */
+            appearance: none;
+            width: 16px; /* 滑块宽度 */
+            height: 16px; /* 滑块高度 */
+            border-radius: 50%; /* 圆形滑块 */
+            background: #4caf50; /* 滑块颜色 */
+            cursor: pointer; /* 光标样式 */
+        }
+
+        #magnificationRange::-moz-range-thumb {
+            width: 16px; /* 滑块宽度 */
+            height: 16px; /* 滑块高度 */
+            border-radius: 50%; /* 圆形滑块 */
+            background: #4caf50; /* 滑块颜色 */
+            cursor: pointer; /* 光标样式 */
+        }
+
+        #magnificationValue {
+            margin-left: 10px; /* 给滑动条和倍数值之间添加间距 */
+            font-weight: bold; /* 加粗显示 */
+        }
+        .magnification-control {
+            display: flex;
+            align-items: center;
+        }
+
+        #magnificationRange {
+            margin-left: 10px;
+            width: 200px; /* 根据需要调整宽度 */
+        }
+        .accordion-image {
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
+        }
+
+        .accordion-image:hover {
+            transform: scale(1.1) rotate(5deg); /* 放大并旋转 */
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3); /* 添加阴影 */
+            filter: brightness(1) contrast(1.1); /* 增加亮度和对比度 */
+        }
+
+        
+        /* 商品介绍 */
+        .product-productDescription {
+        border: 1px solid #ddd; 
+        border-radius: 15px; 
+        background-color: #ffffff; 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+        overflow: hidden; 
+        transition: transform 0.3s, box-shadow 0.3s;
+            }
+
+            .card-header {
+                background-color: #007bff; 
+                color: #ffffff; 
+                padding: 15px; 
+                border-bottom: none;
+            }
+
+            .product-image {
+                border-radius: 10px; 
+                transition: transform 0.3s; 
+                max-width: 60%; /* 调整图片最大宽度 */
+                height: auto;
+            }
+
+            .image-caption {
+                font-size: 14px; /* 标注字体大小 */
+                color: #555; /* 标注颜色 */
+                margin-top: 10px; /* 标注与图片之间的间距 */
+                font-style: italic; /* 斜体 */
+            }
+
+            .product-productDescription-text {
+                font-size: 16px; 
+                color: #555; 
+                line-height: 1.6;
+            }
+
+            .product-productDescription:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .fade-in {
+                animation: fadeIn 1s ease-in-out;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* 商品介绍 */
+
+
+            .inspection-report {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            background: linear-gradient(135deg, #ffffff, #f9f9f9);
+        }
+        .inspection-report h3 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .report {
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .report p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .report p strong {
+            color: #333;
+        }
+        .report button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .report button:hover {
+            background-color: #0056b3;
+        }
+        .report button:focus {
+            outline: none;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+            text-align: center;
+        }
+        .modal-content img {
+            margin: 20px 0;
+            width: 200px; /* Adjust as needed */
+        }
+        .modal-content button.close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-content button.close:hover {
+            background: #0056b3;
+        }
+
+        /* Certificate Modal Styles */
+        .certificate-modal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.8); /* 半透明背景 */
+            animation: dissolveIn 0.2s ease-out; /* 溶解效果 */
+        }
+
+        .certificate-content {
+            background: #fff;
+            border-radius: 10px;
+            width: 600px; /* 增加宽度 */
+            max-height: 90%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            position: relative; /* 使关闭按钮可以绝对定位 */
+            animation: spreadOut 0.2s ease-out; /* 散开效果 */
+        }
+
+        @keyframes dissolveIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes spreadOut {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-30px);
+                filter: blur(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+
+        .certificate-header {
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .certificate-header button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px; /* 调整按钮内边距 */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; /* 调整按钮字体大小 */
+        }
+
+        .certificate-header button:hover {
+            background-color: #0056b3;
+        }
+
+        .certificate-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .certificate-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product-image-small {
+            width: 150px; /* 调整图片大小 */
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .certificate-footer {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .certificate-footer #barcode {
+            margin-bottom: 15px;
+            width: 200px; /* 调整条形码宽度 */
+            height: auto;
+            margin: 0 auto; /* 中心对齐 */
+        }
+
+        .certificate-footer .certificate-date {
+            margin-bottom: 15px;
+        }
+
+        .certificate-footer button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 24px; /* 增加按钮内边距 */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px; /* 调整按钮字体大小 */
+        }
+
+        .certificate-footer button:hover {
+            background-color: #0056b3;
+        }
+
+
+
+        /* 验货报告 */
+        .comments-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comments-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .comments-list {
+            margin-bottom: 20px;
+        }
+
+        .comment {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .comment:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.02);
+        }
+
+        .comment .comment-content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .comment .comment-content .likes {
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .comment .comment-content .likes:hover {
+            text-decoration: underline;
+        }
+
+        .comment .sub-comments {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+
+        .form-group {
+            margin-top: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.25);
+            transform: scale(1.02);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .comment .likes {
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .comment .likes.liked {
+            color: #ff6f61;
+        }
+
+        .comment .likes:hover {
+            text-decoration: underline;
+        }
+        .likes {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .likes img {
+            width: 24px; /* 根据需要调整图标大小 */
+            height: 24px;
+        }
+        /* 调整按钮大小和布局 */
+        /* 使删除按钮和点赞按钮在一行内排列 */
+        .interaction-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .likes, .delete-button {
+            display: flex;
+            align-items: center;
+            margin-right: 10px; /* 添加右边距以分隔按钮 */
+        }
+
+        /* 删除按钮和点赞按钮大小一致 */
+        .like-img, .delete-img {
+            width: 24px; /* 设置图片宽度 */
+            height: 24px; /* 设置图片高度 */
+            cursor: pointer;
+        }
+
+        /* 添加删除按钮的点击动画效果（可选） */
+        .delete-animation {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+         /* 评论区 */
+
+        /* 基本样式 */
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-intro {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .product-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group .btn {
+            width: 200px; /* 保证按钮在PC端等长 */
+            padding: 10px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-group .btn img {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
+
+        /* 移动端样式 */
+        @media (max-width: 768px) {
+            .product-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-intro {
+                text-align: center;
+                width: 100%;
+            }
+
+            .button-group {
+                width: 100%;
+                justify-content: center; /* 按钮靠右显示 */
+                margin-top: 15px;
+            }
+
+            .button-group .btn {
+                width: 45%; /* 按钮在移动端变短，占据45%的宽度 */
+            }
+        }
+
+
+               /* 红色圆框，白色数字 */
+            .count-badge {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background-color: red;
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 24px;
+                margin-left: 8px;
+            }
+
+            /* 飞行动画 */
+            @keyframes flyToTarget {
+                0% {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-200px) scale(0.5);
+                    opacity: 0;
+                }
+            }
+
+            .fly-image {
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                z-index: 1000;
+                pointer-events: none;
+                animation: flyToTarget 0.8s forwards;
+            }
+
+        /* 分界线 */
+
+        @media (max-width: 768px) {
+            #magnificationRange {
+                width: 150px; /* 移动端调整宽度 */
+            }
+            #magnificationValue,
+            #disabledText,
+            #suggestionText {
+                font-size: 12px; /* 移动端调整字体大小 */
+            }
+            .magnification-control {
+            display: flex;
+            align-items: center;
+        }
+        .magnification-control{
+            display: none;
+        }
+
+        #magnificationRange {
+            margin-left: 10px;
+            width: 200px; /* 根据需要调整宽度 */
+        }
+
+        #disabledText {
+            color: red; /* 设置已禁用文本颜色 */
+            margin-left: 10px; 
+        }
+
+        #suggestionText {
+            color: red; /* 设置建议文本颜色 */
+            margin-left: 10px; 
+        }
+
+        @media (max-width: 768px) {
+            #magnificationRange {
+                width: 150px; /* 移动端调整宽度 */
+            }
+            #magnificationValue,
+            #disabledText,
+            #suggestionText {
+                font-size: 12px; /* 移动端调整字体大小 */
+            }
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <div class="product-header">
+        <div class="product-intro">
+            <h3 class="product-title">产品详细</h3>
+            <p class="product-description">这是一个优质的产品，适合您的需求。</p>
+        </div>
+    
+        <div class="button-group">
+            <button type="button" class="btn btn-outline-primary" id="favoritesButton">
+                <img src="../img/收藏.png" alt="收藏" class="button-icon" id="favoritesIcon">
+                我的收藏夹 <span id="favoritesCount" class="count-badge">0</span>
+            </button>
+            <button type="button" class="btn btn-outline-success" id="addToCart">
+                <a href="./cart.html"><img src="../img/购物车空.png" alt="购物车" class="button-icon" id="cartIcon"></a>
+                我的购物车 <span id="cartCount" class="count-badge">0</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="magnification-control">
+        放大倍数：<input type="range" id="magnificationRange" min="1" max="5" step="0.1" value="2">
+        <span id="magnificationValue">2倍</span>
+        <span id="disabledText" style="color: red; margin-left: 10px; display: none;">（已禁用）</span>
+        <span id="suggestionText" style="color: red; margin-left: 10px;">（测试版：建议使用2倍）</span>
+    </div>       
+    <div class="product-detail">
+        <div class="product-carousel-container">
+            <div id="productCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img class="product-image" src="图片路径1.jpg" alt="商品图片1">
+                        <div class="magnifier" style="display: none;">
+                            <img src="图片路径1.jpg" alt="放大图" class="magnified-image">
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="product-image" src="图片路径2.jpg" alt="商品图片2">
+                        <div class="magnifier" style="display: none;">
+                            <img src="图片路径2.jpg" alt="放大图" class="magnified-image">
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="product-image" src="图片路径3.jpg" alt="商品图片3">
+                        <div class="magnifier" style="display: none;">
+                            <img src="图片路径3.jpg" alt="放大图" class="magnified-image">
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">上一张</span>
+                </a>
+                <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">下一张</span>
+                </a>
+                <ol class="carousel-indicators">
+                    <li data-target="#productCarousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#productCarousel" data-slide-to="1"></li>
+                    <li data-target="#productCarousel" data-slide-to="2"></li>
+                </ol>
+            </div>
+        </div>
+        <div class="product-info">
+            <h2 id="productTitle">商品名称</h2>
+            <div class="details-section">
+                <p><strong>价格:</strong> <span id="productPrice">价格</span>元</p>
+                <p><strong>商品状态:</strong> <span id="productCondition">状态</span></p>
+                <p><strong>出售原因:</strong> <span id="productReason">原因</span></p>
+                <p><strong>交易方式:</strong> <span id="productTradeMethod">交易方式</span></p>
+                <p><strong>发布时间:</strong> <span id="postedDate">发布时间</span></p>
+                <p><strong>货源:</strong> <span id="productLocation">地点</span></p>
+            </div>
+            
+            <!-- 自适应的收藏和加入购物车按钮 -->
+            <div class="product-card">
+                <div class="btn-group mb-3" style="width: 100%; max-width: 400px;">
+                    <button type="button" class="btn btn-outline-primary" id="addToFavorites">
+                        <img src="../img/收藏.png" alt="收藏" style="width: 16px; height: 16px; margin-right: 5px;">
+                        收藏
+                    </button>
+                    <button type="button" class="btn btn-outline-success" id="addToCartButton">
+                        <img src="../img/购物车空.png" alt="加入购物车" style="width: 16px; height: 16px; margin-right: 5px;">
+                        加入购物车
+                    </button>
+                </div>
+            
+                <button type="button" class="btn btn-primary btn-block" id="buyButton">购买</button>
+                <a href="./product-list.html" class="btn btn-secondary btn-block">返回商品列表</a>
+            </div>
+        </div>
+    </div>
+            
+        <!-- 详细商品介绍 -->
+        <div class="product-productDescription card my-4">
+            <div class="card-header">
+                <h3 class="mb-0">商品介绍</h3>
+            </div>
+            <div class="card-body text-center">
+                <img id="productImage" src="图片路径1.jpg" alt="商品图片" class="img-fluid mb-3 product-image accordion-image">
+                <div class="image-caption">产品演示图</div>
+                <br>
+                <h4>产品特点</h4>
+                <p id="productDescription" class="product-productDescription-text"></p>
+                <h4>使用说明</h4>
+                <p id="usageInstructions" class="product-usage"></p>
+                <h4>保养建议</h4>
+                <p id="maintenanceSuggestions" class="product-maintenance"></p>
+            </div>
+        </div>
+
+        <!-- 验货报告区 -->
+        <div class="inspection-report">
+            <h3>验货报告</h3>
+            <div id="reports"></div>
+        </div>
+    
+        <!-- Certificate Modal -->
+        <div id="certificateModal" class="certificate-modal">
+            <div class="certificate-content">
+                <div class="certificate-header">
+                    <h2>验货证书</h2>
+                    <button onclick="closeModal()">关闭</button> <!-- 关闭按钮 -->
+                </div>
+                <div class="certificate-body">
+                    <div class="certificate-info">
+                        <img id="certificateImage" src="" alt="商品图片" class="product-image-small">
+                        <div>
+                            <p><strong>商品名称:</strong> <span id="certificateProductName"></span></p>
+                            <p><strong>验货人:</strong> <span id="certificateInspector"></span></p>
+                            <p><strong>验货日期:</strong> <span id="certificateDate"></span></p>
+                            <p><strong>验货公司:</strong> <span id="certificateCompany"></span></p>
+                            <p><strong>验货地址:</strong> <span id="certificateAddress"></span></p>
+                            <p><strong>商品评价:</strong> <span id="certificateContent"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="certificate-footer">
+                    <div id="barcodeWrapper">
+                        <svg id="barcode"></svg>
+                    </div>
+                    <p class="certificate-date">验货时间: <span id="certificateInspectionDate"></span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论区 -->
+        <div class="comments-section" id="commentsSection">
+            <h3>用户评论</h3>
+            <hr style="color: rgb(0, 123, 255);border: 1.3px solid rgb(0, 123, 255);">
+            <div class="comments-list" id="commentsList">
+                <!-- 评论将通过 JavaScript 动态生成 -->
+            </div>
+            <div class="form-group">
+                <label for="commentInput">发表评论:</label>
+                <textarea id="commentInput" class="form-control" rows="3" placeholder="写下你的评论..."></textarea>
+                <button class="btn btn-primary mt-2" id="submitCommentButton">提交评论</button>
+            </div>
+        </div>        
+                          
+           
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+    <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.0/JsBarcode.all.min.js"></script>
+    <script>
+        // 商品数据结构
+        const productsData = {
+    1: [
+        { title: "苹果 iPhone 14 Pro Max", price: 10999, location: "北京", postedDate: "2024-08-01", imageUrl: "https://tse2-mm.cn.bing.net/th/id/OIP-C.muM3lyNF2vObnlAQZDhoKQHaJP?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "手机", condition: "99成新", reason: "换新款", tradeMethod: "面交", productDescription: '二手苹果 iPhone 14 Pro Max 具备 <strong>6.7 英寸 Super Retina XDR 显示屏</strong>（2796 x 1290 像素）、<strong>A16 Bionic 芯片</strong>、<strong>128GB/256GB/512GB/1TB 存储选项</strong>，后置 <strong>48MP 主摄像头</strong>、<strong>12MP 超广角</strong>和 <strong>12MP 长焦</strong>，支持 <strong>4K 视频录制</strong>，前置 <strong>12MP TrueDepth 摄像头</strong>，电池容量约 <strong>4323mAh</strong>，最长可达 <strong>29 小时视频播放</strong>，支持 <strong>MagSafe 无线充电</strong>及 <strong>快速充电（最高 20W）</strong>，防水防尘等级 <strong>IP68</strong>，<strong>Face ID 解锁</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机时，长按右侧电源键，直到苹果标志出现；<br>2. 关机时，长按电源键和音量加（或减）键，直到出现滑动关机的提示，滑动以关闭手机；<br>3. 设置手机时，选择语言和地区，连接 Wi-Fi 网络，随后登录或创建 Apple ID；<br>4. 完成设置后，通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 使用“信息”应用发送短信；<br>6. 打开“相机”应用选择拍照或录像模式；<br>7. 下载应用时，访问“App Store”，搜索所需应用并点击获取进行下载；<br>8. 管理应用时，可以长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将 iPhone 14 Pro Max 放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 尽量减少手机接触水，虽然其具备 IP68 防水防尘功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用苹果原装的充电器和数据线，避免使用非认证的配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "三星 Galaxy S21 Ultra", price: 9999, location: "深圳", postedDate: "2024-08-04", imageUrl: "https://ts1.cn.mm.bing.net/th/id/R-C.db94f83a720b77f6bb9e55dd0d3ff17b?rik=GDPv6%2fezkBXkjQ&riu=http%3a%2f%2fimg.dixintong.com%2fInUpImg%2fProImg%2f2021-01-19%2f210119144813826558.jpg&ehk=DMrw6hiNISSD5d7FHf08EelA2fEi9I4lA38815AQ418%3d&risl=&pid=ImgRaw&r=0", detailsUrl: "./product-details.html", category: "手机", condition: "8成新", reason: "闲置", tradeMethod: "快递",productDescription: '二手三星 Galaxy S21 Ultra 具备 <strong>6.8 英寸 Dynamic AMOLED 2X 显示屏</strong>（3200 x 1440 像素）、<strong>Exynos 2100/Snapdragon 888 处理器</strong>、<strong>128GB/256GB/512GB 存储选项</strong>，后置 <strong>108MP 主摄像头</strong>、<strong>12MP 超广角</strong>、<strong>10MP 长焦（10倍光学变焦）</strong>和 <strong>10MP 长焦（3倍光学变焦）</strong>，支持 <strong>8K 视频录制</strong>，前置 <strong>40MP 摄像头</strong>，电池容量约 <strong>5000mAh</strong>，支持 <strong>25W 快速充电</strong>和 <strong>15W 无线充电</strong>，防水防尘等级 <strong>IP68</strong>，支持 <strong>S Pen</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机时，长按电源键，直到三星标志出现；<br>2. 关机时，长按电源键和音量减键，选择关机；<br>3. 设置手机时，选择语言和地区，连接 Wi-Fi 网络，随后登录或创建三星账户；<br>4. 通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 使用“信息”应用发送短信；<br>6. 打开“相机”应用选择拍照或录像模式；<br>7. 下载应用时，访问“Galaxy Store”或“Google Play”，搜索所需应用并点击安装；<br>8. 管理应用时，可以长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将 Galaxy S21 Ultra 放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 避免手机接触水，虽然其具备 IP68 防水防尘功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用三星原装的充电器和数据线，避免使用非认证的配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "小米 11 Pro", price: 4999, location: "广州", postedDate: "2024-08-03", imageUrl: "https://img1.wushang.com/pn/wsec-img1/2021/4/26/3a757431-d78b-4b79-939b-41f458bd4148.jpg?x-oss-process=image/resize,w_800,h_800", detailsUrl: "./product-details.html", category: "手机", condition: "7成新", reason: "不再使用", tradeMethod: "自取", productDescription: '二手小米 11 Pro 配备 <strong>6.81 英寸 AMOLED 显示屏</strong>（3200 x 1440 像素）、<strong>骁龙 888 处理器</strong>、<strong>128GB/256GB 存储选项</strong>，后置 <strong>50MP 主摄像头</strong>、<strong>13MP 超广角</strong>和 <strong>8MP 长焦</strong>，支持 <strong>8K 视频录制</strong>，前置 <strong>20MP 摄像头</strong>，电池容量约 <strong>5000mAh</strong>，支持 <strong>67W 快速充电</strong>和 <strong>67W 无线充电</strong>，防水防尘等级 <strong>IP68</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机时，长按电源键，直到小米标志出现；<br>2. 关机时，长按电源键和音量减键，选择关机；<br>3. 设置手机时，选择语言和地区，连接 Wi-Fi 网络，随后登录或创建小米账户；<br>4. 通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 使用“信息”应用发送短信；<br>6. 打开“相机”应用选择拍照或录像模式；<br>7. 下载应用时，访问“小米商店”或“Google Play”，搜索所需应用并点击安装；<br>8. 管理应用时，可以长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将小米 11 Pro 放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 避免手机接触水，虽然其具备 IP68 防水防尘功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用小米原装的充电器和数据线，避免使用非认证的配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "苹果 iPhone 13", price: 5999, location: "北京", postedDate: "2024-08-01", imageUrl: "https://tse1-mm.cn.bing.net/th/id/OIP-C.2o3FJBnp6m3sbSMj-BHr1wHaJc?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "手机", condition: "9成新", reason: "换新款", tradeMethod: "面交" , productDescription: '二手苹果 iPhone 13 配备 <strong>6.1 英寸 Super Retina XDR 显示屏</strong>（2532 x 1170 像素）、<strong>A15 Bionic 芯片</strong>、<strong>128GB/256GB/512GB 存储选项</strong>，后置 <strong>12MP 双摄系统</strong>（广角与超广角）、支持 <strong>4K 视频录制</strong>，前置 <strong>12MP TrueDepth 摄像头</strong>，电池容量约 <strong>3240mAh</strong>，最长可达 <strong>19 小时视频播放</strong>，支持 <strong>MagSafe 无线充电</strong>及 <strong>快速充电（最高 20W）</strong>，防水防尘等级 <strong>IP68</strong>，<b>Face ID 解锁</b>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机时，长按右侧电源键，直到苹果标志出现；<br>2. 关机时，长按电源键和音量加（或减）键，直到出现滑动关机的提示，滑动以关闭手机；<br>3. 设置手机时，选择语言和地区，连接 Wi-Fi 网络，随后登录或创建 Apple ID；<br>4. 完成设置后，通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 使用“信息”应用发送短信；<br>6. 打开“相机”应用选择拍照或录像模式；<br>7. 下载应用时，访问“App Store”，搜索所需应用并点击获取进行下载；<br>8. 管理应用时，可以长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将 iPhone 13 放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 虽然 iPhone 13 具备 IP68 防水防尘功能，仍应尽量减少手机接触水，长期浸水可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用苹果原装的充电器和数据线，避免使用非认证的配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "索尼 WH-1000XM4", price: 2499, location: "杭州", postedDate: "2024-08-05", imageUrl: "https://tse1-mm.cn.bing.net/th/id/OIP-C.Lz8v44GOE5YO5J-njdvwgAHaHa?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "换新款", tradeMethod: "面交" , productDescription: '二手索尼 WH-1000XM4 配备 <strong>行业领先的降噪技术</strong>，搭载 <strong>HD 降噪处理器 QN1</strong>，支持 <strong>蓝牙 5.0</strong> 和 <strong>NFC 连接</strong>，内置 <strong>40mm 驱动单元</strong>，支持 <strong>LDAC、AAC、SBC</strong> 等高品质音频编码，提供 <strong>30 小时</strong> 的长续航，具备 <strong>多点连接功能</strong>，支持 <strong>触控操作</strong>，兼容 <strong>Alexa 和 Google Assistant</strong>，具备智能免摘对话功能，耳罩采用柔软舒适的材质，提供多种音效模式。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按耳机上的电源键约 2 秒钟，直到听到“开机”提示音；<br>2. 连接：通过蓝牙设置或 NFC 功能将耳机与手机或其他设备配对；<br>3. 操作：使用耳罩上的触控面板播放/暂停音乐、调整音量、切换曲目或接听电话；<br>4. 降噪模式：通过耳机上的降噪控制按钮切换降噪模式；<br>5. 充电：使用附带的 USB-C 充电线为耳机充电，充满电约需 3 小时；<br>6. 关闭耳机：长按电源键直到听到“关机”提示音。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机放置在高温、潮湿或极冷环境中，以免损坏电子元件；<br>2. 定期清洁耳罩和头带部分，建议使用干燥的软布擦拭；<br>3. 不使用时，建议将耳机放回原装收纳盒内，防止灰尘和意外损坏；<br>4. 定期检查耳机的固件更新，以确保最佳音质和功能；<br>5. 充电时尽量使用原装充电线和适配器，避免使用非认证配件；<br>6. 在降噪模式下，尽量避免长时间使用耳机，建议每隔 2 小时摘下耳机休息一下耳朵。'},
+        { title: "华为 FreeBuds Pro", price: 1299, location: "武汉", postedDate: "2024-08-07", imageUrl: "https://2c.zol-img.com.cn/product/207_800x600/724/ceov5O1eM1qkU.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "不合适", tradeMethod: "自取" ,productDescription: '二手华为 FreeBuds Pro 采用 <strong>动态降噪技术</strong>，配备 <strong>11mm 动圈单元</strong>，支持 <strong>蓝牙 5.2</strong> 连接，具备 <strong>三麦克风系统</strong>，提供 <strong>超低延迟</strong> 的音频体验，支持 <strong>双设备智能切换</strong>，单次充电可提供 <strong>长达 4 小时</strong> 的续航时间（开启降噪），配合充电盒使用续航可达 <strong>20 小时</strong>，支持 <strong>无线充电</strong> 和 <strong>快充</strong> 功能，配备 <strong>手势控制</strong> 功能，耳机外形设计符合人体工学，佩戴舒适。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：打开充电盒，耳机会自动开机并进入配对模式；<br>2. 连接：通过手机的蓝牙设置找到 FreeBuds Pro，点击连接即可；<br>3. 操作：通过耳机杆上的触控面板可以播放/暂停音乐、接听/挂断电话、调节音量和切换降噪模式；<br>4. 充电：将耳机放回充电盒，使用 USB-C 数据线或无线充电器为充电盒充电；<br>5. 切换设备：通过双击耳机杆实现设备之间的快速切换；<br>6. 关闭：耳机放回充电盒并合上盒盖，耳机会自动关机。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁耳机和充电盒，避免耳垢和灰尘积聚，影响音质和充电效果；<br>2. 避免将耳机放置在极端高温或潮湿环境中，防止电子元件受损；<br>3. 不使用时，将耳机放回充电盒内，以防丢失和意外损坏；<br>4. 定期检查固件更新，以确保耳机的最佳性能和兼容性；<br>5. 充电时尽量使用原装数据线和适配器，避免使用非认证配件；<br>6. 如果长时间不使用，建议每隔一段时间为耳机和充电盒充电，避免电池过度放电。'},
+        { title: "飞利浦 Hue 灯泡", price: 399, location: "杭州", postedDate: "2024-08-05", imageUrl: "https://tse2-mm.cn.bing.net/th/id/OIP-C.6qG28BNUYSVo5KsK2pZzIgHaGr?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手飞利浦 Hue 灯泡具备 <strong>可调节色温和亮度</strong>，支持 <strong>16百万种颜色</strong> 选择，兼容 <strong>Amazon Alexa、Google Assistant 和 Apple HomeKit</strong>，提供 <strong>智能控制</strong> 功能，可通过手机应用进行远程控制，支持 <strong>定时开关</strong> 和 <strong>情景模式</strong>，灯泡功率 <strong>9W</strong>（相当于 60W 白炽灯），<strong>能效等级 A+</strong>，使用寿命可达 <strong>25,000 小时</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将 Hue 灯泡拧入标准灯座，确保灯泡正确安装；<br>2. 配对：下载并打开 Philips Hue 应用，按照应用提示完成灯泡配对；<br>3. 控制：通过应用、语音助手或 Hue 物理开关控制灯光的开关、亮度和颜色；<br>4. 定时：在应用中设置定时开关功能，根据需要调整灯光开启和关闭时间；<br>5. 更新：定期检查应用中的固件更新，确保灯泡的最新功能和兼容性；<br>6. 问题排查：如灯泡不亮，检查电源连接和灯座是否正确安装。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免灯泡暴露在潮湿环境中，以防电气部件受损；<br>2. 定期清洁灯泡外壳，用干布轻拭，避免使用含有化学成分的清洁剂；<br>3. 不使用时，请确保灯泡关闭电源，以延长使用寿命；<br>4. 避免灯泡频繁开关，以防影响灯泡寿命；<br>5. 确保灯泡与灯座兼容，避免使用不适配的灯座；<br>6. 定期检查灯泡的固件和应用更新，以保证最佳性能。'},
+        { title: "罗技 MX Master 3", price: 699, location: "成都", postedDate: "2024-08-06", imageUrl: "https://tse3-mm.cn.bing.net/th/id/OIP-C.dPeKUIC_CuXS1d-twvr_uwHaJ7?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "鼠标", condition: "99成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手罗技 MX Master 3 配备 <strong>高精度 4000 DPI 激光传感器</strong>，具备 <strong>可自定义的侧键</strong> 和 <strong>滚轮</strong>，支持 <strong>蓝牙 和 USB 接收器</strong> 双模连接，具有 <strong>高效能电池</strong>，单次充电可持续使用 <strong>70 天</strong>，支持 <strong>快速充电</strong>，兼容 <strong>Windows 和 macOS</strong> 系统，支持 <strong>多设备切换</strong>，可通过 <strong>Logitech Options 软件</strong> 自定义设置。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下鼠标底部的电源开关，启动鼠标；<br>2. 连接：通过蓝牙或 USB 接收器与电脑配对，蓝牙配对模式下长按蓝牙按钮进行配对；<br>3. 操作：使用主滚轮和侧滚轮进行滚动，按下侧键和主键进行操作，使用 Logitech Options 软件自定义功能；<br>4. 充电：使用附带的 USB-C 充电线连接鼠标进行充电，充电完成后可断开；<br>5. 切换设备：按下设备切换按钮，在已配对的设备之间切换；<br>6. 软件：下载并安装 Logitech Options 软件，进行高级自定义设置。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁鼠标表面，使用干布或微纤维布擦拭；<br>2. 避免鼠标接触液体或极端高温环境，以免损坏内部电子元件；<br>3. 定期检查电池电量，保持充足电量以确保最佳性能；<br>4. 使用时尽量在干燥、平整的表面上，以提高使用精度；<br>5. 充电时，使用原装 USB-C 充电线，避免使用非认证配件；<br>6. 避免鼠标在长时间不用时处于高温或潮湿环境中，以延长使用寿命。'},
+        { title: "戴尔 XPS 13", price: 9999, location: "武汉", postedDate: "2024-08-07", imageUrl: "https://ts1.cn.mm.bing.net/th/id/R-C.3a8728de65562994062d6e088fe92644?rik=rGemDmm9nswCAw&riu=http%3a%2f%2fimg.pconline.com.cn%2fimages%2fproduct%2f4972%2f497230%2fXPS13_1.jpg&ehk=cpdc3rfqTISEPUYJARBel85bSw%2b3mMmQO9UBakmKbak%3d&risl=&pid=ImgRaw&r=0", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "8成新", reason: "换新款", tradeMethod: "面交" , productDescription: '二手戴尔 XPS 13 配备 <strong>13.4 英寸 InfinityEdge 触控屏</strong>，分辨率高达 <strong>1920 x 1200 像素</strong>，搭载 <strong>第 11 代 Intel Core i5/i7 处理器</strong>，提供 <strong>8GB/16GB 内存</strong> 和 <strong>256GB/512GB/1TB SSD 存储</strong>，内置 <strong>Intel Iris Xe 显卡</strong>，配有 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.1</strong>，具备 <strong>USB-C 端口</strong> 和 <strong>Thunderbolt 4</strong> 支持，电池续航可达 <strong>12 小时</strong>，重量约 <strong>1.2 公斤</strong>，机身采用铝合金材质，设计轻薄便携。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮，启动笔记本；<br>2. 连接：通过 Wi-Fi 或有线网络连接互联网，配对蓝牙设备；<br>3. 操作：使用触控板或外接鼠标进行操作，使用触控屏进行触摸操作；<br>4. 充电：使用附带的 USB-C 充电器连接笔记本进行充电，充电完成后可断开；<br>5. 维护：定期清理键盘和屏幕，保持笔记本清洁；<br>6. 软件：确保操作系统和驱动程序保持最新，下载并安装戴尔更新工具以获取最新更新。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干燥的软布擦拭；<br>2. 避免将笔记本置于高温或潮湿环境中，防止过热或进水；<br>3. 避免在不平稳的表面上使用笔记本，以防止机身受损；<br>4. 定期备份重要数据，防止数据丢失；<br>5. 使用时，确保散热通风良好，避免长时间运行高负荷程序；<br>6. 遇到技术问题或硬件故障时，建议联系戴尔客服进行专业检查和维修。'},
+        { title: "HP Envy 13", price: 6999, location: "重庆", postedDate: "2024-08-08", imageUrl: "https://ts1.cn.mm.bing.net/th/id/R-C.ce4939220d993f5ec627d84515ebd3c8?rik=eKYOEhdZczrPMw&riu=http%3a%2f%2fimg.pconline.com.cn%2fimages%2fproduct%2f7316%2f731631%2f132_q.jpg&ehk=UrVC%2b2cWCblldu0IceMB3NsfDeE6Jk9DRHI6fVLkDEo%3d&risl=&pid=ImgRaw&r=0", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "7成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手 HP Envy 13 配备 <strong>13.3 英寸 FHD 或 4K 显示屏</strong>，搭载 <strong>第 11 代 Intel Core i5/i7 处理器</strong>，配有 <strong>8GB/16GB 内存</strong> 和 <strong>256GB/512GB/1TB SSD 存储</strong>，内置 <strong>Intel Iris Xe 显卡</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.0</strong>，具备 <strong>USB-C 端口</strong> 和 <strong>Thunderbolt 支持</strong>，电池续航可达 <strong>13 小时</strong>，机身采用轻薄铝合金设计，重量约 <strong>1.3 公斤</strong>，内置 <strong>指纹识别</strong> 和 <strong>背光键盘</strong>，适合日常办公和多媒体娱乐。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动笔记本；<br>2. 连接：通过 Wi-Fi 连接网络或通过蓝牙连接外设；<br>3. 操作：使用触控板或触控屏进行操作；<br>4. 充电：连接电源适配器进行充电，充满后可断开；<br>5. 功能：使用指纹识别快速解锁设备，使用 HP Command Center 优化性能；<br>6. 多媒体：通过 Bang & Olufsen 扬声器享受高品质音效。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用微纤维布擦拭；<br>2. 避免在极端温度下使用设备，保持环境适宜；<br>3. 定期检查并清理散热孔，确保散热良好；<br>4. 长时间不使用时，关闭电源并断开电源适配器；<br>5. 保持操作系统和驱动程序更新，定期备份重要数据；<br>6. 避免使用非认证配件，以延长设备使用寿命。'}
+    ],
+    2: [
+        { title: "苹果 MacBook Air", price: 8499, location: "青岛", postedDate: "2024-08-09", imageUrl: "https://img2.zol.com.cn/product/54/772/ce1oSbkAbCoJk.jpg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "8成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手苹果 MacBook Air 配备 <strong>13.3 英寸 Retina 显示屏</strong>，搭载 <strong>Apple M1 芯片</strong>，拥有 <strong>8GB/16GB 内存</strong> 和 <strong>256GB/512GB/1TB SSD 存储</strong>，内置 <strong>7 核/8 核 GPU</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.0</strong>，具备 <strong>2 个 Thunderbolt/USB 4 端口</strong>，电池续航时间可达 <strong>18 小时</strong>，重量仅 <strong>1.29 公斤</strong>，机身采用全铝合金设计，内置 <strong>Touch ID</strong>，适合办公、学习和多媒体娱乐。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮或打开屏幕自动启动；<br>2. 连接：通过 Wi-Fi 或蓝牙连接网络和外设；<br>3. 操作：使用触控板或外接鼠标键盘进行操作，使用 Touch ID 快速解锁；<br>4. 充电：使用附带的 USB-C 充电器连接设备进行充电；<br>5. 多媒体：通过内置扬声器或耳机享受高质量音频；<br>6. 软件：通过 Mac App Store 下载和安装应用程序，定期更新 macOS 系统。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的软布轻轻擦拭；<br>2. 避免在极端温度环境下使用设备，防止过热或受潮；<br>3. 保持散热孔通畅，定期清除灰尘；<br>4. 使用官方认证的充电器和配件，避免使用劣质产品；<br>5. 定期备份重要数据，确保数据安全；<br>6. 遇到问题或故障时，建议联系苹果官方售后服务。'},
+        { title: "华为 MateBook 14", price: 6499, location: "广州", postedDate: "2024-08-10", imageUrl: "https://x0.ifengimg.com/res/2021/0BA3F2E4CB1470B5B50BD4D732C3076E2BE858B8_size97_w1100_h825.jpeg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "9成新", reason: "急需用钱", tradeMethod: "面交" ,productDescription: '二手华为 MateBook 14 配备 <strong>14 英寸 2K 全面屏</strong>（2160 x 1440 像素），搭载 <strong>第 11 代 Intel Core i5/i7 处理器</strong>，内存 <strong>8GB/16GB</strong>，存储 <strong>512GB/1TB SSD</strong>，内置 <strong>Intel Iris Xe 显卡</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.1</strong>，具备 <strong>USB-C 端口</strong> 和 <strong>USB-A 端口</strong>，电池续航时间可达 <strong>11 小时</strong>，重量仅 <strong>1.49 公斤</strong>，支持 <strong>指纹识别</strong> 和 <strong>华为分享</strong>，适合办公、学习和多媒体娱乐。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动笔记本；<br>2. 连接：通过 Wi-Fi 或蓝牙连接网络和外设；<br>3. 操作：使用触控板或触控屏进行操作，使用指纹识别快速解锁设备；<br>4. 充电：通过 USB-C 端口连接电源适配器进行充电；<br>5. 华为分享：通过华为分享功能与手机无缝连接传输文件；<br>6. 多媒体：通过内置扬声器享受高质量音频，使用预装的多媒体软件进行编辑和播放。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用微纤维布擦拭；<br>2. 避免在高温或潮湿环境下使用设备，确保设备处于干燥环境中；<br>3. 定期检查散热孔，确保无堵塞，保证散热性能；<br>4. 使用官方配件进行充电和数据传输，避免使用劣质或不兼容的产品；<br>5. 定期备份重要数据，防止数据丢失；<br>6. 保持操作系统和软件的更新，确保设备运行稳定。'},
+        { title: "戴尔 G3 15", price: 7499, location: "北京", postedDate: "2024-08-11", imageUrl: "https://image.4long.cn/images/202005/goods_img/51379_P_1590132472395.jpg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手戴尔 G3 15 配备 <strong>15.6 英寸 FHD 显示屏</strong>（1920 x 1080 像素），搭载 <strong>第 10 代 Intel Core i5/i7 处理器</strong>，内存 <strong>8GB/16GB</strong>，存储 <strong>256GB/512GB/1TB SSD</strong>，内置 <strong>NVIDIA GeForce GTX 1650/1660Ti 独立显卡</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.1</strong>，具备 <strong>USB 3.2 端口</strong> 和 <strong>HDMI 2.0</strong>，电池续航时间可达 <strong>8 小时</strong>，重量约 <strong>2.34 公斤</strong>，搭载背光键盘，适合游戏、办公和多媒体娱乐。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动笔记本；<br>2. 连接：通过 Wi-Fi 或蓝牙连接网络和外设；<br>3. 操作：使用触控板或鼠标进行操作，使用键盘快捷键提高效率；<br>4. 充电：通过电源适配器连接笔记本进行充电；<br>5. 游戏：启动预装的游戏软件，调整显卡设置以获得最佳性能；<br>6. 多媒体：通过内置扬声器或耳机享受高质量音频，使用预装的软件进行视频编辑或播放。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕、键盘和散热孔，使用软布和压缩空气清洁；<br>2. 避免在高温或潮湿环境下使用设备，保持设备干燥；<br>3. 使用官方配件进行充电和数据传输，避免使用不兼容的产品；<br>4. 定期检查硬盘和内存，确保系统运行流畅；<br>5. 保持操作系统和显卡驱动的更新，确保设备性能稳定；<br>6. 遇到问题或故障时，建议联系戴尔官方售后服务。'},
+        { title: "雷蛇 Blade 15", price: 12999, location: "上海", postedDate: "2024-08-12", imageUrl: "https://www.ycxtz.cn/wp-content/uploads/2022/12/2022122011170661.png", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "95成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手雷蛇 Blade 15 配备 <strong>15.6 英寸 FHD/QHD 显示屏</strong>（1920 x 1080 / 2560 x 1440 像素，144Hz/240Hz 刷新率），搭载 <strong>第 10/11 代 Intel Core i7 处理器</strong>，内存 <strong>16GB/32GB</strong>，存储 <strong>512GB/1TB SSD</strong>，内置 <strong>NVIDIA GeForce RTX 2060/3070/3080 独立显卡</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.1</strong>，具备 <strong>USB-C</strong>、<strong>USB-A</strong> 和 <strong>HDMI 端口</strong>，电池续航时间可达 <strong>6 小时</strong>，重量约 <strong>2.1 公斤</strong>，搭载 <strong>Chroma RGB 背光键盘</strong>，适合高端游戏和多媒体制作。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动笔记本；<br>2. 连接：通过 Wi-Fi 或蓝牙连接网络和外设；<br>3. 操作：使用触控板或鼠标进行操作，利用背光键盘在弱光环境下操作；<br>4. 充电：通过 USB-C 或电源适配器连接笔记本进行充电；<br>5. 游戏：启动预装的游戏软件，调整显卡和刷新率设置以获得最佳性能；<br>6. 多媒体：通过内置扬声器或耳机享受高质量音频，使用预装的软件进行视频编辑或播放。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕、键盘和散热孔，使用微纤维布和压缩空气清洁；<br>2. 避免在高温或潮湿环境下使用设备，确保设备处于干燥环境中；<br>3. 使用官方配件进行充电和数据传输，避免使用不兼容的产品；<br>4. 定期检查散热系统，确保散热效果良好；<br>5. 保持操作系统和显卡驱动的更新，确保设备性能稳定；<br>6. 如遇到故障或问题，建议联系雷蛇官方售后服务。'},
+        { title: "联想拯救者 Y7000", price: 8999, location: "天津", postedDate: "2024-08-13", imageUrl: "https://zol-fd.zol-img.com.cn/g2/M00/01/05/ChMlWVzcywuIfxJKAALbcRX7uzcAAJ_GAIiiiQAAtuJ223.jpg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "8成新", reason: "急需用钱", tradeMethod: "面交" ,productDescription: '二手联想拯救者 Y7000 配备 <strong>15.6 英寸 FHD 显示屏</strong>（1920 x 1080 像素，144Hz 刷新率），搭载 <strong>第 9/10 代 Intel Core i5/i7 处理器</strong>，内存 <strong>8GB/16GB</strong>，存储 <strong>512GB/1TB SSD</strong>，内置 <strong>NVIDIA GeForce GTX 1650/1660 Ti 独立显卡</strong>，支持 <strong>Wi-Fi 6</strong> 和 <strong>蓝牙 5.0</strong>，具备 <strong>USB 3.1</strong>、<strong>HDMI</strong> 和 <strong>以太网端口</strong>，电池续航时间可达 <strong>5 小时</strong>，重量约 <strong>2.3 公斤</strong>，搭载 <strong>白色背光键盘</strong>，适合游戏和多任务处理。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动笔记本；<br>2. 连接：通过 Wi-Fi 或蓝牙连接网络和外设；<br>3. 操作：使用触控板或鼠标进行操作，利用背光键盘在弱光环境下操作；<br>4. 充电：通过电源适配器连接笔记本进行充电；<br>5. 游戏：启动预装的游戏软件，调整显卡和刷新率设置以获得最佳性能；<br>6. 多媒体：通过内置扬声器或耳机享受高质量音频，使用预装的软件进行视频编辑或播放。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕、键盘和散热孔，使用微纤维布和压缩空气清洁；<br>2. 避免在高温或潮湿环境下使用设备，确保设备处于干燥环境中；<br>3. 使用官方配件进行充电和数据传输，避免使用不兼容的产品；<br>4. 定期检查散热系统，确保散热效果良好；<br>5. 保持操作系统和显卡驱动的更新，确保设备性能稳定；<br>6. 如遇到故障或问题，建议联系联想官方售后服务。'},
+        { title: "苹果 iPad Pro 11", price: 5499, location: "北京", postedDate: "2024-08-14", imageUrl: "https://tse4-mm.cn.bing.net/th/id/OIP-C.V29ZqYuG83h1sLKMACwEfgHaHa?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "平板电脑", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手苹果 iPad Pro 11 配备 <strong>11 英寸 Liquid Retina 显示屏</strong>（2388 x 1668 像素，ProMotion 技术），搭载 <strong>M1 芯片</strong>，存储选项包括 <strong>128GB/256GB/512GB/1TB/2TB</strong>，后置 <strong>12MP 广角摄像头</strong>和 <strong>10MP 超广角摄像头</strong>，支持 <strong>4K 视频录制</strong>，前置 <strong>12MP 超广角摄像头</strong>，具备 <strong>Face ID</strong>、<strong>USB-C 接口</strong>，支持 <strong>Apple Pencil 第二代</strong> 和 <strong>Magic Keyboard</strong>，电池续航时间最长可达 <strong>10 小时</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按顶部电源按钮，直到苹果标志出现；<br>2. 设置：选择语言和地区，连接 Wi-Fi 网络，登录或创建 Apple ID；<br>3. 应用：在主屏幕上点击应用图标启动应用，使用 App Store 下载新应用；<br>4. 拍照：使用相机应用拍摄照片或录制视频，前后摄像头切换；<br>5. Face ID：设置 Face ID 进行解锁和支付；<br>6. 连接：通过 USB-C 端口连接外设或充电，支持快速充电和数据传输。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免长时间暴露在高温或低温环境中，理想温度范围为 0°C 至 35°C；<br>2. 使用柔软的无绒布清洁屏幕和机身，避免使用含有化学物质的清洁剂；<br>3. 保护屏幕：建议使用屏幕保护膜和保护壳，以防刮擦和跌落；<br>4. 定期检查系统更新，确保设备的最佳性能和安全性；<br>5. 使用原装配件进行充电和连接，避免使用第三方不兼容的产品；<br>6. 如果设备出现故障或异常，建议联系苹果官方售后服务。'},
+        { title: "三星 Galaxy Tab S7", price: 3999, location: "深圳", postedDate: "2024-08-15", imageUrl: "https://ts1.cn.mm.bing.net/th/id/R-C.b3e8c45cf42feefd4da2d77584c3254c?rik=vpxGDPLP8qJAHg&riu=http%3a%2f%2fimg.leikeji.com%2fresource%2fimg%2fe8d14e1ea81c48cea6ba72c1f239aa08.jpg%400-0-2999-1799a&ehk=rhs2KTsvkB8AVc1bRH1uzq5QakPlIsH86P6Jto7z%2fvM%3d&risl=&pid=ImgRaw&r=0", detailsUrl: "./product-details.html", category: "平板电脑", condition: "95成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手三星 Galaxy Tab S7 配备 <strong>11 英寸 TFT 显示屏</strong>（2560 x 1600 像素，120Hz 刷新率），搭载 <strong>高通骁龙 865+ 处理器</strong>，存储选项包括 <strong>128GB/256GB/512GB</strong>，后置 <strong>13MP 主摄像头</strong>和 <strong>5MP 超广角摄像头</strong>，支持 <strong>4K 视频录制</strong>，前置 <strong>8MP 摄像头</strong>，支持 <strong>S Pen 手写笔</strong> 和 <strong>DeX 模式</strong>，电池容量为 <strong>8000mAh</strong>，最长可达 <strong>15 小时视频播放</strong>，支持 <strong>45W 快速充电</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源键直到三星标志出现；<br>2. 设置：连接 Wi-Fi，登录三星账户，选择语言和地区；<br>3. S Pen：将 S Pen 靠近屏幕以进行书写或操作，长按 S Pen 按钮以启动快捷操作；<br>4. DeX 模式：连接键盘或显示器以激活 DeX 模式，获得类似 PC 的操作体验；<br>5. 应用下载：访问 Google Play 商店，搜索并下载所需应用；<br>6. 相机：使用相机应用拍摄照片或视频，切换拍摄模式以获得最佳效果。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将设备置于极端温度下，推荐温度范围为 0°C 至 35°C；<br>2. 使用柔软的布清洁屏幕和设备外壳，避免使用含有酒精或其他化学成分的清洁剂；<br>3. 定期更新操作系统和应用程序，确保设备运行流畅；<br>4. 建议使用保护壳和屏幕保护膜，减少意外跌落或刮擦带来的损坏；<br>5. 使用原装充电器和配件进行充电，避免使用劣质第三方产品；<br>6. 如果设备出现问题，请联系三星官方售后服务或授权维修中心进行处理。'},
+        { title: "华为 MatePad Pro", price: 3299, location: "广州", postedDate: "2024-08-16", imageUrl: "https://www.wanwupai.com/upload/jdimgs/20210616/f8010aab1eaf7056e5d3089860715573.png", detailsUrl: "./product-details.html", category: "平板电脑", condition: "8成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手华为 MatePad Pro 配备 <strong>10.8 英寸 LCD 显示屏</strong>（2560 x 1600 像素，540nits 亮度），搭载 <strong>麒麟 990 处理器</strong>，存储选项包括 <strong>128GB/256GB</strong>，支持 <strong>扩展存储</strong>，后置 <strong>13MP 摄像头</strong>，前置 <strong>8MP 摄像头</strong>，内置 <strong>7250mAh 电池</strong>，支持 <strong>40W 快速充电</strong>和 <strong>27W 无线充电</strong>，支持 <strong>M-Pencil 手写笔</strong> 和 <strong>华为键盘</strong>，搭载 <strong>EMUI</strong> 系统，支持多屏协同和分屏操作。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源键直到华为标志出现；<br>2. 设置：选择语言、连接 Wi-Fi，登录华为账号，进行系统设置；<br>3. M-Pencil 使用：将手写笔靠近屏幕进行书写或绘画，支持多点触控；<br>4. 应用下载：访问华为应用市场，搜索并下载所需应用；<br>5. 多屏协同：通过 NFC 或扫描二维码实现设备与电脑或手机的多屏协同操作；<br>6. 相机：打开相机应用进行拍照或录像，可选择多种拍摄模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将设备暴露在极端温度或潮湿环境中；<br>2. 定期使用干燥的软布清洁屏幕和机身，避免使用含有化学成分的清洁剂；<br>3. 使用设备时，建议配备保护壳和屏幕保护膜，防止意外损坏；<br>4. 定期检查系统更新，保持系统和应用程序的最新版本；<br>5. 使用原装充电器和数据线进行充电，避免使用劣质配件；<br>6. 如果设备出现问题，请联系华为官方售后或授权维修点进行专业维修。'},
+        { title: "索尼 PS5", price: 3899, location: "上海", postedDate: "2024-08-17", imageUrl: "https://tse2-mm.cn.bing.net/th/id/OIP-C.PlsgqgMhiX2CLFpb9F1twgHaHa?rs=1&pid=ImgDetMain", detailsUrl: "./product-details.html", category: "游戏机", condition: "99成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手索尼 PS5 配备 <strong>自定义 AMD Ryzen Zen 2 处理器</strong> 和 <strong>RDNA 2 GPU</strong>，支持 <strong>4K 分辨率</strong> 和 <strong>120Hz 刷新率</strong>，内置 <strong>825GB SSD</strong>，可扩展存储，支持 <strong>光线追踪</strong> 技术，兼容 <strong>PS4 游戏</strong>，内置 <strong>蓝光光驱</strong>，支持 <strong>DualSense 无线手柄</strong>，拥有 <strong>3D 音效</strong>，支持 <strong>PlayStation Plus</strong> 服务。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按主机电源键或使用手柄开机按钮；<br>2. 设置：连接电视或显示器，通过 HDMI 线连接，进入设置界面，选择语言和网络配置；<br>3. 游戏安装：从 PlayStation Store 购买并下载游戏，或插入光盘进行安装；<br>4. 手柄连接：通过 USB-C 线缆连接手柄，首次使用时需进行手柄配对；<br>5. 游戏启动：选择主菜单中的游戏图标开始游戏；<br>6. 系统更新：定期检查并安装最新的系统更新，确保最佳性能。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 保持主机和手柄的清洁，避免灰尘堆积，建议使用软布定期擦拭；<br>2. 确保主机周围有足够的通风空间，避免过热；<br>3. 不要将主机放置在高温、潮湿或阳光直射的地方；<br>4. 使用原装配件，包括电源线和手柄，避免使用非官方产品；<br>5. 长时间不使用时，建议断开电源；<br>6. 如果主机出现问题，请联系索尼官方售后服务或授权维修点。'},
+        { title: "任天堂 Switch", price: 2499, location: "重庆", postedDate: "2024-08-18", imageUrl: "https://files.nowre.com/articles/2020/09/hads-001-imgefnyb-f1.original1-scaled.jpg", detailsUrl: "./product-details.html", category: "游戏机", condition: "8成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手任天堂 Switch 配备 <strong>6.2 英寸 LCD 屏幕</strong>（1280 x 720 像素），搭载 <strong>自定义 NVIDIA Tegra 处理器</strong>，存储选项为 <strong>32GB 内部存储</strong>，支持 <strong>microSD 扩展存储</strong>，具有 <strong>可拆卸 Joy-Con 手柄</strong>，支持 <strong>多人游戏模式</strong>，提供 <strong>桌面模式</strong>、<strong>手持模式</strong>和 <strong>电视模式</strong>，内置 <strong>Wi-Fi</strong> 和 <strong>蓝牙</strong>，支持 <strong>Nintendo eShop</strong> 下载和在线游戏。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按主机顶部电源键直到任天堂标志出现；<br>2. 设置：选择语言和区域，连接 Wi-Fi 网络，登录或创建任天堂账户；<br>3. Joy-Con 配对：将 Joy-Con 手柄滑入主机侧边，自动配对；<br>4. 游戏安装：从 Nintendo eShop 下载游戏或插入游戏卡；<br>5. 模式切换：在桌面模式下将主机放置在支架上，在手持模式下直接持机游玩；<br>6. 系统更新：定期检查并安装最新的系统更新。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将主机放置在极端温度或潮湿环境中；<br>2. 使用干燥的软布定期清洁屏幕和主机，避免使用化学清洁剂；<br>3. 避免将主机和手柄直接暴露在阳光下或高温环境中；<br>4. 在不使用时，建议将 Joy-Con 手柄从主机上拆下，防止意外损坏；<br>5. 定期检查和清理游戏卡插槽和充电端口；<br>6. 使用原装配件进行充电和连接，避免使用非官方配件；<br>7. 如遇故障，请联系任天堂官方客服或授权维修点处理。'}
+    ],
+    3: [
+        { title: "微软 Xbox Series X", price: 4999, location: "杭州", postedDate: "2024-08-19", imageUrl: "https://i5.walmartimages.com/asr/646674db-b121-4d78-81ba-0cb3393bde17_1.44a4cabc7c0be3f5a4926abddf21428e.jpeg?odnWidth=1000&odnHeight=1000&odnBg=ffffff", category: "游戏机", condition: "9成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手微软 Xbox Series X 配备 <strong>自定义 AMD Zen 2 处理器</strong> 和 <strong>RDNA 2 GPU</strong>，支持 <strong>4K 分辨率</strong> 和 <strong>120Hz 刷新率</strong>，内置 <strong>1TB NVMe SSD</strong>，支持 <strong>快速加载</strong> 和 <strong>高动态范围 (HDR)</strong>，兼容 <strong>Xbox One 游戏</strong>，支持 <strong>光线追踪</strong> 和 <strong>120fps</strong> 游戏体验，提供 <strong>蓝光光驱</strong>，配备 <strong>无线控制器</strong>，支持 <strong>Xbox Game Pass</strong> 服务。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下主机前面板上的电源按钮；<br>2. 设置：连接电视或显示器，通过 HDMI 线连接，按照屏幕上的指导完成网络和账户设置；<br>3. 游戏安装：从 Xbox Store 购买并下载游戏，或插入游戏光盘；<br>4. 控制器配对：使用主机上的配对按钮，将控制器与主机配对；<br>5. 游戏启动：从主界面选择游戏图标开始游戏；<br>6. 系统更新：定期检查并安装最新系统更新，确保最佳性能。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 保持主机通风良好，避免放置在高温或潮湿的环境中；<br>2. 定期使用干燥的软布清洁主机和控制器，避免使用化学清洁剂；<br>3. 不要将主机放置在阳光直射的地方或高温环境中；<br>4. 使用原装电源线和配件，避免使用非官方产品；<br>5. 长时间不使用时，建议断开电源；<br>6. 如遇故障，请联系微软官方客服或授权维修点进行处理。'},
+        { title: "小米空气净化器", price: 799, location: "武汉", postedDate: "2024-08-20", imageUrl: "https://ecmb.bdimg.com/tam-ogel/-706813429_-1746411667_360_212.jpg", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "不再使用", tradeMethod: "面交" ,productDescription: '二手小米空气净化器配备 <strong>高效 HEPA 滤网</strong>，支持 <strong>多层过滤</strong>，能有效去除 <strong>99.97%</strong> 的细小颗粒物（<strong>PM2.5</strong>）、<strong>甲醛</strong> 和 <strong>异味</strong>，拥有 <strong>360° 进风设计</strong>，支持 <strong>APP 控制</strong> 和 <strong>智能调节</strong>，具有 <strong>睡眠模式</strong> 和 <strong>定时功能</strong>，适用于 <strong>20-40 平方米</strong> 的房间。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：将电源插头插入插座，按下主机上的电源按钮；<br>2. 设置：通过小米 Home APP 配对设备，设置网络连接和工作模式；<br>3. 选择模式：在 APP 或主机上选择自动、睡眠或自定义模式；<br>4. 更换滤网：定期检查滤网状态，根据提示更换滤网；<br>5. 清洁：使用干净的软布擦拭机身，避免使用水或化学清洁剂。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期检查和更换滤网，保持空气净化效果；<br>2. 保持设备干燥，避免将主机放置在潮湿环境中；<br>3. 使用干净的软布定期清洁设备外壳，避免灰尘堆积；<br>4. 不要将设备暴露在直射阳光下或高温环境中；<br>5. 避免设备接触液体，若不小心溅入水中，请立即断电并联系维修服务；<br>6. 长时间不使用时，建议断开电源。'},
+        { title: "飞利浦 电动牙刷", price: 599, location: "北京", postedDate: "2024-08-21", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fbao%2Fuploaded%2FO1CN01zduaW81mcbA0Snw0G_%21%216000000004975-0-yinhe.jpg_800x800q90.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726019416&t=4364674d19f5ef2bbcbb701c670989ee", detailsUrl: "./product-details.html", category: "家居", condition: "95成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手飞利浦电动牙刷配备 <strong>声波震动技术</strong>，可提供高达 <strong>31,000 次每分钟的刷牙振动</strong>，内置 <strong>智能计时器</strong> 和 <strong>压力感应功能</strong>，支持 <strong>多种刷牙模式</strong>（如深层清洁、牙龈护理），拥有 <strong>长效电池</strong>，充电一次可使用约 <strong>2 周</strong>，配备 <strong>刷头更换提醒</strong> 和 <strong>防滑手柄</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮启动电动牙刷；<br>2. 选择模式：按模式选择按钮选择所需的刷牙模式；<br>3. 刷牙：将牙刷头放置在牙齿上，轻轻移动牙刷，确保覆盖所有牙齿区域；<br>4. 关闭：刷牙完成后，长按电源按钮关闭牙刷；<br>5. 清洁：使用清水冲洗牙刷头，保持干燥。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期更换刷头，以确保刷牙效果；<br>2. 每次使用后，用清水冲洗刷头，并擦干；<br>3. 避免将牙刷浸泡在水中，保持电池干燥；<br>4. 避免将牙刷放在潮湿或高温环境中；<br>5. 使用原装充电器进行充电，避免使用非官方配件；<br>6. 定期清洁手柄，避免积聚污垢。'},
+        { title: "米家扫地机器人", price: 1599, location: "深圳", postedDate: "2024-08-22", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fi4%2F3002204399%2FO1CN01yN998p1iMmtK0oIYl_%21%213002204399.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726019458&t=e3e8716b76eecf4ea2dc0526e4611978", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手米家扫地机器人配备 <strong>高效激光雷达导航</strong> 和 <strong>智能路径规划</strong>，具有 <strong>2500Pa 强力吸尘</strong>，支持 <strong>多种清洁模式</strong>（如自动、定点、边角），内置 <strong>5200mAh 大容量电池</strong>，支持 <strong>智能家居控制</strong> 和 <strong>APP 操作</strong>，可进行 <strong>自动回充</strong> 和 <strong>清洁区域设定</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下主机上的电源按钮启动扫地机器人；<br>2. 设置：通过米家 APP 进行设备配对和设置，选择清洁模式；<br>3. 清洁：将扫地机器人放置在房间中央，按下开始清扫按钮或在 APP 上启动清扫；<br>4. 自动回充：当电量低时，机器人会自动返回充电座充电；<br>5. 定期检查：定期检查和清理主刷和边刷。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清理主刷和边刷上的灰尘和杂物；<br>2. 定期清理尘盒，避免过满影响吸尘效果；<br>3. 确保充电座与扫地机器人接触良好，保持充电座清洁；<br>4. 避免将设备放置在潮湿或高温环境中；<br>5. 使用原装充电器进行充电，避免使用非官方配件；<br>6. 如遇故障，请联系小米客服或授权维修点进行处理。'},
+        { title: "索尼 4K 高清电视", price: 5999, location: "南京", postedDate: "2024-08-23", imageUrl: "https://img0.baidu.com/it/u=1239358235,1163621962&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手索尼 4K 高清电视配备 <strong>4K Ultra HD 分辨率</strong>（3840 x 2160 像素），搭载 <strong>TRILUMINOS™ 技术</strong>，提供 <strong>精准色彩</strong> 和 <strong>增强对比度</strong>，支持 <strong>HDR10</strong> 和 <strong>Dolby Vision</strong>，内置 <strong>智能电视系统</strong>，支持 <strong>互联网应用</strong> 和 <strong>语音控制</strong>，配备 <strong>高质量扬声器</strong>，具备 <strong>多种输入端口</strong>（HDMI、USB）。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电视遥控器上的电源按钮，或直接按下电视上的电源按钮；<br>2. 设置：按照屏幕上的指示完成初始设置，包括连接 Wi-Fi 网络和登录账户；<br>3. 输入源切换：使用遥控器上的输入源按钮选择不同的设备输入；<br>4. 调整设置：通过电视菜单调整显示、音效和网络设置；<br>5. 连接应用：下载并安装所需的应用程序，访问互联网内容。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用干净的软布擦拭电视屏幕，避免使用化学清洁剂；<br>2. 确保电视放置在通风良好的地方，避免高温和潮湿环境；<br>3. 定期检查电视的连接端口和电缆，保持连接稳定；<br>4. 避免长时间静态显示同一画面，以防止烧屏现象；<br>5. 远离强磁场和辐射源，避免影响电视性能；<br>6. 如遇故障，请联系索尼客服或授权维修点进行处理。'},
+        { title: "小米米家空气炸锅", price: 699, location: "广州", postedDate: "2024-08-24", imageUrl: "https://img2.baidu.com/it/u=3260047525,2319138696&fm=253&fmt=auto&app=138&f=JPEG?w=427&h=427", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手小米米家空气炸锅配备 <strong>360° 热风循环技术</strong>，支持 <strong>快速均匀加热</strong>，最大容量 <strong>3.5 升</strong>，具有 <strong>7 种预设模式</strong>（如炸薯条、烤鸡翅、烤蛋糕），内置 <strong>智能温控系统</strong>，可调节温度范围为 <strong>80°C 至 200°C</strong>，支持 <strong>APP 控制</strong> 和 <strong>定时功能</strong>，方便操作和管理烹饪过程。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：将电源插头插入插座，按下电源按钮启动空气炸锅；<br>2. 设置：通过触摸屏或米家 APP 选择预设模式或自定义温度和时间；<br>3. 烹饪：将食材放入炸篮中，选择适当的模式或调整参数开始烹饪；<br>4. 中途检查：可以在烹饪过程中打开炸篮检查食材状态；<br>5. 关闭：烹饪完成后，按下电源按钮关闭空气炸锅，并取出炸篮。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 使用后，等待炸锅冷却后，用湿布擦拭炸篮和内部，避免使用化学清洁剂；<br>2. 定期清洁炸篮和内胆，以防积油和异味；<br>3. 避免将空气炸锅浸泡在水中，保持电器部分干燥；<br>4. 不要使用金属刷或尖锐工具清洁，以免刮伤表面；<br>5. 保持空气炸锅放置在通风良好的地方，避免高温和潮湿环境；<br>6. 如遇故障，请联系小米客服或授权维修点进行处理。'},
+        { title: "飞利浦 无线吸尘器", price: 1299, location: "武汉", postedDate: "2024-08-25", imageUrl: "https://imgservice.suning.cn/uimg1/b2c/image/dMCFstDncyCzPpyvAHlU0Q.jpg_800w_800h_4e", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手飞利浦无线吸尘器配备 <strong>高效无绳设计</strong>，支持 <strong>强力吸尘</strong>，内置 <strong>2200mAh 高容量锂电池</strong>，最大运行时间约 <strong>60 分钟</strong>，具备 <strong>多种吸尘模式</strong>（如强力模式、节能模式），配有 <strong>多功能吸头</strong> 和 <strong>灵活转动的设计</strong>，方便清洁地毯、硬地板和缝隙。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动无线吸尘器；<br>2. 选择模式：根据清洁需求选择适当的吸尘模式；<br>3. 清洁：将吸尘器吸头对准清洁区域，缓慢移动以进行吸尘；<br>4. 更换吸头：根据需要更换不同的吸头，以适应不同的清洁任务；<br>5. 关闭：完成清洁后，按下电源按钮关闭吸尘器，放置于充电座上充电。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清理吸尘器的过滤器和尘盒，保持吸力；<br>2. 使用后，用干净的布擦拭吸尘器外壳和吸头，避免使用化学清洁剂；<br>3. 确保电池充满电后再使用，避免电池长时间处于低电状态；<br>4. 避免将吸尘器放置在潮湿或高温环境中；<br>5. 定期检查和清洁吸头，以防堵塞；<br>6. 如遇故障，请联系飞利浦客服或授权维修点进行处理。'},
+        { title: "小米扫地机器人", price: 1399, location: "深圳", postedDate: "2024-08-26", imageUrl: "https://img2.baidu.com/it/u=90433856,3402197252&fm=253&fmt=auto&app=138&f=JPEG?w=637&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手小米扫地机器人配备 <strong>高效激光雷达导航</strong> 和 <strong>智能路径规划</strong>，具有 <strong>2500Pa 强力吸尘</strong>，最大清洁面积 <strong>250 平方米</strong>，支持 <strong>多种清洁模式</strong>（如自动清扫、区域清扫），内置 <strong>5200mAh 大容量电池</strong>，支持 <strong>智能家居控制</strong> 和 <strong>APP 操作</strong>，具备 <strong>自动回充</strong> 和 <strong>虚拟墙功能</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下扫地机器人上的电源按钮，或通过米家 APP 启动；<br>2. 设置：使用米家 APP 进行设备配对和设置，选择清洁模式；<br>3. 清扫：将扫地机器人放置在房间中央，按下开始清扫按钮或在 APP 上启动清扫；<br>4. 自动回充：当电量低时，机器人会自动返回充电座充电；<br>5. 定期检查：定期清理主刷和边刷，确保正常工作。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清理主刷和边刷上的灰尘和杂物；<br>2. 清空尘盒，避免过满影响吸尘效果；<br>3. 保持充电座清洁，确保良好接触；<br>4. 避免将机器人放置在潮湿环境中；<br>5. 使用原装充电器充电，避免使用非认证配件；<br>6. 如遇故障，请联系小米客服或授权维修点进行处理。'},
+        { title: "美的 空气炸锅", price: 699, location: "杭州", postedDate: "2024-08-27", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fimgextra%2Fi4%2F3564917763%2FO1CN011CTJHN27DVOmwRgQN_%21%213564917763.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726019658&t=891257da6cb80aecb28facd765167080", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手美的空气炸锅配备 <strong>高效热风循环系统</strong>，支持 <strong>快速均匀加热</strong>，最大容量 <strong>4.5 升</strong>，具有 <strong>8 种预设模式</strong>（如炸薯条、烤鸡翅、烤鱼），内置 <strong>智能温控系统</strong>，可调节温度范围为 <strong>80°C 至 200°C</strong>，配有 <strong>数字触控屏</strong> 和 <strong>定时功能</strong>，方便操作和管理烹饪过程。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：将电源插头插入插座，按下电源按钮启动空气炸锅；<br>2. 设置：通过触控屏选择预设模式或自定义温度和时间；<br>3. 烹饪：将食材放入炸篮中，选择适当的模式或调整参数开始烹饪；<br>4. 中途检查：可以在烹饪过程中打开炸篮检查食材状态；<br>5. 关闭：烹饪完成后，按下电源按钮关闭空气炸锅，并取出炸篮。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 使用后，等待炸锅冷却后，用湿布擦拭炸篮和内部，避免使用化学清洁剂；<br>2. 定期清洁炸篮和内胆，以防积油和异味；<br>3. 避免将空气炸锅浸泡在水中，保持电器部分干燥；<br>4. 不要使用金属刷或尖锐工具清洁，以免刮伤表面；<br>5. 保持空气炸锅放置在通风良好的地方，避免高温和潮湿环境；<br>6. 如遇故障，请联系美的客服或授权维修点进行处理。'},
+        { title: "三星 55寸 4K电视", price: 3999, location: "北京", postedDate: "2024-08-28", imageUrl: "https://imgservice.suning.cn/uimg1/b2c/image/9dG5eZBPhXRHGNqclY85Gg.jpg_800w_800h_4e", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手三星 55寸 4K电视配备 <strong>55 英寸超高清 4K 显示屏</strong>（3840 x 2160 像素），支持 <strong>HDR 高动态范围技术</strong>，提供 <strong>丰富的色彩和对比度</strong>，内置 <strong>智能电视功能</strong>，支持 <strong>多种流媒体应用</strong>（如 Netflix、YouTube），具备 <strong>智能语音控制</strong> 和 <strong>多种连接接口</strong>（如 HDMI、USB）。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电视机或遥控器上的电源按钮启动电视；<br>2. 设置：按遥控器上的“菜单”按钮进入设置界面，根据提示完成初始设置；<br>3. 连接：使用 HDMI 或 USB 接口连接其他设备，或者通过 Wi-Fi 连接互联网；<br>4. 观看：选择所需的频道或应用进行观看；<br>5. 关闭：按下电源按钮关闭电视，长时间不使用时建议拔掉电源插头。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用干净的软布擦拭屏幕和机身，避免使用含有化学成分的清洁剂；<br>2. 确保电视机放置在通风良好的地方，避免高温和潮湿环境；<br>3. 不要让电视机长时间暴露在阳光直射下，以免影响显示效果；<br>4. 定期检查电视机的连接线和接口，确保没有松动或损坏；<br>5. 使用时避免剧烈震动，确保电视机稳固放置；<br>6. 如遇故障，请联系三星客服或授权维修点进行处理。'}
+    ],
+    4: [
+        { title: "索尼 A7 III 单反相机", price: 12999, location: "北京", postedDate: "2024-08-29", imageUrl: "https://img2.baidu.com/it/u=1379917220,402492630&fm=253&fmt=auto&app=138&f=JPEG?w=699&h=500", detailsUrl: "./product-details.html", category: "相机", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手索尼 A7 III 单反相机配备 <strong>全画幅 24.2MP Exmor R CMOS 传感器</strong>，搭载 <strong>BIONZ X 影像处理器</strong>，具备 <strong>693 点相位检测自动对焦</strong> 和 <strong>425 点对比度检测对焦</strong>，支持 <strong>4K 视频录制</strong> 和 <strong>高速连拍（最高 10 帧/秒）</strong>，内置 <strong>5 轴图像防抖</strong>，配有 <strong>3 英寸 144 万像素液晶屏</strong> 和 <strong>369 万像素电子取景器</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：打开相机开关，确保电池已充满电；<br>2. 设置：根据需要调整拍摄模式、曝光设置和对焦模式；<br>3. 拍摄：通过电子取景器或液晶屏进行取景，按下快门按钮拍摄；<br>4. 视频录制：选择视频模式，按下录制按钮开始拍摄；<br>5. 关机：拍摄完毕后，关闭相机电源，并取出存储卡以备份照片。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，避免灰尘和污垢影响拍摄效果；<br>2. 使用干净的软布擦拭相机外壳，避免使用化学清洁剂；<br>3. 妥善存放相机，避免暴露在潮湿或高温环境中；<br>4. 确保相机电池充满电并定期充电，避免电池长时间放置；<br>5. 使用相机包或保护壳，防止磕碰和划伤；<br>6. 如遇故障，请联系索尼客服或授权维修点进行处理。'},
+        { title: "佳能 EOS 90D 单反相机", price: 8999, location: "上海", postedDate: "2024-08-30", imageUrl: "https://pro-fd.zol-img.com.cn/g1/M08/00/0E/ChMljV2mhGOIDFVsAARTZEMgwqQAAP_TABy0KkABFN8404.jpg", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "急需用钱", tradeMethod: "快递" ,productDescription: '二手佳能 EOS 90D 单反相机配备 <strong>全画幅 32.5MP CMOS 传感器</strong>，搭载 <strong>DIGIC 8 影像处理器</strong>，具备 <strong>45 点十字型自动对焦系统</strong>，支持 <strong>4K 视频录制</strong> 和 <strong>高速连拍（最高 10 帧/秒）</strong>，内置 <strong>5 轴图像防抖</strong>，配有 <strong>3 英寸 104 万像素液晶触摸屏</strong> 和 <strong>236 万像素电子取景器</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：打开相机开关，确保电池已充满电；<br>2. 设置：根据需要调整拍摄模式、曝光设置和对焦模式；<br>3. 拍摄：通过电子取景器或液晶屏进行取景，按下快门按钮拍摄；<br>4. 视频录制：选择视频模式，按下录制按钮开始拍摄；<br>5. 关机：拍摄完毕后，关闭相机电源，并取出存储卡以备份照片。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，避免灰尘和污垢影响拍摄效果；<br>2. 使用干净的软布擦拭相机外壳，避免使用化学清洁剂；<br>3. 妥善存放相机，避免暴露在潮湿或高温环境中；<br>4. 确保相机电池充满电并定期充电，避免电池长时间放置；<br>5. 使用相机包或保护壳，防止磕碰和划伤；<br>6. 如遇故障，请联系佳能客服或授权维修点进行处理。'},
+        { title: "尼康 Z6 全画幅相机", price: 11999, location: "广州", postedDate: "2024-08-31", imageUrl: "https://pic.rmb.bdstatic.com/a85c0ae30b63c07c2c7d17ded0c8abb5.jpeg", detailsUrl: "./product-details.html", category: "相机", condition: "9成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手尼康 Z6 全画幅相机配备 <strong>24.5MP FX-format BSI CMOS 传感器</strong>，搭载 <strong>EXPEED 6 影像处理器</strong>，具备 <strong>273 点相位检测自动对焦系统</strong>，支持 <strong>4K UHD 视频录制</strong> 和 <strong>连续拍摄（最高 12 帧/秒）</strong>，内置 <strong>5 轴机身防抖</strong>，配有 <strong>3.2 英寸 210 万像素液晶触摸屏</strong> 和 <strong>369 万像素电子取景器</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：打开相机开关，确保电池已充满电；<br>2. 设置：根据需要调整拍摄模式、曝光设置和对焦模式；<br>3. 拍摄：通过电子取景器或液晶屏进行取景，按下快门按钮拍摄；<br>4. 视频录制：选择视频模式，按下录制按钮开始拍摄；<br>5. 关机：拍摄完毕后，关闭相机电源，并取出存储卡以备份照片。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，避免灰尘和污垢影响拍摄效果；<br>2. 使用干净的软布擦拭相机外壳，避免使用化学清洁剂；<br>3. 妥善存放相机，避免暴露在潮湿或高温环境中；<br>4. 确保相机电池充满电并定期充电，避免电池长时间放置；<br>5. 使用相机包或保护壳，防止磕碰和划伤；<br>6. 如遇故障，请联系尼康客服或授权维修点进行处理。'},
+        { title: "富士 X-T4 无反相机", price: 10999, location: "深圳", postedDate: "2024-09-01", imageUrl: "https://img1.baidu.com/it/u=713563760,2191292900&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "相机", condition: "99成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手富士 X-T4 无反相机配备 <strong>26.1MP X-Trans CMOS 4 传感器</strong>，搭载 <strong>X-Processor 4 影像处理器</strong>，具备 <strong>425 点相位检测自动对焦系统</strong>，支持 <strong>4K 视频录制（最高 60p）</strong> 和 <strong>高速连拍（最高 15 帧/秒）</strong>，内置 <strong>5 轴机身防抖</strong>，配有 <strong>3.0 英寸 162 万像素液晶触摸屏</strong> 和 <strong>369 万像素电子取景器</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：打开相机开关，确保电池已充满电；<br>2. 设置：根据需要调整拍摄模式、曝光设置和对焦模式；<br>3. 拍摄：通过电子取景器或液晶屏进行取景，按下快门按钮拍摄；<br>4. 视频录制：选择视频模式，按下录制按钮开始拍摄；<br>5. 关机：拍摄完毕后，关闭相机电源，并取出存储卡以备份照片。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，避免灰尘和污垢影响拍摄效果；<br>2. 使用干净的软布擦拭相机外壳，避免使用化学清洁剂；<br>3. 妥善存放相机，避免暴露在潮湿或高温环境中；<br>4. 确保相机电池充满电并定期充电，避免电池长时间放置；<br>5. 使用相机包或保护壳，防止磕碰和划伤；<br>6. 如遇故障，请联系富士客服或授权维修点进行处理。'},
+        { title: "DJI Mavic Air 2 无人机", price: 3999, location: "杭州", postedDate: "2024-09-02", imageUrl: "https://imgtec.eetrend.com/files/2021-05/wen_zhang_/100060971-119317-large.jpg", detailsUrl: "./product-details.html", category: "无人机", condition: "9成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手 DJI Mavic Air 2 无人机配备 <strong>1/2 英寸 CMOS 传感器</strong>，支持 <strong>48MP 高分辨率照片</strong> 和 <strong>4K 视频录制（最高 60fps）</strong>，具备 <strong>3 轴机械云台</strong> 和 <strong>34 分钟最长飞行时间</strong>，内置 <strong>OcuSync 2.0 图传系统</strong>，飞行范围可达 <strong>10 公里</strong>，配备 <strong>智能飞行模式</strong> 和 <strong>先进的障碍检测系统</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 起飞前：确保电池已充满电，检查无人机和遥控器的连接；<br>2. 启动无人机：按下电池按钮，启动无人机；<br>3. 起飞：在开阔的区域，使用遥控器控制无人机升空；<br>4. 拍摄：通过遥控器或 DJI Fly 应用程序设置拍摄模式并进行拍摄；<br>5. 降落：在安全区域将无人机平稳降落，并关闭电源；<br>6. 收纳：将无人机和配件妥善收纳在保护箱中。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期检查无人机的螺旋桨和电池，确保其正常工作；<br>2. 使用干净的软布清洁无人机和相机镜头，避免灰尘和污垢；<br>3. 妥善存放无人机，避免暴露在潮湿或高温环境中；<br>4. 避免将无人机长时间暴露在直射阳光下；<br>5. 定期检查固件更新，确保无人机系统正常；<br>6. 使用原装充电器为电池充电，避免使用非认证配件；<br>7. 遇到故障请联系 DJI 客服或授权维修点进行处理。'},
+        { title: "大疆 Mini 2 无人机", price: 2999, location: "重庆", postedDate: "2024-09-03", imageUrl: "https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2023%2F0208%2Ff8839fdaj00rppwg0000gc000dw00a9g.jpg&thumbnail=660x2147483647&quality=80&type=jpg", detailsUrl: "./product-details.html", category: "无人机", condition: "9成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手大疆 Mini 2 无人机配备 <strong>1/2.3 英寸 CMOS 传感器</strong>，支持 <strong>12MP 高分辨率照片</strong> 和 <strong>4K 视频录制（最高 30fps）</strong>，具备 <strong>3 轴机械云台</strong> 和 <strong>31 分钟最长飞行时间</strong>，内置 <strong>OcuSync 2.0 图传系统</strong>，飞行范围可达 <strong>10 公里</strong>，配备 <strong>智能飞行模式</strong> 和 <strong>防风设计</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 起飞前：确保电池已充满电，检查无人机和遥控器的连接；<br>2. 启动无人机：按下电池按钮，启动无人机；<br>3. 起飞：在开阔的区域，使用遥控器控制无人机升空；<br>4. 拍摄：通过遥控器或 DJI Fly 应用程序设置拍摄模式并进行拍摄；<br>5. 降落：在安全区域将无人机平稳降落，并关闭电源；<br>6. 收纳：将无人机和配件妥善收纳在保护箱中。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期检查无人机的螺旋桨和电池，确保其正常工作；<br>2. 使用干净的软布清洁无人机和相机镜头，避免灰尘和污垢；<br>3. 妥善存放无人机，避免暴露在潮湿或高温环境中；<br>4. 避免将无人机长时间暴露在直射阳光下；<br>5. 定期检查固件更新，确保无人机系统正常；<br>6. 使用原装充电器为电池充电，避免使用非认证配件；<br>7. 遇到故障请联系大疆客服或授权维修点进行处理。'},
+        { title: "GoPro HERO9 运动相机", price: 2999, location: "南京", postedDate: "2024-09-04", imageUrl: "https://t12.baidu.com/it/u=2759448166,172859079&fm=30&app=106&f=JPEG?w=500&h=500&s=08F2ED0244EA16A66781F916030050A1", detailsUrl: "./product-details.html", category: "相机", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手 GoPro HERO9 运动相机配备 <strong>20MP 高清摄像头</strong>，支持 <strong>5K 视频录制</strong> 和 <strong>超广角镜头</strong>，内置 <strong>HyperSmooth 3.0 防抖技术</strong>，具备 <strong>前置和后置显示屏</strong>，最长可达 <strong>30 小时的电池续航</strong>，支持 <strong>语音控制</strong> 和 <strong>Wi-Fi 及蓝牙无线连接</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮启动相机；<br>2. 设置：通过触摸屏进行设置，选择拍摄模式和分辨率；<br>3. 拍摄：按下快门按钮开始录制视频或拍摄照片；<br>4. 切换模式：使用触摸屏或侧边按钮切换不同拍摄模式；<br>5. 关机：长按电源按钮关闭相机；<br>6. 数据传输：使用 USB-C 连接线或通过无线连接将文件传输到其他设备。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和相机外壳，避免灰尘和污垢；<br>2. 避免将相机长时间暴露在潮湿或高温环境中；<br>3. 使用干净的软布擦拭相机，避免使用化学清洁剂；<br>4. 定期检查和更换电池，以确保其正常工作；<br>5. 充电时，使用原装充电器，避免使用非认证配件；<br>6. 妥善存放相机，避免碰撞和摔落；<br>7. 如遇故障，请联系 GoPro 客服或授权维修点进行处理。'},
+        { title: "奥林巴斯 OM-D E-M1 Mark III", price: 6999, location: "北京", postedDate: "2024-09-05", imageUrl: "https://img1.baidu.com/it/u=566121400,2153696961&fm=253&fmt=auto&app=138&f=JPEG?w=1040&h=500", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手奥林巴斯 OM-D E-M1 Mark III 配备 <strong>2040 万像素 Live MOS 传感器</strong>，搭载 <strong>TruePic IX 影像处理器</strong>，具备 <strong>121 点全交叉相位检测自动对焦</strong>，支持 <strong>4K DCI 和 UHD 视频录制</strong>，内置 <strong>5 轴机身防抖</strong>，配有 <strong>3 英寸可翻转触摸屏</strong> 和 <strong>236 万像素电子取景器</strong>，具备 <strong>高速连拍（最高 60 帧/秒）</strong> 和 <strong>IPX1 级别的防尘防水性能</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源开关启动相机；<br>2. 设置：通过触摸屏或物理按钮调整拍摄模式、曝光设置和对焦模式；<br>3. 拍摄：通过电子取景器或液晶屏取景，按下快门按钮进行拍摄；<br>4. 视频录制：选择视频模式，按下录制按钮开始拍摄；<br>5. 关机：拍摄完毕后，关闭相机电源，并取出存储卡以备份照片。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，避免灰尘和污垢影响拍摄效果；<br>2. 使用干净的软布擦拭相机外壳，避免使用化学清洁剂；<br>3. 妥善存放相机，避免暴露在潮湿或极端温度环境中；<br>4. 确保电池充满电并定期充电，避免电池长时间放置；<br>5. 使用相机包或保护壳，防止磕碰和划伤；<br>6. 如遇故障，请联系奥林巴斯客服或授权维修点进行维修。'},
+        { title: "适马 24-70mm F2.8 镜头", price: 3499, location: "上海", postedDate: "2024-09-06", imageUrl: "https://img0.baidu.com/it/u=1719887971,2802186667&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667", detailsUrl: "./product-details.html", category: "相机", condition: "9成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手适马 24-70mm F2.8 镜头配备 <strong>恒定 F2.8 大光圈</strong>，焦距范围为 <strong>24-70mm</strong>，适用于多种拍摄场景，包括人像、风景和街拍，采用 <strong>11 组 19 片光学结构</strong>，内含 <strong>低色散（SLD）和非球面镜片</strong>，具备 <strong>超声波马达（HSM）</strong>，实现快速精准对焦，内置 <strong>防抖功能</strong>，兼容全画幅相机和 APS-C 画幅相机。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装镜头：将镜头对准相机卡口，顺时针旋转固定；<br>2. 调整焦距：旋转变焦环以调整焦距，适应不同拍摄场景；<br>3. 设置光圈：根据拍摄需要，通过相机或镜头调节光圈大小；<br>4. 对焦：使用自动或手动对焦功能，确保拍摄对象清晰；<br>5. 拍摄完毕后，取下镜头并安装前后镜头盖。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头前后玻璃面，使用专业的镜头清洁工具；<br>2. 避免镜头暴露在极端环境下，防止灰尘、水分进入；<br>3. 在不使用时，保持镜头前后盖完好，避免刮擦；<br>4. 存放时，建议使用干燥剂以保持镜头内部干燥；<br>5. 定期检查镜头的光学和机械性能，如有问题，请联系专业维修人员。'},
+        { title: "蔡司 35mm F1.4 镜头", price: 6999, location: "广州", postedDate: "2024-09-07", imageUrl: "https://wap.yesky.com/uploadImages/2015/063/31/SF72N692461E_FE35F14Z_A.jpg", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手蔡司 35mm F1.4 镜头具备 <strong>35mm 焦距</strong> 和 <strong>F1.4 大光圈</strong>，适合低光环境下的人像、街拍和风景摄影，采用 <strong>Distagon 光学设计</strong>，内含 <strong>11 组 14 片光学结构</strong>，包含特殊低色散镜片和非球面镜片，提供极佳的图像质量和色彩还原，手动对焦系统提供精准控制，金属镜筒设计坚固耐用，适用于全画幅和 APS-C 画幅相机。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装镜头：将镜头对准相机卡口，顺时针旋转固定；<br>2. 手动对焦：旋转对焦环以调整焦点，确保拍摄对象清晰；<br>3. 调节光圈：通过镜头上的光圈环或相机设置调整光圈大小；<br>4. 拍摄：根据光线和场景选择适合的设置进行拍摄；<br>5. 拍摄完毕后，取下镜头并安装前后镜头盖。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头前后玻璃面，使用专业的镜头清洁工具；<br>2. 存放时，使用干燥剂保持镜头干燥，避免霉菌生长；<br>3. 在不使用时，安装前后镜头盖，防止灰尘和刮擦；<br>4. 避免镜头暴露在极端温度和湿度环境中；<br>5. 定期检查镜头的光学和机械性能，如有问题，请联系专业维修人员。'}
+    ],
+    5: [
+        { title: "大疆 RS2 云台", price: 2999, location: "南京", postedDate: "2024-09-08", imageUrl: "https://img0.baidu.com/it/u=3370274034,3309243892&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500", detailsUrl: "./product-details.html", category: "相机配件", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手大疆 RS2 云台配备 <strong>1.4 英寸全彩触摸屏</strong>，支持 <strong>高达 4.5kg 的负载能力</strong>，采用 <strong>碳纤维结构</strong>，重量轻且坚固，内置 <strong>轴锁设计</strong> 和 <strong>双层快装板</strong>，支持 <strong>RavenEye 图传系统</strong>，实现远程监控和控制，具备 <strong>强大的算法支持</strong>，提供超平稳的防抖效果，支持多种拍摄模式，包括 <strong>360° 旋转</strong>、<strong>延时摄影</strong> 和 <strong>竖拍模式</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装相机：将相机安装到云台的快装板上，并锁紧固定；<br>2. 平衡调节：调整三轴平衡，确保云台在电源关闭时相机能保持水平；<br>3. 开机：长按电源按钮启动云台；<br>4. 拍摄模式：通过触摸屏或手机应用选择所需拍摄模式；<br>5. 控制：使用操纵杆控制云台运动，或通过手机进行远程控制；<br>6. 关机：拍摄完成后，长按电源按钮关闭云台。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期检查云台各部分的紧固情况，确保使用安全；<br>2. 使用干净的软布清洁云台表面，避免使用化学清洁剂；<br>3. 在不使用时，将云台存放在干燥的环境中，避免受潮；<br>4. 避免云台暴露在极端温度或潮湿环境中；<br>5. 定期更新固件，以确保云台功能的稳定性和优化；<br>6. 如果遇到异常情况，请联系大疆客服或授权维修点进行检查和维修。'},
+        { title: "曼富图 三脚架", price: 1299, location: "深圳", postedDate: "2024-09-09", imageUrl: "https://www.bjfqy.com/images/product/2020manfrotto/c052f5e95a3f95c456ca4ba2cb30b577.jpg", detailsUrl: "./product-details.html", category: "相机配件", condition: "9成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手曼富图三脚架具备 <strong>铝合金结构</strong>，坚固耐用且轻便，支持 <strong>多角度调节</strong>，最大工作高度可达 <strong>160cm</strong>，最低高度为 <strong>40cm</strong>，配备 <strong>快装板</strong> 和 <strong>360° 旋转云台</strong>，适用于摄影和摄像，带有 <strong>橡胶脚垫</strong>，提高防滑性能，适合各种地形。', usageInstructions: '<strong>使用说明：</strong><br>1. 展开三脚架：将三脚架的各支脚展开至所需高度，并锁紧；<br>2. 安装相机：将相机固定在快装板上，然后将快装板安装到云台上；<br>3. 调节角度：使用云台控制杆调整相机的角度和方向；<br>4. 拍摄：确保三脚架稳定后进行拍摄，调整高度和角度以获取最佳构图；<br>5. 拍摄完成后，拆卸相机并将三脚架收拢。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁三脚架各部件，尤其是锁紧装置和云台，确保其顺畅运作；<br>2. 在不使用时，将三脚架存放在干燥的环境中，避免受潮和生锈；<br>3. 检查并紧固所有螺丝和连接部件，确保使用时的稳定性；<br>4. 避免三脚架长时间暴露在阳光下或高温环境中；<br>5. 如果支脚或锁紧装置出现磨损或松动，请及时更换或维修。'},
+        { title: "富士胶卷相机", price: 2999, location: "北京", postedDate: "2024-09-10", imageUrl: "https://img0.baidu.com/it/u=495565865,3517132600&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手富士胶卷相机具有 <strong>经典复古设计</strong> 和 <strong>简单直观的操作界面</strong>，支持 <strong>35mm 胶片</strong>，配备 <strong>固定焦距镜头</strong>，提供 <strong>光学取景器</strong>，适合街拍和日常摄影，具备 <strong>多重曝光模式</strong> 和 <strong>B门长时间曝光</strong>，兼容各种品牌的 35mm 胶片，适合摄影爱好者和收藏者使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 装入胶片：打开背盖，将 35mm 胶片装入相机并拉出胶片尾端至卷片轴；<br>2. 设置曝光：根据环境光线通过相机上的曝光设置拨盘调整曝光；<br>3. 对焦和构图：通过光学取景器进行构图和对焦，确保拍摄对象在焦点范围内；<br>4. 拍摄：按下快门按钮完成拍摄，旋转卷片杆至下一个画面位置；<br>5. 拍摄完成后，回卷胶片并取出。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和取景器，使用专业的清洁工具；<br>2. 避免相机长时间暴露在潮湿环境中，以防止胶片受潮和相机内部生锈；<br>3. 使用时，尽量避免相机受到强烈震动或跌落；<br>4. 胶片存储时，保持在阴凉干燥处，防止光线直射；<br>5. 如果出现故障或磨损，请联系专业维修人员进行检查和维护。'},
+        { title: "索尼 85mm F1.4 镜头", price: 5699, location: "上海", postedDate: "2024-09-11", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fcbu01.alicdn.com%2Fimg%2Fibank%2FO1CN01oBg2Oz1VLn6zAyIkz_%21%212211931562637-0-cib.jpg&refer=http%3A%2F%2Fcbu01.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726033084&t=f8a5ab69f3682595ef53800b720bf16c", detailsUrl: "./product-details.html", category: "相机", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手索尼 85mm F1.4 镜头适用于全画幅相机，具有 <strong>F1.4 大光圈</strong>，提供出色的背景虚化效果，是人像摄影的理想选择，采用 <strong>11 组 13 片光学结构</strong>，内含 <strong>XA（极高非球面）镜片</strong> 和 <strong>ED（超低色散）镜片</strong>，减少色差和畸变，配备 <strong>纳米镀膜</strong>，有效减少眩光和鬼影，具备 <strong>高速精准对焦</strong> 和 <strong>防尘防潮设计</strong>，适应各种拍摄环境。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装镜头：将镜头对准相机卡口，顺时针旋转直至固定；<br>2. 调整光圈：使用相机或镜头上的光圈控制环设置合适的光圈值；<br>3. 对焦：选择自动对焦或手动对焦模式，通过对焦环进行精确调节；<br>4. 拍摄：确保光线和场景合适后，按下快门进行拍摄；<br>5. 使用后，取下镜头并安装前后镜头盖，存放于干燥环境中。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头前后镜片，使用专业镜头清洁工具；<br>2. 避免镜头长时间暴露在极端温度和潮湿环境中；<br>3. 使用镜头盖和镜头袋保护镜头，防止划痕和损坏；<br>4. 存放时，建议使用干燥剂以保持镜头干燥，防止霉菌生长；<br>5. 定期检查镜头的光学和机械性能，如有异常，请联系专业维修人员。'},
+        { title: "佳能 50mm F1.8 镜头", price: 1299, location: "杭州", postedDate: "2024-09-12", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fcbu01.alicdn.com%2Fimg%2Fibank%2FO1CN01snSyyN1ujUGfa6ZkK_%21%212211876396073-0-cib.jpg&refer=http%3A%2F%2Fcbu01.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726033114&t=0bdd4039833497b186a7f98886a15f6d", detailsUrl: "./product-details.html", category: "相机", condition: "99成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手佳能 50mm F1.8 镜头以其 <strong>轻便小巧</strong> 和 <strong>高性价比</strong> 著称，具备 <strong>F1.8 大光圈</strong>，适合人像、风景和弱光环境拍摄，提供柔和的背景虚化效果，采用 <strong>5 组 6 片光学结构</strong>，拥有 <strong>STM 步进马达</strong>，实现平滑、安静的自动对焦，镜身紧凑耐用，适用于全画幅和 APS-C 画幅的佳能相机。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装镜头：将镜头对准相机卡口，顺时针旋转至锁定位置；<br>2. 对焦模式：选择自动对焦或手动对焦，使用对焦环进行调节；<br>3. 光圈调节：通过相机设置选择适当的光圈值，控制景深效果；<br>4. 拍摄：根据拍摄场景和光线条件，按下快门按钮完成拍摄；<br>5. 结束拍摄后，取下镜头并安装前后镜头盖，妥善保存。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期使用专业的清洁工具清洁镜头玻璃表面；<br>2. 避免镜头长时间暴露在极端温度和湿度中；<br>3. 存放时使用镜头袋或干燥箱，防止灰尘和霉菌；<br>4. 使用时避免镜头受到强烈冲击或跌落；<br>5. 如果镜头出现异常，请及时联系专业维修人员进行检查和维修。'},
+        { title: "尼康 D850 单反相机", price: 12999, location: "广州", postedDate: "2024-09-13", imageUrl: "https://img14.360buyimg.com/imgzone/jfs/t1/138852/21/29567/62958/633865beE14cd78db/124097cfe51fe935.jpg", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "急需用钱", tradeMethod: "自取" ,productDescription: '二手尼康 D850 单反相机配备 <strong>4575 万像素全画幅 CMOS 传感器</strong>，支持 <strong>4K 超高清录影</strong>，具备 <strong>153 点自动对焦系统</strong> 和 <strong>最高 7 张/秒连拍速度</strong>，适合专业摄影及高分辨率成像，配有 <strong>ISO 64-25600 可扩展至 32-102400</strong>，在各种光线条件下表现出色，采用 <strong>双卡槽设计</strong> 和 <strong>防尘防水设计</strong>，配有 <strong>3.2 英寸翻转触摸屏</strong> 和 <strong>Wi-Fi 连接功能</strong>，便于即时分享。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装电池和存储卡：打开电池仓和卡槽盖，安装电池和存储卡；<br>2. 设置相机：开机后通过菜单设置分辨率、拍摄模式和对焦模式；<br>3. 构图和对焦：通过光学取景器或屏幕进行构图，半按快门按钮进行对焦；<br>4. 拍摄：调整好参数后，按下快门按钮进行拍摄；<br>5. 查看和保存：拍摄完成后，可以通过回放按钮查看图片，并导出至电脑或其他设备。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期使用专业清洁工具清理相机的镜头和传感器；<br>2. 避免相机长时间暴露在高温、低温或潮湿环境中；<br>3. 在不使用时，关闭电源并取出电池，存放于干燥处；<br>4. 使用时避免相机受到剧烈冲击或跌落；<br>5. 定期检查和更新相机固件，确保设备性能和功能稳定。'},
+        { title: "富士 X-T3 无反相机", price: 8499, location: "武汉", postedDate: "2024-09-14", imageUrl: "https://img0.baidu.com/it/u=2856834458,3273364906&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "相机", condition: "8成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手富士 X-T3 无反相机配备 <strong>2610 万像素 APS-C X-Trans CMOS 4 传感器</strong>，支持 <strong>4K/60fps 视频录制</strong>，采用 <strong>425 点自动对焦系统</strong> 和 <strong>最高 11 张/秒连拍速度</strong>，具备 <strong>机械快门</strong> 和 <strong>电子快门</strong>，双卡槽设计可同时存储图像和视频，配有 <strong>3.0 英寸可翻转触摸屏</strong> 和 <strong>2.36M 点 OLED 电子取景器</strong>，经典复古设计结合现代科技，适合专业摄影和视频拍摄。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装电池和存储卡：打开底部电池仓盖，装入电池和 SD 卡；<br>2. 设置相机：开机后通过菜单设置拍摄模式、对焦模式和画质参数；<br>3. 对焦和拍摄：通过电子取景器或屏幕进行构图，对焦后按下快门拍摄；<br>4. 视频录制：切换至视频模式，设置分辨率和帧率，按下录制按钮开始录制；<br>5. 查看照片和视频：按回放按钮查看拍摄结果，并通过 Wi-Fi 分享到移动设备。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 使用清洁工具定期清洁镜头和传感器，防止灰尘影响图像质量；<br>2. 存放时，将相机置于干燥环境中，避免高温和潮湿；<br>3. 避免相机受到强烈冲击，使用保护套保护机身；<br>4. 定期检查电池状况，避免长时间存放电池于机身内；<br>5. 及时更新相机固件，确保获得最新的功能和优化。'},
+        { title: "佳能 EOS R6 无反相机", price: 9999, location: "北京", postedDate: "2024-09-15", imageUrl: "https://2.zol-img.com.cn/product/220_640x2000/836/ce5nxfKfU416U.jpg", detailsUrl: "./product-details.html", category: "相机", condition: "95成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手佳能 EOS R6 无反相机配备 <strong>2020 万像素全画幅 CMOS 传感器</strong>，支持 <strong>4K/60fps 视频录制</strong> 和 <strong>1080p/120fps 高清慢动作录制</strong>，具备 <strong>1053 点全像素双核自动对焦系统</strong> 和 <strong>最高 12 张/秒机械快门连拍</strong>，内置 <strong>5 轴防抖系统</strong>，配有 <strong>3.0 英寸翻转触摸屏</strong> 和 <strong>369 万点 OLED 电子取景器</strong>，提供优异的低光性能和高速对焦，适合专业摄影师和视频制作者使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装电池和存储卡：打开底部电池仓和卡槽盖，安装电池和 SD 卡；<br>2. 设置相机：开机后通过菜单设置拍摄模式、对焦模式和图像质量；<br>3. 对焦和拍摄：通过电子取景器或触摸屏进行构图和对焦，按下快门按钮拍摄；<br>4. 视频录制：切换至视频模式，设置录制参数后按下录制按钮开始拍摄；<br>5. 查看和分享：按回放按钮查看拍摄内容，使用 Wi-Fi 功能将图像或视频传输至移动设备。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁镜头和传感器，使用专业清洁工具；<br>2. 存放相机时保持在干燥、阴凉的环境中，避免高温和潮湿；<br>3. 使用镜头盖和相机包保护相机，防止划痕和损坏；<br>4. 避免相机受到剧烈冲击或跌落，检查电池和存储卡状态；<br>5. 定期检查相机固件，确保相机功能和性能的最新优化。'},
+        { title: "DJI Mini 2 无人机", price: 2999, location: "杭州", postedDate: "2024-09-16", imageUrl: "https://sy0.img.pcpop.com/article/4/4594/4594794.jpg_p-w730", detailsUrl: "./product-details.html", category: "无人机", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手 DJI Mini 2 无人机拥有 <strong>4K 高清摄像功能</strong>，配备 <strong>1/2.3 英寸 CMOS 传感器</strong>，具备 <strong>31 分钟最长飞行时间</strong> 和 <strong>10 公里高清图传</strong>，支持 <strong>三轴机械稳定器</strong>，提供稳定的影像拍摄，内置 <strong>GPS 定位系统</strong> 和 <strong>多重飞行模式</strong>，如 <strong>快速模式</strong> 和 <strong>全景模式</strong>，设计轻巧便携，适合旅行和日常拍摄。', usageInstructions: '<strong>使用说明：</strong><br>1. 充电：使用附带的充电器给电池充电，充满电后安装到无人机上；<br>2. 启动：按下无人机电源按钮开机，并确保遥控器已开机且与无人机连接；<br>3. 校准：在首次使用前或在新环境中飞行前，进行地磁和陀螺仪校准；<br>4. 起飞：通过遥控器选择起飞模式，按下起飞按钮，无人机自动升空；<br>5. 拍摄：调整镜头角度，通过遥控器控制无人机飞行和摄像；<br>6. 降落：按下降落按钮，无人机会自动降落到地面；<br>7. 关闭：飞行结束后，关闭无人机和遥控器电源，并收起无人机。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁无人机的镜头和传感器，避免灰尘影响拍摄效果；<br>2. 避免无人机在恶劣天气条件下飞行，如强风、雨水或高温；<br>3. 存放无人机时，确保电池已取出，并存放在干燥阴凉的环境中；<br>4. 检查螺旋桨和电池状态，如有损坏请及时更换；<br>5. 定期更新固件，确保无人机功能和性能的最新优化。'},
+        { title: "大疆 Mini SE 无人机", price: 1999, location: "重庆", postedDate: "2024-09-17", imageUrl: "https://paipianbang.cdn.cinehello.com/resource/post/175049/5265f9a45e4a375e048825d62db8b242.jpg?imageMogr2/auto-orient/quality/90%21/thumbnail/1024x4096%3E", detailsUrl: "./product-details.html", category: "无人机", condition: "8成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手大疆 Mini SE 无人机配备 <strong>2.7K 高清摄像头</strong>，具备 <strong>1/2.3 英寸 CMOS 传感器</strong>，提供 <strong>30 分钟最长飞行时间</strong> 和 <strong>4 公里高清图传</strong>，采用 <strong>三轴机械稳定器</strong>，确保拍摄稳定，支持 <strong>GPS 定位系统</strong> 和 <strong>智能飞行模式</strong>，如 <strong>快速模式</strong> 和 <strong>全景模式</strong>，设计轻巧便携，适合户外拍摄和旅行使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 充电：用附带的充电器为电池充电，充满电后将电池安装到无人机上；<br>2. 开机：按下无人机电源按钮开机，并确保遥控器已开机且连接成功；<br>3. 校准：首次使用或换新环境飞行前，进行地磁和陀螺仪校准；<br>4. 起飞：通过遥控器选择起飞模式，按下起飞按钮，无人机会自动升空；<br>5. 拍摄：调整镜头角度，通过遥控器控制无人机飞行和拍摄；<br>6. 降落：按下降落按钮，无人机会自动安全降落；<br>7. 关闭：飞行结束后，关闭无人机和遥控器电源，并妥善收纳。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁无人机镜头和传感器，避免灰尘影响拍摄效果；<br>2. 避免在恶劣天气条件下飞行，如强风、降雨或高温；<br>3. 存放无人机时，请将电池取出，并放置于干燥阴凉处；<br>4. 定期检查螺旋桨和电池状态，如有损坏及时更换；<br>5. 定期更新固件，确保无人机功能和性能的最新优化。'}
+    ],
+    6: [
+        { title: "小米扫地机器人", price: 1399, location: "南京", postedDate: "2024-09-18", imageUrl: "http://t13.baidu.com/it/u=2077737844,42832198&fm=224&app=112&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手小米扫地机器人配备 <strong>智能激光导航系统</strong>，具备 <strong>强力吸尘</strong> 和 <strong>多种清扫模式</strong>，支持 <strong>自动充电</strong> 和 <strong>高效清洁</strong>，采用 <strong>大容量电池</strong>，最长可达 <strong>150 分钟续航</strong>，拥有 <strong>静音操作</strong> 和 <strong>智能语音提示</strong>，配有 <strong>尘盒和水箱</strong>，可在智能手机应用中进行远程控制和设置。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将扫地机器人放置在平坦地面上，确保充电座连接电源；<br>2. 开机：按下机器人的电源按钮，启动设备；<br>3. 清扫设置：通过小米智能家居应用设置清扫区域和模式；<br>4. 启动清扫：选择清扫模式，按下启动按钮或在应用中启动清扫；<br>5. 自动充电：当电量不足时，机器人会自动返回充电座充电；<br>6. 清理：清扫完成后，取出尘盒和水箱，清理垃圾和污水。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁滚刷和吸尘口，避免毛发和灰尘积累；<br>2. 定期清理尘盒和水箱，保持设备卫生；<br>3. 避免在高温或潮湿环境中使用或存放；<br>4. 定期检查充电座和电池状态，如有异常请及时更换；<br>5. 定期更新设备的固件，确保最佳性能和功能。'},
+        { title: "米家空气炸锅", price: 699, location: "深圳", postedDate: "2024-09-19", imageUrl: "https://img1.baidu.com/it/u=2326318402,2733984806&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "99成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手米家空气炸锅具备 <strong>智能控温</strong> 和 <strong>快速加热技术</strong>，支持 <strong>多种烹饪模式</strong>，如炸、烤、焖等，配有 <strong>4.0L 大容量炸篮</strong>，最大温度可达 <strong>200°C</strong>，配备 <strong>数字触控屏</strong> 和 <strong>自动定时功能</strong>，提供均匀加热和脆皮效果，适合家庭日常烹饪使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将空气炸锅放置在平稳的台面上，确保周围有足够的通风空间；<br>2. 预热：按下预热按钮，设定所需温度和时间，预热至指定温度；<br>3. 加入食材：将食材放入炸篮中，放入空气炸锅内；<br>4. 设置烹饪：根据食材选择适当的烹饪模式和时间，启动空气炸锅；<br>5. 取出食物：烹饪结束后，使用夹具或手套取出炸篮，注意高温；<br>6. 清洁：待空气炸锅冷却后，取出炸篮和底部托盘进行清洗。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁炸篮和托盘，避免油脂残留；<br>2. 使用后待设备完全冷却，再进行清洁；<br>3. 避免使用金属清洁工具，以免划伤内胆；<br>4. 不要让设备长时间接触水，清洗时避免水进入电气部分；<br>5. 定期检查电缆和插头，确保没有损坏。'},
+        { title: "飞利浦 无线吸尘器", price: 1299, location: "广州", postedDate: "2024-09-20", imageUrl: "https://a.vpimg3.com/upload/merchandise/pdcvis/2017/11/09/54/10116d02-ff91-4b97-baea-041b30844d1b.jpg", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手飞利浦无线吸尘器配备 <strong>强力无绳电机</strong> 和 <strong>高效过滤系统</strong>，具备 <strong>60 分钟最长续航</strong> 和 <strong>多种吸头配件</strong>，如 <strong>柔软地毯吸头</strong> 和 <strong>缝隙吸头</strong>，支持 <strong>快速充电</strong> 和 <strong>智能LED显示</strong>，提供强劲吸力和便利的操作体验，适合家庭日常清洁使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 充电：将无线吸尘器放置在充电座上，确保充电指示灯亮起；<br>2. 安装配件：根据需要安装不同的吸头配件；<br>3. 启动：按下电源按钮启动吸尘器，选择合适的吸力模式；<br>4. 清扫：缓慢移动吸尘器以确保彻底清洁地面；<br>5. 停止：使用完毕后，按下电源按钮关闭吸尘器，并将其放回充电座；<br>6. 清理：定期清空尘桶和清洁过滤器，保持设备性能。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁尘桶和过滤器，避免灰尘堵塞影响吸力；<br>2. 清洁吸头和刷毛，确保吸尘效果；<br>3. 存放时，将吸尘器置于干燥通风的地方，避免潮湿环境；<br>4. 避免吸入液体或大颗粒物，防止设备损坏；<br>5. 定期检查充电器和电池状态，如有损坏请及时更换。'},
+        { title: "苹果 Apple AirPods Pro 2", price: 1399, location: "武汉", postedDate: "2024-09-21", imageUrl: "http://t15.baidu.com/it/u=3369279999,2657391900&fm=224&app=112&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手苹果 Apple AirPods Pro 2 具备 <strong>主动噪声取消功能</strong> 和 <strong>透明模式</strong>，配备 <strong>Apple H2 芯片</strong>，提供 <strong>高保真音质</strong> 和 <strong>改进的空间音频</strong>，支持 <strong>自适应 EQ</strong> 和 <strong>双向麦克风</strong>，拥有 <strong>最长 6 小时的听歌时间</strong>（配合充电盒可达 <strong>30 小时</strong>），设计为 <strong>舒适的入耳式</strong>，提供良好的隔音效果和稳定的佩戴体验。', usageInstructions: '<strong>使用说明：</strong><br>1. 配对：打开充电盒，靠近 iPhone 或 iPad，弹出配对界面，按下配对按钮；<br>2. 启动：将 AirPods Pro 2 插入耳朵，自动进入工作状态；<br>3. 控制：使用触控面板进行播放/暂停、切换曲目或激活语音助手；<br>4. 充电：将 AirPods Pro 2 放回充电盒内，充电盒通过 Lightning 接口或无线充电板充电；<br>5. 查看电量：在 iOS 设备上查看电池状态，或打开充电盒查看指示灯。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁耳塞和充电触点，避免灰尘和污垢影响性能；<br>2. 避免将 AirPods Pro 2 暴露于高温、潮湿环境中；<br>3. 使用原装充电器充电，避免使用非认证充电配件；<br>4. 存放时请将其放置在干燥的充电盒中，防止损坏；<br>5. 定期检查耳机的固件更新，以确保最佳性能。'},
+        { title: "三星 55寸 4K电视", price: 3999, location: "北京", postedDate: "2024-09-22", imageUrl: "https://img2.baidu.com/it/u=301678967,2659943765&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "急需用钱", tradeMethod: "自取" ,productDescription: '二手三星 55寸 4K电视配备 <strong>55 英寸 4K UHD 显示屏</strong>（3840 x 2160 像素），具备 <strong>HDR 10+ 技术</strong>，提供 <strong>高对比度和鲜艳色彩</strong>，搭载 <strong>智能电视操作系统</strong>，支持 <strong>流媒体应用</strong> 和 <strong>语音控制</strong>，配有 <strong>内置扬声器</strong> 和 <strong>多种接口</strong>，如 HDMI 和 USB，适合家庭影院和日常娱乐使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将电视挂墙或放置在支架上，确保稳定；<br>2. 连接：使用 HDMI、USB 或其他接口连接信号源设备；<br>3. 开机：按下电视遥控器上的电源按钮启动电视；<br>4. 配置：根据屏幕上的指示完成初始设置，包括语言、Wi-Fi 连接和账户登录；<br>5. 操作：使用遥控器访问电视菜单、选择频道或应用；<br>6. 关闭：按下电源按钮关闭电视，或在设置中选择自动关机功能。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用干净的微纤维布清洁屏幕，避免使用液体清洁剂；<br>2. 避免电视长时间暴露在直射阳光下，防止屏幕褪色；<br>3. 确保通风良好，避免电视过热；<br>4. 定期检查电缆和接口，确保连接牢固；<br>5. 如果长时间不使用，请断开电源，以节省能源和延长使用寿命。'},
+        { title: "索尼 4K 高清电视", price: 5999, location: "深圳", postedDate: "2024-09-23", imageUrl: "https://img0.baidu.com/it/u=1239358235,1163621962&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "家居", condition: "9成新", reason: "不再使用", tradeMethod: "面交" ,productDescription: '二手索尼 4K 高清电视配备 <strong>4K Ultra HD 显示屏</strong>（3840 x 2160 像素），具备 <strong>HDR 10 和 Dolby Vision</strong> 技术，提供 <strong>高对比度和丰富色彩</strong>，搭载 <strong>索尼智能电视系统</strong>，支持 <strong>流媒体服务</strong> 和 <strong>语音控制</strong>，配有 <strong>多种连接接口</strong>，如 HDMI 和 USB，适合家庭娱乐和影视观赏。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将电视挂墙或放置在支架上，确保稳固；<br>2. 连接：使用 HDMI、USB 或其他接口连接信号源设备；<br>3. 开机：按下遥控器上的电源按钮启动电视；<br>4. 配置：按照屏幕上的提示完成初始设置，包括选择语言、连接网络和登录账户；<br>5. 操作：使用遥控器浏览电视菜单、选择频道或流媒体应用；<br>6. 关闭：按下遥控器上的电源按钮关闭电视，或在设置中启用定时关机。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用干净的微纤维布擦拭屏幕，避免使用含有化学成分的清洁剂；<br>2. 避免电视暴露在阳光直射下，防止屏幕褪色和过热；<br>3. 确保电视周围有良好的通风，避免过热；<br>4. 定期检查电缆和接口，确保连接稳定；<br>5. 长时间不使用时，建议断开电源，以节省能耗和延长设备寿命。'},
+        { title: "苹果 Apple Watch Ultra", price: 6000, location: "广州", postedDate: "2024-09-24", imageUrl: "https://img2.baidu.com/it/u=1371386436,2632175048&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "手表", condition: "8成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手苹果 Apple Watch Ultra 配备 <strong>49 毫米 超大钛金属表壳</strong>，具备 <strong>高亮度视网膜显示屏</strong>（2000 尼特），支持 <strong>GPS + GLONASS 定位系统</strong> 和 <strong>多种运动模式</strong>，具有 <strong>耐高温和防水性能</strong>（WR100 防水等级），内置 <strong>血氧监测</strong> 和 <strong>心电图功能</strong>，提供 <strong>最长 36 小时的续航</strong>，支持 <strong>无线充电</strong> 和 <strong>最新 watchOS 操作系统</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按侧边按钮直到 Apple 标志出现；<br>2. 配对：将 Apple Watch Ultra 靠近 iPhone，按照屏幕上的提示完成配对过程；<br>3. 设置：通过 iPhone 上的 Apple Watch 应用设置表盘、通知和应用；<br>4. 使用：通过触控屏幕和侧边按钮控制功能，滑动和点击以访问各种应用；<br>5. 充电：将 Apple Watch Ultra 放置在充电底座上，确保充电指示灯亮起；<br>6. 清洁：定期用湿布清洁表带和表壳，避免长时间接触水和化学物质。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁表带和表壳，避免污垢积累；<br>2. 避免长时间暴露在高温、潮湿环境中；<br>3. 充电时使用原装充电器和底座，避免使用非认证配件；<br>4. 定期检查设备的固件更新，以确保最佳性能；<br>5. 保持设备干燥，避免长时间接触水。'},
+        { title: "苹果 Apple AirPods Max", price: 3000, location: "武汉", postedDate: "2024-09-25", imageUrl: "https://n.sinaimg.cn/sinakd20201209ac/768/w1386h982/20201209/4f87-keyancx4218603.png", detailsUrl: "./product-details.html", category: "家居", condition: "95成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手苹果 Apple AirPods Max 具备 <strong>主动噪声取消功能</strong> 和 <strong>透明模式</strong>，配备 <strong>40 毫米 动态驱动单元</strong>，提供 <strong>高保真音质</strong> 和 <strong>空间音频支持</strong>，采用 <strong>不锈钢头梁和透气记忆泡沫耳垫</strong>，支持 <strong>长达 20 小时的听歌时间</strong> 和 <strong>无线充电功能</strong>，设计为 <strong>舒适的全耳罩式耳机</strong>，适合长时间佩戴和高质量音频体验。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按数字 Crown 按钮，直到指示灯亮起；<br>2. 配对：打开充电盒，靠近 iPhone 或 iPad，弹出配对界面，按下配对按钮；<br>3. 控制：使用数字 Crown 和触控板控制音量、播放/暂停和切换模式；<br>4. 充电：将 AirPods Max 放入充电盒内，通过 Lightning 接口进行充电；<br>5. 查看电量：在 iOS 设备上查看电池状态，或打开充电盒查看指示灯。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁耳垫和耳罩，使用干净的微纤维布擦拭；<br>2. 避免将 AirPods Max 暴露于高温、潮湿环境中；<br>3. 使用原装充电器进行充电，避免使用非认证配件；<br>4. 存放时将其放置在干燥的充电盒中，防止损坏；<br>5. 定期检查耳机的固件更新，以确保最佳性能。'},
+        { title: "苹果 Apple Watch Series 9", price: 699, location: "南京", postedDate: "2024-09-26", imageUrl: "https://pic.rmb.bdstatic.com/bjh/240523/dump/744a82d038ee90ae826bf8aff4e1a8e4.jpeg", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手苹果 Apple Watch Series 9 配备 <strong>41 毫米/45 毫米 超视网膜显示屏</strong>，支持 <strong>始终显示功能</strong>，搭载 <strong>Apple S9 SiP 芯片</strong>，具备 <strong>心率监测</strong>、<strong>血氧监测</strong> 和 <strong>ECG 心电图</strong> 功能，内置 <strong>GPS 和 高精度传感器</strong>，提供 <strong>最长 18 小时的续航</strong>，支持 <strong>无线充电</strong> 和 <strong>最新 watchOS 操作系统</strong>，设计为 <strong>防水等级 WR50</strong> 和 <strong>多种表带选择</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按侧边按钮直到 Apple 标志出现；<br>2. 配对：将 Apple Watch Series 9 靠近 iPhone，按照屏幕上的提示完成配对过程；<br>3. 设置：通过 iPhone 上的 Apple Watch 应用设置表盘、通知和应用；<br>4. 使用：通过触控屏幕和侧边按钮控制功能，滑动和点击以访问各种应用；<br>5. 充电：将 Apple Watch Series 9 放置在充电底座上，确保充电指示灯亮起；<br>6. 清洁：定期用湿布清洁表带和表壳，避免长时间接触水和化学物质。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁表带和表壳，避免污垢积累；<br>2. 避免长时间暴露在高温、潮湿环境中；<br>3. 使用原装充电器充电，避免使用非认证配件；<br>4. 定期检查设备的固件更新，以确保最佳性能；<br>5. 保持设备干燥，避免长时间接触水。'},
+        { title: "三星 55寸 4K电视", price: 3999, location: "深圳", postedDate: "2024-09-27", imageUrl: "https://a.vpimg2.com/upload/merchandise/pdcvis/610654/2018/0424/118/a6cf2144-194c-4281-ad4f-563e119aef03.jpg", detailsUrl: "./product-details.html", category: "家居", condition: "8成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手三星 55寸 4K电视配备 <strong>55 英寸 4K UHD 显示屏</strong>（3840 x 2160 像素），具备 <strong>HDR 10+ 技术</strong>，提供 <strong>高对比度和丰富色彩</strong>，搭载 <strong>三星 Tizen 智能电视操作系统</strong>，支持 <strong>流媒体服务</strong> 和 <strong>语音控制</strong>，配有 <strong>多种连接接口</strong>，如 HDMI 和 USB，适合家庭娱乐和影视观赏。', usageInstructions: '<strong>使用说明：</strong><br>1. 安装：将电视挂墙或放置在支架上，确保稳固；<br>2. 连接：使用 HDMI、USB 或其他接口连接信号源设备；<br>3. 开机：按下遥控器上的电源按钮启动电视；<br>4. 配置：按照屏幕上的提示完成初始设置，包括选择语言、连接网络和登录账户；<br>5. 操作：使用遥控器浏览电视菜单、选择频道或流媒体应用；<br>6. 关闭：按下遥控器上的电源按钮关闭电视，或在设置中启用定时关机。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用干净的微纤维布擦拭屏幕，避免使用液体清洁剂；<br>2. 避免电视暴露在阳光直射下，防止屏幕褪色和过热；<br>3. 确保电视周围有良好的通风，避免过热；<br>4. 定期检查电缆和接口，确保连接稳定；<br>5. 长时间不使用时，建议断开电源，以节省能耗和延长设备寿命。'}
+    ],
+    7: [
+        { title: "苹果 MacBook Pro 16", price: 13999, location: "北京", postedDate: "2024-09-28", imageUrl: "https://2b.zol-img.com.cn/product/223_320x240/799/ceIW2XsHs0CHw.jpg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "9成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手苹果 MacBook Pro 16 配备 <strong>16 英寸 Retina 显示屏</strong>（3072 x 1920 像素），搭载 <strong>Apple M1 Pro/M1 Max 芯片</strong>（根据具体配置），提供 <strong>高性能处理能力</strong> 和 <strong>高达 64GB 的内存</strong>，存储选项包括 <strong>512GB、1TB、2TB SSD</strong>，配有 <strong>四个 Thunderbolt 4 接口</strong>、<strong>HDMI</strong> 和 <strong>SD 卡槽</strong>，内置 <strong>六扬声器音响系统</strong> 和 <strong>高分辨率 FaceTime HD 摄像头</strong>，提供 <strong>最长 21 小时的电池续航</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到苹果标志出现；<br>2. 设置：按照屏幕上的提示完成初始设置，包括选择语言、Wi-Fi 网络和 Apple ID 登录；<br>3. 使用：通过触控板和键盘操作，使用 Finder 浏览文件，通过 Dock 启动应用；<br>4. 连接：使用 Thunderbolt 4 接口或其他适配器连接外部设备；<br>5. 充电：使用原装 MagSafe 充电器或 USB-C 充电器充电；<br>6. 关机：点击屏幕左上角苹果菜单，选择“关机”，然后确认。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的微纤维布；<br>2. 避免在高温、潮湿环境中使用和存放；<br>3. 确保通风良好，避免过热；<br>4. 使用原装充电器进行充电，避免使用非认证配件；<br>5. 定期备份数据，保持操作系统和应用程序的最新状态。'},
+        { title: "华为 MateBook X Pro", price: 8999, location: "上海", postedDate: "2024-09-29", imageUrl: "https://imgcdn.anzhuo.cn/post/2024-05-31/e6185710-1f34-11ef-b997-1342d937106b.png-hl", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "9成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手华为 MateBook X Pro 配备 <strong>13.9 英寸 3K 全面屏</strong>（3000 x 2000 像素），搭载 <strong>Intel Core i5/i7 处理器</strong>（根据具体配置），提供 <strong>8GB/16GB 内存</strong> 和 <strong>256GB/512GB SSD 存储</strong>，内置 <strong>Harman Kardon 高保真音响系统</strong>，配有 <strong>USB-C、USB-A 和 HDMI 接口</strong>，支持 <strong>快速充电</strong>，重量轻便，适合商务和娱乐使用。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到华为标志出现；<br>2. 设置：按照屏幕上的提示完成初始设置，包括选择语言、Wi-Fi 网络和华为账号登录；<br>3. 使用：通过触控板和键盘操作，使用任务栏访问应用和文件；<br>4. 连接：使用 USB-C、USB-A 或 HDMI 接口连接外部设备；<br>5. 充电：使用原装充电器通过 USB-C 端口充电；<br>6. 关机：点击屏幕右下角的电池图标，选择“关机”或在开始菜单中选择“关机”。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的微纤维布；<br>2. 避免在高温、潮湿环境中使用和存放；<br>3. 确保通风良好，避免过热；<br>4. 使用原装充电器进行充电，避免使用非认证配件；<br>5. 定期备份数据，保持操作系统和应用程序的最新状态。'},
+        { title: "戴尔 XPS 15", price: 10999, location: "广州", postedDate: "2024-09-30", imageUrl: "https://img0.baidu.com/it/u=3370209932,2428096311&fm=253&fmt=auto&app=138&f=JPEG?w=816&h=500", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "8成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手戴尔 XPS 15 配备 <strong>15.6 英寸 4K UHD+ 显示屏</strong>（3840 x 2400 像素），搭载 <strong>Intel Core i5/i7/i9 处理器</strong>（根据具体配置），配有 <strong>8GB/16GB/32GB 内存</strong> 和 <strong>256GB/512GB/1TB SSD 存储</strong>，内置 <strong>NVIDIA GeForce GTX 1650/1650 Ti 显卡</strong>，支持 <strong>快速充电</strong> 和 <strong>长达 18 小时的电池续航</strong>，设计为 <strong>超薄金属机身</strong>，适合高性能计算和多媒体处理。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到戴尔标志出现；<br>2. 设置：按照屏幕上的提示完成初始设置，包括选择语言、Wi-Fi 网络和戴尔账号登录；<br>3. 使用：通过触控板和键盘操作，使用任务栏访问应用和文件；<br>4. 连接：使用 USB-C、USB-A 和 HDMI 接口连接外部设备；<br>5. 充电：使用原装充电器通过 USB-C 端口充电；<br>6. 关机：点击屏幕右下角的电池图标，选择“关机”或在开始菜单中选择“关机”。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的微纤维布；<br>2. 避免在高温、潮湿环境中使用和存放；<br>3. 确保通风良好，避免过热；<br>4. 使用原装充电器进行充电，避免使用非认证配件；<br>5. 定期备份数据，保持操作系统和应用程序的最新状态。'},
+        { title: "雷蛇 Blade Stealth 13", price: 7999, location: "深圳", postedDate: "2024-10-01", imageUrl: "https://2d.zol-img.com.cn/product/187/143/cet3ONSFfXG22.jpg", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "9成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手雷蛇 Blade Stealth 13 配备 <strong>13.3 英寸 Full HD 显示屏</strong>（1920 x 1080 像素），搭载 <strong>Intel Core i7-1165G7 处理器</strong>，配有 <strong>16GB 内存</strong> 和 <strong>512GB SSD 存储</strong>，内置 <strong>Intel Iris Xe 显卡</strong>，支持 <strong>快速充电</strong>，提供 <strong>长达 10 小时的电池续航</strong>，设计为 <strong>超薄铝合金机身</strong>，适合轻便移动办公和高性能计算。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到雷蛇标志出现；<br>2. 设置：按照屏幕上的提示完成初始设置，包括选择语言、Wi-Fi 网络和雷蛇账号登录；<br>3. 使用：通过触控板和键盘操作，使用任务栏访问应用和文件；<br>4. 连接：使用 USB-C、USB-A 和 Thunderbolt 4 接口连接外部设备；<br>5. 充电：使用原装充电器通过 USB-C 端口充电；<br>6. 关机：点击屏幕右下角的电池图标，选择“关机”或在开始菜单中选择“关机”。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的微纤维布；<br>2. 避免在高温、潮湿环境中使用和存放；<br>3. 确保通风良好，避免过热；<br>4. 使用原装充电器进行充电，避免使用非认证配件；<br>5. 定期备份数据，保持操作系统和应用程序的最新状态。'},
+        { title: "联想拯救者 R9000", price: 10999, location: "南京", postedDate: "2024-10-02", imageUrl: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fcbu01.alicdn.com%2Fimg%2Fibank%2FO1CN01X2QBYu1pDoZtIlPNy_%21%212212991785327-0-cib.jpg&refer=http%3A%2F%2Fcbu01.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1726037944&t=9679fd07de00da9996f3b4df9aeb51d2", detailsUrl: "./product-details.html", category: "笔记本电脑", condition: "8成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手联想拯救者 R9000 配备 <strong>16 英寸 2K 显示屏</strong>（2560 x 1600 像素），搭载 <strong>AMD Ryzen 9 5900HX 处理器</strong>，配有 <strong>16GB/32GB 内存</strong> 和 <strong>512GB/1TB SSD 存储</strong>，内置 <strong>NVIDIA GeForce RTX 3060/3070 显卡</strong>（根据具体配置），支持 <strong>快速充电</strong> 和 <strong>最长 8 小时的电池续航</strong>，设计为 <strong>高效散热系统和可调节 RGB 键盘</strong>，适合游戏和高性能计算。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到联想标志出现；<br>2. 设置：按照屏幕上的提示完成初始设置，包括选择语言、Wi-Fi 网络和联想账号登录；<br>3. 使用：通过触控板和键盘操作，使用任务栏访问应用和文件；<br>4. 连接：使用 USB-C、USB-A 和 HDMI 接口连接外部设备；<br>5. 充电：使用原装充电器通过 USB-C 端口充电；<br>6. 关机：点击屏幕右下角的电池图标，选择“关机”或在开始菜单中选择“关机”。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期清洁屏幕和键盘，使用干净的微纤维布；<br>2. 避免在高温、潮湿环境中使用和存放；<br>3. 确保通风良好，避免过热；<br>4. 使用原装充电器进行充电，避免使用非认证配件；<br>5. 定期备份数据，保持操作系统和应用程序的最新状态。'},
+        { title: "小米 14 Pro", price: 6999, location: "杭州", postedDate: "2024-10-03", imageUrl: "https://doc-fd.zol-img.com.cn/t_s640x2000/g7/M00/06/03/ChMkLGU6bOWIK9XyAACcIeVGAb8AAWXNABSzzgAAJw5373.jpg ", detailsUrl: "./product-details.html", category: "手机", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手小米 14 Pro 配备 <strong>6.73 英寸 AMOLED 显示屏</strong>（3200 x 1440 像素），搭载 <strong>Snapdragon 8 Gen 2 处理器</strong>，提供 <strong>12GB/16GB 内存</strong> 和 <strong>256GB/512GB 存储选项</strong>，后置 <strong>50MP 主摄像头</strong>、<strong>50MP 超广角</strong> 和 <strong>50MP 长焦</strong>，支持 <strong>8K 视频录制</strong>，前置 <strong>32MP 摄像头</strong>，电池容量约 <strong>4865mAh</strong>，支持 <strong>67W 快速充电</strong> 和 <strong>50W 无线充电</strong>，具备 <strong>IP68 防水防尘等级</strong> 和 <strong>屏下指纹识别</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧电源键直到小米标志出现；<br>2. 关机：长按电源键和音量下键，直到出现滑动关机提示，滑动以关闭手机；<br>3. 设置：选择语言和地区，连接 Wi-Fi 网络，登录或创建小米账号；<br>4. 使用：通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 发送短信：使用“信息”应用；<br>6. 拍照/录像：打开“相机”应用选择拍照或录像模式；<br>7. 下载应用：访问“应用商店”，搜索并点击获取进行下载；<br>8. 管理应用：长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手机放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 尽量减少手机接触水，虽然具备 IP68 防水防尘功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用原装充电器和数据线，避免使用非认证配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "华为 P40 Pro", price: 4999, location: "武汉", postedDate: "2024-10-04", imageUrl: "https://www.szxpc.com/zb_users/upload/2020/03/20200313090849_71269.png", detailsUrl: "./product-details.html", category: "手机", condition: "8成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手华为 P40 Pro 配备 <strong>6.58 英寸 OLED 显示屏</strong>（2640 x 1200 像素），搭载 <strong>Kirin 990 处理器</strong>，提供 <strong>8GB 内存</strong> 和 <strong>256GB 存储</strong>，后置 <strong>50MP 主摄像头</strong>、<strong>40MP 超广角</strong> 和 <strong>12MP 长焦</strong>，支持 <strong>4K 视频录制</strong>，前置 <strong>32MP 主摄像头</strong> 和 <strong>IR 深感摄像头</strong>，电池容量约 <strong>4200mAh</strong>，支持 <strong>40W 有线快充</strong> 和 <strong>27W 无线充电</strong>，具备 <strong>IP68 防水防尘等级</strong> 和 <strong>屏下指纹识别</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧电源键直到华为标志出现；<br>2. 关机：长按电源键和音量下键，直到出现滑动关机提示，滑动以关闭手机；<br>3. 设置：选择语言和地区，连接 Wi-Fi 网络，登录或创建华为账号；<br>4. 使用：通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 发送短信：使用“信息”应用；<br>6. 拍照/录像：打开“相机”应用选择拍照或录像模式；<br>7. 下载应用：访问“应用市场”，搜索并点击获取进行下载；<br>8. 管理应用：长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手机放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 尽量减少手机接触水，虽然具备 IP68 防水防尘功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用原装充电器和数据线，避免使用非认证配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "OPPO Reno 5 Pro", price: 2999, location: "重庆", postedDate: "2024-10-05", imageUrl: "https://inews.gtimg.com/newsapp_bt/0/12952795290/1000", detailsUrl: "./product-details.html", category: "手机", condition: "9成新", reason: "不再使用", tradeMethod: "快递" ,productDescription: '二手 OPPO Reno 5 Pro 配备 <strong>6.55 英寸 AMOLED 显示屏</strong>（2400 x 1080 像素），搭载 <strong>MediaTek Dimensity 1000+ 处理器</strong>，提供 <strong>8GB 内存</strong> 和 <strong>128GB/256GB 存储选项</strong>，后置 <strong>64MP 主摄像头</strong>、<strong>8MP 超广角</strong>、<strong>2MP 微距</strong>和 <strong>2MP 黑白镜头</strong>，支持 <strong>4K 视频录制</strong>，前置 <strong>32MP 摄像头</strong>，电池容量约 <strong>4350mAh</strong>，支持 <strong>65W SuperVOOC 2.0 快充</strong>，具备 <strong>屏下指纹识别</strong> 和 <strong>超薄机身设计</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧电源键直到 OPPO 标志出现；<br>2. 关机：长按电源键和音量下键，直到出现滑动关机提示，滑动以关闭手机；<br>3. 设置：选择语言和地区，连接 Wi-Fi 网络，登录或创建 OPPO 账号；<br>4. 使用：通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 发送短信：使用“信息”应用；<br>6. 拍照/录像：打开“相机”应用选择拍照或录像模式；<br>7. 下载应用：访问“应用商店”，搜索并点击获取进行下载；<br>8. 管理应用：长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手机放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 尽量减少手机接触水，虽然具备一定的防水功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用原装充电器和数据线，避免使用非认证配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "vivo X60 Pro", price: 3999, location: "深圳", postedDate: "2024-10-06", imageUrl: "https://img12.360buyimg.com/n1/jfs/t1/242827/11/11204/31215/6663e5d5Feef1cc88/bd2a3b691832d03e.jpg", detailsUrl: "./product-details.html", category: "手机", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手 vivo X60 Pro 配备 <strong>6.56 英寸 AMOLED 显示屏</strong>（2376 x 1080 像素），搭载 <strong>Qualcomm Snapdragon 888 处理器</strong>，提供 <strong>12GB 内存</strong> 和 <strong>256GB 存储</strong>，后置 <strong>48MP 主摄像头</strong>（支持光学防抖）、<strong>13MP 超广角</strong> 和 <strong>13MP 长焦镜头</strong>，支持 <strong>8K 视频录制</strong>，前置 <strong>32MP 摄像头</strong>，电池容量约 <strong>4200mAh</strong>，支持 <strong>55W 快速充电</strong>，具备 <strong>屏下指纹识别</strong> 和 <strong>超薄设计</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧电源键直到 vivo 标志出现；<br>2. 关机：长按电源键和音量下键，直到出现滑动关机提示，滑动以关闭手机；<br>3. 设置：选择语言和地区，连接 Wi-Fi 网络，登录或创建 vivo 账号；<br>4. 使用：通过主屏幕访问应用，打开“电话”应用拨打号码或从联系人中选择；<br>5. 发送短信：使用“信息”应用；<br>6. 拍照/录像：打开“相机”应用选择拍照或录像模式；<br>7. 下载应用：访问“应用商店”，搜索并点击获取进行下载；<br>8. 管理应用：长按应用图标以移除或重新排列应用。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手机放置在高温（超过 35°C）或低温（低于 0°C）环境中；<br>2. 尽量减少手机接触水，虽然具备一定的防水功能，长期浸水仍可能导致损坏；<br>3. 定期用柔软的微纤维布清洁屏幕和后壳，避免使用含有化学成分的清洁剂；<br>4. 建议使用屏幕保护膜和手机壳，以防刮擦和跌落损坏；<br>5. 保持操作系统和应用程序定期更新；<br>6. 充电时，尽量使用原装充电器和数据线，避免使用非认证配件；<br>7. 注意不要让电池长时间处于过低或过高的电量状态，最佳充电范围为 20%-80%。'},
+        { title: "索尼 WH-1000XM3", price: 1999, location: "广州", postedDate: "2024-10-07", imageUrl: "https://imgcache.dealmoon.com/thumbimg.dealmoon.com/dealmoon/c30/800/3f2/2e9aa19ea6129ac36aca68a.jpg_600_0_3_b1f1.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "8成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手索尼 WH-1000XM3 具备 <strong>40mm 驱动单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，配备 <strong>蓝牙 4.2</strong> 和 <strong>NFC 连接功能</strong>，电池续航约 <strong>30 小时</strong>，支持 <strong>USB-C 快速充电</strong>，兼容 <strong>高解析音频</strong> 和 <strong>自适应声音控制</strong>，带有 <strong>舒适的耳罩设计</strong> 和 <strong>可调节的头梁</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按左侧耳罩上的电源按钮，直到听到开机提示音；<br>2. 配对：在蓝牙设置中选择“WH-1000XM3”进行配对，或使用 NFC 进行快速配对；<br>3. 控制：使用耳罩上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：通过 USB-C 端口连接充电器进行充电；<br>5. 噪声取消模式：长按左侧耳罩上的噪声取消按钮切换模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装收纳盒中，以保护耳机免受损坏；<br>4. 定期检查耳机的充电端口和连接线，确保无损坏；<br>5. 避免在高温环境下充电，保持充电环境干燥。'}
+    ],
+    8: [
+        { title: "BOSE QC35 II", price: 1899, location: "北京", postedDate: "2024-10-08", imageUrl: "https://images-cn.ssl-images-amazon.cn/images/I/71jQNl8Tz7L._AC_SX679_.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手 BOSE QC35 II 具备 <strong>40mm 驱动单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，配备 <strong>蓝牙 4.1</strong> 和 <strong>NFC 连接功能</strong>，电池续航约 <strong>20 小时</strong>，支持 <strong>USB-C 快速充电</strong>，兼容 <strong>高解析音频</strong> 和 <strong>内置语音助手（Google Assistant/Alexa）</strong>，带有 <strong>舒适的耳罩设计</strong> 和 <strong>可调节的头梁</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧耳罩上的电源按钮，直到听到开机提示音；<br>2. 配对：在蓝牙设置中选择“QC35 II”进行配对，或使用 NFC 进行快速配对；<br>3. 控制：使用耳罩上的按钮进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：通过 USB-C 端口连接充电器进行充电；<br>5. 噪声取消模式：使用耳罩上的噪声取消按钮切换模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装收纳盒中，以保护耳机免受损坏；<br>4. 定期检查耳机的充电端口和连接线，确保无损坏；<br>5. 避免在高温环境下充电，保持充电环境干燥。'},
+        { title: "JBL Charge 4", price: 699, location: "上海", postedDate: "2024-10-09", imageUrl: "https://img2.baidu.com/it/u=2046039627,1865209293&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=510", detailsUrl: "./product-details.html", category: "耳机", condition: "8成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手 JBL Charge 4 具备 <strong>30W 输出功率</strong>，配备 <strong>7.6 英寸低音喇叭</strong>，支持 <strong>蓝牙 4.2 连接</strong>，电池续航约 <strong>20 小时</strong>，内置 <strong>7500mAh 大容量电池</strong>，支持 <strong>USB-C 充电</strong> 和 <strong>USB 输出为其他设备充电</strong>，具备 <strong>IPX7 防水等级</strong> 和 <strong>JBL 特色的 Bass Radiator</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按电源按钮直到 LED 指示灯亮起；<br>2. 配对：在蓝牙设置中选择“Charge 4”进行配对；<br>3. 控制：使用音量按钮调节音量，播放/暂停按钮控制音乐播放；<br>4. 充电：通过 USB-C 端口连接充电器进行充电，使用 USB 输出为其他设备充电；<br>5. 连接多个设备：按下“JBL Connect”按钮以连接其他 JBL 设备。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将扬声器暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭扬声器表面，避免使用液体清洁剂；<br>3. 确保在清洁时扬声器已经断电，并干燥后再充电；<br>4. 在不使用时，保持扬声器干燥并放置在通风良好的地方；<br>5. 避免扬声器长期暴露在阳光直射下。'},
+        { title: "华为 FreeBuds 3", price: 799, location: "深圳", postedDate: "2024-10-10", imageUrl: "https://img1.baidu.com/it/u=4209195542,4102766436&fm=253&fmt=auto&app=120&f=JPEG?w=952&h=622", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手华为 FreeBuds 3 配备 <strong>14mm 动圈单元</strong>，支持 <strong>蓝牙 5.1 连接</strong> 和 <strong>双麦克风降噪技术</strong>，电池续航约 <strong>4 小时</strong>，充电盒提供额外 <strong>20 小时</strong> 使用时间，具备 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，支持 <strong>无线充电</strong> 和 <strong>快速充电</strong>，兼容 <strong>华为设备的自适应配对</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：从充电盒中取出耳机，耳机自动开机；<br>2. 配对：在手机蓝牙设置中选择“FreeBuds 3”进行配对；<br>3. 控制：使用耳机上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：将耳机放回充电盒中进行充电，充电盒通过 USB-C 端口或无线充电充电；<br>5. 噪声取消模式：轻触耳机的触控面板切换噪声取消或环境声模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装充电盒中，以保护耳机免受损坏；<br>4. 定期检查充电端口和耳机状态，确保无损坏；<br>5. 避免耳机长期暴露在阳光直射下。'},
+        { title: "小米 Air 2", price: 599, location: "广州", postedDate: "2024-10-11", imageUrl: "https://img0.baidu.com/it/u=833940006,2444832580&fm=253&fmt=auto&app=138&f=PNG?w=500&h=500", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "急需用钱", tradeMethod: "快递" ,productDescription: '二手小米 Air 2 配备 <strong>14.2mm 大动圈单元</strong>，支持 <strong>蓝牙 5.0 连接</strong>，具备 <strong>双麦克风降噪技术</strong>，电池续航约 <strong>4 小时</strong>，充电盒提供额外 <strong>14 小时</strong> 使用时间，支持 <strong>无线充电</strong> 和 <strong>快速充电</strong>，兼容 <strong>小米设备的自适应配对</strong> 和 <strong>触控操作</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：从充电盒中取出耳机，耳机自动开机；<br>2. 配对：在手机蓝牙设置中选择“小米 Air 2”进行配对；<br>3. 控制：使用耳机上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：将耳机放回充电盒中进行充电，充电盒通过 USB-C 端口或无线充电充电；<br>5. 操作模式：轻触耳机的触控面板切换模式或唤醒语音助手。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装充电盒中，以保护耳机免受损坏；<br>4. 定期检查充电端口和耳机状态，确保无损坏；<br>5. 避免耳机长期暴露在阳光直射下。'},
+        { title: "索尼 WH-1000XM4", price: 2499, location: "南京", postedDate: "2024-10-12", imageUrl: "https://doc-fd.zol-img.com.cn/t_s2000x2000/g6/M00/0E/0B/ChMkKV8zeA-IPfF5AAKEfY5r6pAAAA60AHM1lsAAoSV709.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手索尼 WH-1000XM4 具备 <strong>40mm 驱动单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，配备 <strong>蓝牙 5.0 连接</strong> 和 <strong>NFC 配对功能</strong>，电池续航约 <strong>30 小时</strong>，支持 <strong>USB-C 快速充电</strong>，兼容 <strong>高解析音频</strong> 和 <strong>内置语音助手（Google Assistant/Alexa）</strong>，带有 <strong>舒适的耳罩设计</strong> 和 <strong>可调节的头梁</strong>，具备 <strong>触控操作面板</strong> 和 <strong>自适应声音控制</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧耳罩上的电源按钮，直到听到开机提示音；<br>2. 配对：在蓝牙设置中选择“WH-1000XM4”进行配对，或使用 NFC 进行快速配对；<br>3. 控制：使用耳罩上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：通过 USB-C 端口连接充电器进行充电；<br>5. 噪声取消模式：长按耳罩上的噪声取消按钮切换模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装收纳盒中，以保护耳机免受损坏；<br>4. 定期检查耳机的充电端口和连接线，确保无损坏；<br>5. 避免在高温环境下充电，保持充电环境干燥。'},
+        { title: "苹果 AirPods Pro", price: 1799, location: "重庆", postedDate: "2024-10-13", imageUrl: "https://qny.smzdm.com/202408/10/66b75704107a94571.jpg_d250.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "8成新", reason: "换新款", tradeMethod: "面交" ,productDescription: '二手苹果 AirPods Pro 配备 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，内置 <strong>H1 芯片</strong>，支持 <strong>蓝牙 5.0 连接</strong>，具备 <strong>三种耳塞尺寸</strong> 和 <strong>30 小时的总使用时间</strong>（包含充电盒），支持 <strong>无线充电</strong> 和 <strong>快速充电</strong>，兼容 <strong>苹果设备的自适应配对</strong> 和 <strong>触控操作</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：从充电盒中取出耳机，耳机自动开机；<br>2. 配对：在苹果设备的蓝牙设置中选择“AirPods Pro”进行配对；<br>3. 控制：使用耳机上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：将耳机放回充电盒中进行充电，充电盒通过 Lightning 端口或无线充电充电；<br>5. 噪声取消模式：轻触耳机的触控面板切换噪声取消或环境声模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装充电盒中，以保护耳机免受损坏；<br>4. 定期检查充电端口和耳机状态，确保无损坏；<br>5. 避免耳机长期暴露在阳光直射下。'},
+        { title: "Bose SoundLink Mini", price: 1299, location: "北京", postedDate: "2024-10-14", imageUrl: "https://img0.baidu.com/it/u=3616681731,1716475825&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "快递" ,productDescription: '二手 Bose SoundLink Mini 具备 <strong>2 个 50mm 驱动单元</strong>，提供 <strong>强劲的低频效果</strong>，支持 <strong>蓝牙 4.0 连接</strong>，电池续航约 <strong>10 小时</strong>，配备 <strong>内置麦克风</strong>，支持 <strong>免提通话</strong>，体积小巧且易于携带，具备 <strong>USB 充电端口</strong> 和 <strong>3.5mm 音频输入接口</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：按下电源按钮，直到听到开机提示音；<br>2. 配对：在蓝牙设置中选择“SoundLink Mini”进行配对；<br>3. 控制：使用扬声器上的按钮调节音量、播放/暂停音乐和接听/挂断电话；<br>4. 充电：通过 USB 端口连接充电器进行充电；<br>5. 使用音频输入：将音频线连接至 3.5mm 接口以播放音乐。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将扬声器暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭扬声器表面，避免使用液体清洁剂；<br>3. 确保在清洁时扬声器已经断电，并干燥后再充电；<br>4. 在不使用时，将扬声器放置在通风良好的地方；<br>5. 避免扬声器长期暴露在阳光直射下。'},
+        { title: "小米 Air 2 Pro", price: 899, location: "上海", postedDate: "2024-10-15", imageUrl: "https://2c.zol-img.com.cn/product/222/544/cePAHaUg56blY.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "8成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手小米 Air 2 Pro 配备 <strong>12mm 动圈单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，内置 <strong>蓝牙 5.0 连接</strong>，电池续航约 <strong>6 小时</strong>，充电盒提供额外 <strong>28 小时</strong> 使用时间，支持 <strong>无线充电</strong> 和 <strong>快充功能</strong>，具备 <strong>触控操作面板</strong> 和 <strong>动态调整噪声取消功能</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：从充电盒中取出耳机，耳机自动开机；<br>2. 配对：在手机蓝牙设置中选择“小米 Air 2 Pro”进行配对；<br>3. 控制：使用耳机上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：将耳机放回充电盒中进行充电，充电盒通过 USB-C 端口或无线充电充电；<br>5. 噪声取消模式：轻触耳机的触控面板切换噪声取消或环境声模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装充电盒中，以保护耳机免受损坏；<br>4. 定期检查充电端口和耳机状态，确保无损坏；<br>5. 避免耳机长期暴露在阳光直射下。'},
+        { title: "华为 FreeBuds Pro", price: 999, location: "广州", postedDate: "2024-10-16", imageUrl: "https://res2.vmallres.com/pimages/uomcdn/CN/pms/202309/gbom/6942103106200/428_428_BDDC4DBCE3E572C13C29F2C71EB8A418mp.png", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手华为 FreeBuds Pro 配备 <strong>11mm 动圈单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，内置 <strong>蓝牙 5.2 连接</strong>，电池续航约 <strong>4.5 小时</strong>，充电盒提供额外 <strong>20 小时</strong> 使用时间，支持 <strong>无线充电</strong> 和 <strong>快充功能</strong>，具备 <strong>触控操作面板</strong> 和 <strong>智能佩戴检测</strong>，兼容 <strong>华为设备的自适应配对</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：从充电盒中取出耳机，耳机自动开机；<br>2. 配对：在手机蓝牙设置中选择“FreeBuds Pro”进行配对；<br>3. 控制：使用耳机上的触控面板进行音量调节、播放/暂停音乐和接听/挂断电话；<br>4. 充电：将耳机放回充电盒中进行充电，充电盒通过 USB-C 端口或无线充电充电；<br>5. 噪声取消模式：长按耳机的触控面板切换噪声取消或环境声模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装充电盒中，以保护耳机免受损坏；<br>4. 定期检查充电端口和耳机状态，确保无损坏；<br>5. 避免耳机长期暴露在阳光直射下。'},
+        { title: "索尼 WH-CH710N", price: 799, location: "武汉", postedDate: "2024-10-17", imageUrl: "https://doc-fd.zol-img.com.cn//t_s640x2000//g7/M00/0C/00/ChMkLGMqvtmIDpPjAACISCrA2gQAAHvsgPkGjcAAIhg499.jpg", detailsUrl: "./product-details.html", category: "耳机", condition: "9成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手索尼 WH-CH710N 具备 <strong>30mm 驱动单元</strong>，支持 <strong>主动噪声取消</strong> 和 <strong>环境声模式</strong>，内置 <strong>蓝牙 5.0 连接</strong>，电池续航约 <strong>35 小时</strong>，支持 <strong>USB-C 快速充电</strong>，具备 <strong>内置麦克风</strong> 和 <strong>免提通话功能</strong>，兼容 <strong>语音助手（Google Assistant/Alexa）</strong>，具有 <strong>舒适的耳罩设计</strong> 和 <strong>可调节的头梁</strong>，配有 <strong>物理按钮控制</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按右侧耳罩上的电源按钮，直到听到开机提示音；<br>2. 配对：在蓝牙设置中选择“WH-CH710N”进行配对；<br>3. 控制：使用耳罩上的物理按钮调节音量、播放/暂停音乐和接听/挂断电话；<br>4. 充电：通过 USB-C 端口连接充电器进行充电；<br>5. 噪声取消模式：按下耳罩上的噪声取消按钮切换模式。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将耳机暴露在高温或潮湿环境中；<br>2. 定期用柔软的干布擦拭耳机表面，避免使用液体清洁剂；<br>3. 在不使用时，将耳机放入原装收纳盒中，以保护耳机免受损坏；<br>4. 定期检查耳机的充电端口和连接线，确保无损坏；<br>5. 避免在高温环境下充电，保持充电环境干燥。'}
+    ],
+    9: [
+        { title: "Apple Watch Series 6", price: 2999, location: "北京", postedDate: "2024-10-08", imageUrl: "https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/F09H3_AV1?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1615321141000", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手 Apple Watch Series 6 具备 <strong>44mm 或 40mm 屏幕尺寸</strong>，搭载 <strong>S6 芯片</strong>，支持 <strong>血氧监测</strong> 和 <strong>心电图（ECG）</strong> 功能，配备 <strong>Always-On Retina 显示屏</strong>，内置 <strong>GPS</strong> 和 <strong>蜂窝网络（可选）</strong>，支持 <strong>心率监测</strong>、<strong>睡眠跟踪</strong> 和 <strong>运动追踪</strong>，具备 <strong>5ATM 防水等级</strong> 和 <strong>快速充电功能</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 开机：长按侧边按钮，直到 Apple 标志出现；<br>2. 配对：在 iPhone 的 Watch 应用中选择“开始配对”，并按照屏幕上的指示操作；<br>3. 控制：通过触控屏幕和侧边按钮进行操作，包括查看通知、启动应用、调节音量等；<br>4. 充电：使用原装磁性充电器进行充电，确保充电底座与手表接触良好；<br>5. 使用健康功能：通过 Apple Watch 应用查看健康数据和进行健康设置。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在高温、潮湿或化学物质中；<br>2. 定期用柔软的干布擦拭手表表面和表带，避免使用液体清洁剂；<br>3. 确保手表在充电时保持干燥，并避免在充电时使用；<br>4. 在不使用时，将手表存放在通风良好的地方；<br>5. 定期检查手表的健康传感器，确保正常运作。'},
+        { title: "Rolex Submariner", price: 89999, location: "上海", postedDate: "2024-10-09", imageUrl: "https://www.fwrdcn888.com/images/p/fw/45/BOBR-ML4_V1.jpg", detailsUrl: "./product-details.html", category: "手表", condition: "7成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手 Rolex Submariner 具备 <strong>40mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>300米防水深度</strong>，配备 <strong>单向旋转潜水表圈</strong> 和 <strong>黑色表盘</strong>，采用 <strong>夜光指针和时标</strong>，搭载 <strong>日期显示窗口</strong> 和 <strong>放大镜</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>坚固的不锈钢表链</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 旋转表圈：旋转单向潜水表圈以设定潜水时间；<br>4. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>5. 佩戴：调整表链以适应手腕大小，确保佩戴舒适。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度和化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表链，避免使用化学清洁剂；<br>3. 每隔 3-5 年进行专业保养，以确保机芯正常运作；<br>4. 避免手表长时间接触水，特别是在表冠未完全旋紧时；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Casio G-Shock", price: 799, location: "深圳", postedDate: "2024-10-10", imageUrl: "https://a.vpimg4.com/upload/merchandise/pdc/893/029/252277977413029893/0/GA10001A-k-1.jpg", detailsUrl: "./product-details.html", category: "手表", condition: "8成新", reason: "不再使用", tradeMethod: "自取" ,productDescription: '二手 Casio G-Shock 具备 <strong>坚固耐用的树脂表壳</strong>，搭载 <strong>多功能数字显示</strong>，具有 <strong>防震</strong> 和 <strong>防水（一般达 200 米）</strong> 特性，配备 <strong>世界时间</strong>、<strong>闹钟</strong>、<strong>秒表</strong> 和 <strong>倒计时功能</strong>，表盘为 <strong>LED 背光</strong>，具备 <strong>自动校准时间</strong> 和 <strong>耐用电池</strong>，适合 <strong>极端环境下使用</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：按下“Mode”按钮选择时间设置模式，使用“Adjust”按钮调整小时、分钟等；<br>2. 设置闹钟：按“Mode”按钮选择闹钟设置模式，使用“Adjust”按钮设置闹钟时间；<br>3. 使用秒表：在主屏幕下按“Start/Stop”按钮开始计时，再次按下停止；<br>4. 使用倒计时：按“Mode”按钮选择倒计时模式，设置倒计时时间并启动；<br>5. 启用背光：在任何模式下按“Light”按钮启用背光。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 定期用柔软的干布擦拭表壳，避免使用液体清洁剂；<br>2. 避免将手表暴露在极端温度和化学物质中；<br>3. 确保在潜水或洗澡前将表冠完全旋紧；<br>4. 定期检查电池状态，必要时进行更换；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Omega Seamaster", price: 49999, location: "广州", postedDate: "2024-10-11", imageUrl: "https://t11.baidu.com/it/u=4047734588,214711913&fm=30&app=106&f=JPEG?w=478&h=720&s=57D86022DAD053ED6305F9860300A0E1", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手 Omega Seamaster 具备 <strong>42mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>300米防水深度</strong>，配备 <strong>单向旋转潜水表圈</strong> 和 <strong>黑色或蓝色表盘</strong>，采用 <strong>夜光指针和时标</strong>，搭载 <strong>日期显示窗口</strong> 和 <strong>放大镜</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>坚固的不锈钢表链</strong>，适合 <strong>深潜和极限运动</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 旋转表圈：旋转单向潜水表圈以设定潜水时间；<br>4. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>5. 佩戴：调整表链以适应手腕大小，确保佩戴舒适。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表链，避免使用液体清洁剂；<br>3. 每隔 3-5 年进行专业保养，以确保机芯正常运作；<br>4. 避免手表长时间接触水，特别是在表冠未完全旋紧时；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Tissot PRX", price: 2999, location: "南京", postedDate: "2024-10-12", imageUrl: "https://img1.baidu.com/it/u=2309987019,3603076988&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=618", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "闲置", tradeMethod: "自取" ,productDescription: '二手 Tissot PRX 具备 <strong>40mm 不锈钢表壳</strong>，搭载 <strong>石英机芯</strong>，具有 <strong>防水深度 100 米</strong>，配备 <strong>经典矩形表盘</strong> 和 <strong>光滑的抛光表圈</strong>，表盘上设有 <strong>简约时标</strong> 和 <strong>日期显示窗口</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，配有 <strong>不锈钢表链</strong> 和 <strong>折叠扣</strong>，设计风格现代简约，适合日常佩戴。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 使用：通过表冠旋转调节时间和日期，确保表冠完全旋紧；<br>4. 佩戴：调整表链以适应手腕大小，确保佩戴舒适；<br>5. 清洁：定期用干布擦拭表面。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表链，避免使用液体清洁剂；<br>3. 每隔 2-3 年进行机芯电池更换；<br>4. 防水使用时，确保表冠完全旋紧；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "TAG Heuer Carrera", price: 19999, location: "重庆", postedDate: "2024-10-13", imageUrl: "https://img2.baidu.com/it/u=4215141583,564424101&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=917", detailsUrl: "./product-details.html", category: "手表", condition: "8成新", reason: "急需用钱", tradeMethod: "面交" ,productDescription: '二手 TAG Heuer Carrera 具备 <strong>41mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>100米防水深度</strong>，配备 <strong>经典计时表圈</strong> 和 <strong>精确的计时功能</strong>，表盘上设有 <strong>日期显示窗口</strong> 和 <strong>小秒针</strong>，采用 <strong>夜光指针和时标</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>坚固的皮质表带或不锈钢表链</strong>，适合 <strong>高端商务和日常佩戴</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 使用计时功能：按下右侧计时按钮开始计时，再次按下停止；<br>4. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>5. 佩戴：调整表带或表链以适应手腕大小，确保佩戴舒适。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表带，避免使用液体清洁剂；<br>3. 每隔 3-5 年进行专业保养，以确保机芯正常运作；<br>4. 避免手表长时间接触水，特别是在表冠未完全旋紧时；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Seiko Presage", price: 5999, location: "北京", postedDate: "2024-10-14", imageUrl: "https://img0.baidu.com/it/u=570808339,3536615786&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "换新款", tradeMethod: "快递" ,productDescription: '二手 Seiko Presage 具备 <strong>40.5mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>防水深度 50 米</strong>，配备 <strong>经典圆形表盘</strong> 和 <strong>精致的日期显示窗口</strong>，表盘上设有 <strong>光泽感时标</strong> 和 <strong>夜光指针</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>优雅的皮质表带</strong>，适合 <strong>商务和正式场合佩戴</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>4. 佩戴：调整表带以适应手腕大小，确保佩戴舒适；<br>5. 清洁：定期用干布擦拭表面。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表带，避免使用液体清洁剂；<br>3. 每隔 2-3 年进行机芯保养，以确保正常运作；<br>4. 防水使用时，确保表冠完全旋紧；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Breitling Navitimer", price: 49999, location: "上海", postedDate: "2024-10-15", imageUrl: "https://pic.yupoo.com/fotomag/fc974f27/bcff4772.jpg", detailsUrl: "./product-details.html", category: "手表", condition: "8成新", reason: "闲置", tradeMethod: "面交" ,productDescription: '二手 Breitling Navitimer 具备 <strong>43mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>防水深度 30 米</strong>，配备 <strong>旋转滑尺表圈</strong> 和 <strong>计时功能</strong>，表盘上设有 <strong>日期显示窗口</strong> 和 <strong>小秒针</strong>，采用 <strong>夜光指针和时标</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>坚固的皮质表带或不锈钢表链</strong>，适合 <strong>飞行员和专业人士</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 使用计时功能：按下右侧计时按钮开始计时，再次按下停止；<br>4. 旋转滑尺：使用表圈进行飞行计算；<br>5. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>6. 佩戴：调整表带或表链以适应手腕大小，确保佩戴舒适。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表带，避免使用液体清洁剂；<br>3. 每隔 3-5 年进行专业保养，以确保机芯正常运作；<br>4. 避免手表长时间接触水，特别是在表冠未完全旋紧时；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Swatch Originals", price: 999, location: "广州", postedDate: "2024-10-16", imageUrl: "https://imgservice.suning.cn/uimg1/b2c/image/69ABjI2eeVDx3UySbSIeqA.jpg_800w_800h_4e", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "换新款", tradeMethod: "自取" ,productDescription: '二手 Swatch Originals 具备 <strong>34mm 高品质塑料表壳</strong>，搭载 <strong>石英机芯</strong>，具有 <strong>防水深度 30 米</strong>，配备 <strong>多彩或经典图案表盘</strong> 和 <strong>简约时标</strong>，表镜为 <strong>塑料表镜</strong>，具有 <strong>塑料表带或硅胶表带</strong>，设计风格独特，适合 <strong>休闲和日常佩戴</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 防水使用：避免长时间接触水；<br>3. 佩戴：调整表带以适应手腕大小，确保佩戴舒适；<br>4. 清洁：定期用干布擦拭表面，避免使用液体清洁剂；<br>5. 使用：通过表冠旋转调节时间。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表带，避免使用液体清洁剂；<br>3. 每隔 1-2 年进行电池更换；<br>4. 防水使用时，尽量避免长时间接触水；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'},
+        { title: "Hublot Big Bang", price: 79999, location: "武汉", postedDate: "2024-10-17", imageUrl: "https://watchviews.com/wp-content/uploads/2015/12/HUBLOT-Big-Bang-Unico-King-Gold-Pave_411.OX_.1180.RX_.17042.jpg", detailsUrl: "./product-details.html", category: "手表", condition: "9成新", reason: "急需用钱", tradeMethod: "快递" ,productDescription: '二手 Hublot Big Bang 具备 <strong>44mm 不锈钢表壳</strong>，搭载 <strong>自动机械机芯</strong>，具有 <strong>防水深度 100 米</strong>，配备 <strong>复杂的计时功能</strong> 和 <strong>大表盘设计</strong>，表盘上设有 <strong>日期显示窗口</strong> 和 <strong>小秒针</strong>，采用 <strong>夜光指针和时标</strong>，表镜为 <strong>耐刮蓝宝石水晶</strong>，具有 <strong>旋入式表冠</strong> 和 <strong>橡胶表带或皮质表带</strong>，设计风格独特，适合 <strong>高端商务和时尚场合</strong>。', usageInstructions: '<strong>使用说明：</strong><br>1. 调整时间：拉出表冠至第二档，旋转调整时间；<br>2. 调整日期：拉出表冠至第一档，顺时针旋转调整日期；<br>3. 使用计时功能：按下右侧计时按钮开始计时，再次按下停止；<br>4. 防水使用：确保表冠完全旋紧，避免接触水时表冠松动；<br>5. 佩戴：调整表带以适应手腕大小，确保佩戴舒适。', maintenanceSuggestions: '<strong>保养建议：</strong><br>1. 避免将手表暴露在极端温度或化学物质中；<br>2. 定期用柔软的干布擦拭表壳和表带，避免使用液体清洁剂；<br>3. 每隔 3-5 年进行专业保养，以确保机芯正常运作；<br>4. 避免手表长时间接触水，特别是在表冠未完全旋紧时；<br>5. 存放时使用原装盒或专用手表盒，以防止刮擦和撞击。'}
+    ]
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+        const productId = decodeURIComponent(urlParams.get('id')); // 解码后的 productId
+        const page = urlParams.get('page'); // 获取页码
+        console.log('Product ID:', productId); // 输出调试信息
+        console.log('Page:', page); // 输出调试信息
+
+        const productsArray = productsData[page];
+        console.log('Products Array:', productsArray); // 检查 productsArray 的内容
+
+        const product = productsArray.find(p => p.title === productId);
+        console.log('Found Product:', product); // 输出找到的商品信息
+
+        if (product) {
+            document.getElementById('productTitle').innerText = product.title;
+            document.getElementById('productPrice').innerText = product.price;
+            document.getElementById('productLocation').innerText = product.location;
+            document.getElementById('postedDate').innerText = product.postedDate;
+            document.getElementById('productCondition').innerText = product.condition;
+            document.getElementById('productReason').innerText = product.reason;
+            document.getElementById('productTradeMethod').innerText = product.tradeMethod;
+
+            // 填充商品详细介绍
+            const productDescription = product.productDescription || '暂无商品介绍';
+            document.getElementById('productDescription').innerHTML = productDescription; // 确保使用 innerHTML
+
+            // 填充使用说明
+            const usageInstructions = product.usageInstructions || '暂无使用说明'; // 如果未定义，使用默认值
+            document.getElementById('usageInstructions').innerHTML = usageInstructions; // 填充使用说明
+
+            // 填充保养建议
+            const maintenanceSuggestions = product.maintenanceSuggestions || '暂无保养建议'; // 如果未定义，使用默认值
+            document.getElementById('maintenanceSuggestions').innerHTML = maintenanceSuggestions; // 填充保养建议
+
+            // 清空原有的 carousel-item，避免冲突
+            const carouselInner = document.querySelector('.carousel-inner');
+            carouselInner.innerHTML = '';
+
+            // 添加三张相同的图片
+            for (let i = 0; i < 3; i++) {
+                const carouselItem = document.createElement('div');
+                carouselItem.className = 'carousel-item';
+                if (i === 0) carouselItem.classList.add('active'); // 第一张图为活动项
+                const img = document.createElement('img');
+                img.src = product.imageUrl; // 使用相同的图片
+                img.className = 'product-image';
+                img.alt = '商品图片';
+                carouselItem.appendChild(img);
+                carouselInner.appendChild(carouselItem);
+            }
+        } else {
+            console.log('Product not found for ID:', productId); // 输出未找到商品的情况
+            document.querySelector('.product-detail').innerHTML = '<h2>商品未找到</h2>';
+        }
+
+
+        $(document).ready(function () {
+            const carousel = $('#productCarousel');
+            let magnificationFactor = 2; // 默认放大倍数
+            let isDragging = false; // 标志，表示是否在拖动蓄力条
+            const threshold = 0.05; // 设置一个阈值，防止在1附近产生抖动
+
+            // 更新放大倍数的函数
+            $('#magnificationRange').on('mousedown touchstart', function () {
+                isDragging = true; // 开始拖动
+            });
+
+            $(document).on('mouseup touchend', function () {
+                isDragging = false; // 结束拖动
+            });
+
+            $('#magnificationRange').on('input', function () {
+                if (!isDragging) return; // 如果没有拖动则退出
+
+                const newValue = parseFloat($(this).val());
+                
+                // 只有在新值与当前值的差大于阈值时才更新
+                if (Math.abs(newValue - magnificationFactor) > threshold) {
+                    magnificationFactor = newValue; // 更新放大倍数
+                    $('#magnificationValue').text(magnificationFactor + '倍'); // 更新显示的倍数
+                }
+
+                // 如果放大倍数为1，显示“已禁用”文本
+                if (magnificationFactor === 1) {
+                    $('.magnifier').hide(); // 隐藏放大镜
+                    $('#disabledText').show(); // 显示已禁用文本
+                    $('#suggestionText').show(); // 显示建议文本
+                } else {
+                    $('#disabledText').hide(); // 隐藏已禁用文本
+                    $('#suggestionText').show(); // 显示建议文本
+                    $(this).css('pointer-events', 'auto'); // 允许蓄力条移动
+                }
+            });
+
+            $('.carousel-item').on('mouseenter', function () {
+                carousel.carousel('pause'); // 暂停轮播
+
+                let currentMagnifier = $(this).find('.magnifier');
+
+                if (currentMagnifier.length === 0) {
+                    const imageSrc = $(this).find('.product-image').attr('src');
+                    $(this).append(`
+                        <div class="magnifier">
+                            <img src="${imageSrc}" alt="放大图" class="magnified-image">
+                        </div>
+                    `);
+                    currentMagnifier = $(this).find('.magnifier');
+                }
+
+                // 如果放大倍数为1，直接隐藏放大镜
+                if (magnificationFactor === 1) {
+                    currentMagnifier.hide();
+                } else {
+                    currentMagnifier.show();
+                }
+            });
+
+            $('.carousel-item').on('mousemove', function (e) {
+                const currentMagnifier = $(this).find('.magnifier');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // 计算放大镜的位置
+                currentMagnifier.css({
+                    left: x - currentMagnifier.width() / 2,
+                    top: y - currentMagnifier.height() / 2,
+                });
+
+                // 更新放大图的位置，使其与鼠标位置一致
+                const magnifiedImage = currentMagnifier.find('.magnified-image');
+                magnifiedImage.css({
+                    left: -x * magnificationFactor + (magnifiedImage.width() / 2),
+                    top: -y * magnificationFactor + (magnifiedImage.height() / 2),
+                });
+            });
+
+            $('.carousel-item').on('mouseleave', function () {
+                carousel.carousel('cycle'); // 继续轮播
+                $(this).find('.magnifier').hide(); // 隐藏放大镜
+            });
+        });
+
+        // 填充商品详细介绍
+        document.getElementById('productDescription').innerHTML = product.productDescription;
+
+        // 设置商品介绍区的图片
+        document.getElementById('productImage').src = product.imageUrl; // 使用与轮播图相同的图片
+
+        //验货报告
+        const reports = [];
+
+        // 随机生成一个不大于当前日期的日期
+        function getRandomDate() {
+            const start = new Date(2020, 0, 1); // 2020年1月1日
+            const end = new Date(); // 当前日期
+            const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+            return date.toISOString().split('T')[0];
+        }
+
+        // 随机生成报告ID
+        function getRandomReportId() {
+            return `XR-${Math.floor(Math.random() * 1000000)}`;
+        }
+
+        // 随机生成公司名称
+        function getRandomCompany() {
+            const companies = [
+                '北京标准化检测有限公司',
+                '北京质量控制中心',
+                '北京产品检测服务公司',
+                '北京精密检测技术有限公司',
+                '北京综合检验中心',
+                '上海标准检验有限公司',
+                '上海质量管理服务公司',
+                '上海检测与认证中心',
+                '上海产品质量检验机构',
+                '上海环境检测服务有限公司',
+                '广州产品质量控制中心',
+                '广州质量检测与认证公司',
+                '广州综合检测服务有限公司',
+                '广州精细检验中心',
+                '广州环境质量评估有限公司',
+                '深圳产品检测中心',
+                '深圳质量检验与控制公司',
+                '深圳检测技术服务有限公司',
+                '深圳标准化评估中心',
+                '深圳精密质量检测公司',
+                '成都产品质量检测中心',
+                '成都质量控制与评估有限公司',
+                '成都环境质量检测服务公司',
+                '成都检测技术与服务公司',
+                '成都精密检验中心',
+                '天津质量检验公司',
+                '天津检测服务中心',
+                '天津产品质量控制公司',
+                '天津综合检验与认证有限公司',
+                '天津环境检测公司',
+                '杭州质量评估与检测有限公司',
+                '杭州产品检测中心',
+                '杭州标准化检测服务公司',
+                '杭州精密质量检验公司',
+                '杭州综合检测与认证公司',
+                '南京质量控制中心',
+                '南京检测服务有限公司',
+                '南京产品质量评估公司',
+                '南京环境质量检测中心',
+                '南京精密检验公司',
+                '武汉质量检测服务公司',
+                '武汉产品检验与评估中心',
+                '武汉标准化检测中心',
+                '武汉综合质量控制有限公司',
+                '武汉环境检测服务公司',
+                '西安质量控制与检测有限公司',
+                '西安产品质量检测中心',
+                '西安环境质量评估公司',
+                '西安检测技术服务公司',
+                '西安综合检验中心',
+                '重庆质量检测有限公司',
+                '重庆产品检验与评估公司',
+                '重庆环境检测中心',
+                '重庆检测服务与认证公司',
+                '重庆精密质量控制公司',
+                '青岛质量评估中心',
+                '青岛检测与认证公司',
+                '青岛产品质量检验服务公司',
+                '青岛环境质量检测中心',
+                '青岛综合检测公司',
+                '大连质量检测服务有限公司',
+                '大连产品质量评估公司',
+                '大连检测与认证中心',
+                '大连环境检测服务公司',
+                '大连精密检验中心',
+                '济南产品质量检测公司',
+                '济南环境质量评估中心',
+                '济南检测服务有限公司',
+                '济南标准化检验公司',
+                '济南综合质量控制公司',
+                '郑州质量检测与评估中心',
+                '郑州产品质量控制公司',
+                '郑州环境检测服务公司',
+                '郑州检测技术有限公司',
+                '郑州精密检验中心',
+                '合肥质量检验与检测公司',
+                '合肥产品质量评估中心',
+                '合肥环境质量检测服务公司',
+                '合肥标准化检测公司',
+                '合肥综合检测与认证公司',
+                '福州质量评估中心',
+                '福州检测与认证公司',
+                '福州产品质量检验服务公司',
+                '福州环境质量检测中心',
+                '福州综合质量控制公司',
+                '长沙质量检测服务公司',
+                '长沙产品质量检验中心',
+                '长沙环境质量评估公司',
+                '长沙检测技术服务有限公司',
+                '长沙精密检验中心',
+                '南昌质量检验中心',
+                '南昌检测与认证公司',
+                '南昌产品质量评估公司',
+                '南昌环境检测服务公司',
+                '南昌综合质量控制有限公司',
+                '珠海质量检测服务公司',
+                '珠海产品质量检验中心',
+                '珠海环境检测中心',
+                '珠海检测技术服务公司',
+                '珠海综合质量评估有限公司'
+            ];
+            return companies[Math.floor(Math.random() * companies.length)];
+        }
+
+        // 随机生成地址
+        function getRandomAddress() {
+            const addresses = [
+                '北京市朝阳区建国路88号',
+                '北京市海淀区中关村东路100号',
+                '北京市西城区宣武门外大街200号',
+                '北京市丰台区南四环西路300号',
+                '北京市朝阳区望京东路500号',
+                '上海市浦东新区陆家嘴100号',
+                '上海市徐汇区漕溪北路200号',
+                '上海市长宁区延安西路400号',
+                '上海市虹口区东体育会路500号',
+                '上海市闵行区浦江路600号',
+                '广州市天河区体育西路120号',
+                '广州市白云区白云大道南200号',
+                '广州市海珠区新港西路300号',
+                '广州市荔湾区环市西路400号',
+                '广州市越秀区人民中路500号',
+                '深圳市福田区深南大道200号',
+                '深圳市南山区科技园北区300号',
+                '深圳市罗湖区人民南路400号',
+                '深圳市宝安区新安街道500号',
+                '深圳市龙华区民治街道600号',
+                '成都市锦江区人民南路400号',
+                '成都市青羊区西门口500号',
+                '成都市武侯区剑南大道600号',
+                '成都市成华区双流机场路700号',
+                '成都市高新区天府大道800号',
+                '天津市和平区南京路100号',
+                '天津市河西区友谊路200号',
+                '天津市南开区黄河道300号',
+                '天津市河东区六纬路400号',
+                '天津市滨海新区塘沽街道500号',
+                '杭州市西湖区湖滨路100号',
+                '杭州市下城区延安路200号',
+                '杭州市江干区九堡路300号',
+                '杭州市上城区中山路400号',
+                '杭州市滨江区江南大道500号',
+                '南京市玄武区中山路100号',
+                '南京市鼓楼区广州路200号',
+                '南京市秦淮区常府街300号',
+                '南京市建邺区江东中路400号',
+                '南京市雨花台区西善桥路500号',
+                '武汉市江汉区青年路100号',
+                '武汉市洪山区光谷大道200号',
+                '武汉市武昌区中南路300号',
+                '武汉市汉阳区汉阳大道400号',
+                '武汉市硚口区解放大道500号',
+                '西安市碑林区南门外大街100号',
+                '西安市雁塔区小寨路200号',
+                '西安市未央区太华路300号',
+                '西安市莲湖区北关街道400号',
+                '西安市高新区科技路500号',
+                '重庆市渝中区解放碑步行街100号',
+                '重庆市江北区观音桥步行街200号',
+                '重庆市南岸区南坪东路300号',
+                '重庆市沙坪坝区三峡广场400号',
+                '重庆市九龙坡区杨家坪街道500号',
+                '青岛市市南区香港中路100号',
+                '青岛市市北区延安路200号',
+                '青岛市崂山区崂山路300号',
+                '青岛市李沧区青银路400号',
+                '青岛市即墨区通济街道500号',
+                '大连市中山区人民路100号',
+                '大连市西岗区长春路200号',
+                '大连市沙河口区黄河路300号',
+                '大连市甘井子区汇泉路400号',
+                '大连市旅顺口区白玉山路500号',
+                '济南市历下区泉城路100号',
+                '济南市市中区英雄山路200号',
+                '济南市天桥区北园大街300号',
+                '济南市槐荫区济齐路400号',
+                '济南市高新区舜耕路500号',
+                '郑州市金水区花园路100号',
+                '郑州市二七区大学路200号',
+                '郑州市管城区商城路300号',
+                '郑州市中原区建设路400号',
+                '郑州市惠济区郑花路500号',
+                '合肥市包河区芜湖路100号',
+                '合肥市蜀山区黄山路200号',
+                '合肥市庐阳区徽州大道300号',
+                '合肥市经开区繁华大道400号',
+                '合肥市瑶海区胜利路500号',
+                '福州市鼓楼区东街口100号',
+                '福州市台江区五一广场200号',
+                '福州市仓山区建新路300号',
+                '福州市晋安区连江路400号',
+                '福州市福清市三山街道500号',
+                '长沙市芙蓉区五一广场100号',
+                '长沙市天心区黄花路200号',
+                '长沙市岳麓区潇湘路300号',
+                '长沙市开福区芙蓉路400号',
+                '长沙市雨花区劳动西路500号',
+                '南昌市东湖区八一大道100号',
+                '南昌市西湖区广场路200号',
+                '南昌市青云谱区解放西路300号',
+                '南昌市新建区昌东路400号',
+                '南昌市红谷滩新区南昌路500号',
+                '珠海市香洲区九洲城100号',
+                '珠海市斗门区白藤湖路200号',
+                '珠海市横琴新区珠海大道300号',
+                '珠海市高新区科技中路400号',
+                '珠海市金湾区金海路500号'
+            ];
+            return addresses[Math.floor(Math.random() * addresses.length)];
+        }
+
+        // 随机生成商品评价
+        function getRandomContent() {
+            const contents = [
+                '商品状态良好，符合描述。经检查，无破损、无缺陷，所有功能正常。',
+                '部分商品存在轻微瑕疵，但整体符合要求。建议进一步检查。',
+                '商品完好无损，无缺陷，符合所有质量标准。',
+                '商品数量与订单一致，包装完好，符合运输标准。',
+                '商品符合质量标准，外观无瑕疵，功能正常。',
+                '商品整体状况良好，无明显损坏，功能正常。',
+                '商品在运输过程中未受损，质量符合预期。',
+                '部分商品存在小划痕，但不影响使用，建议检查。',
+                '商品包装完好，内容与描述一致，无缺陷。',
+                '商品外观无明显瑕疵，所有功能正常，符合质量标准。',
+                '商品状态良好，无损坏，功能完全正常。',
+                '商品符合描述，运输过程中无损坏，整体满意。',
+                '商品有轻微的瑕疵，但不影响使用，整体满意。',
+                '商品质量符合标准，外观无损坏，功能正常。',
+                '商品包装良好，未发现缺陷，功能正常。',
+                '商品外观完好，符合描述，所有功能正常。',
+                '商品状态如描述，未见损坏，功能正常。',
+                '商品轻微的瑕疵不影响整体使用，质量符合要求。',
+                '商品符合预期，包装完好，运输过程中未见损坏。',
+                '商品无破损，外观良好，功能正常，符合描述。',
+                '商品包装完好，数量与订单一致，状态良好。',
+                '商品整体质量良好，无明显缺陷，功能正常。',
+                '商品有少许瑕疵，但不影响使用，质量符合标准。',
+                '商品外观正常，包装完好，功能完全正常。',
+                '商品状态良好，符合质量标准，无损坏，功能正常。',
+                '商品符合描述，运输包装良好，无明显缺陷。',
+                '商品在运输过程中无损坏，状态良好，质量符合预期。',
+                '商品轻微瑕疵，不影响使用，整体符合要求。',
+                '商品质量符合预期，功能正常，外观无损坏。',
+                '商品数量与订单一致，包装完好，状态良好。',
+                '商品整体质量符合要求，外观良好，功能正常。',
+                '商品在运输过程中无损坏，状态如描述，功能正常。',
+                '商品存在轻微瑕疵，但不影响使用，整体满意。',
+                '商品质量良好，功能正常，外观完好，无明显缺陷。',
+                '商品符合描述，外观无瑕疵，功能正常，包装完好。',
+                '商品状态良好，运输包装无损，所有功能正常。',
+                '商品有少许划痕，但不影响使用，整体质量符合标准。',
+                '商品符合预期，状态良好，外观无明显缺陷。',
+                '商品包装完好，质量符合描述，无破损或缺陷。',
+                '商品功能正常，外观无瑕疵，整体质量满意。',
+                '商品状态良好，符合质量标准，无明显损坏。',
+                '商品外观正常，功能无异常，符合描述。',
+                '商品在运输过程中未受损，包装完好，质量满意。',
+                '商品有轻微瑕疵，但不影响使用，整体满意。',
+                '商品状态良好，质量符合要求，功能正常。',
+                '商品符合质量标准，包装完好，无破损或缺陷。',
+                '商品在运输过程中无损坏，外观和功能正常。',
+                '商品轻微瑕疵，不影响正常使用，整体符合要求。',
+                '商品质量符合标准，包装良好，无明显缺陷。',
+                '商品状态如描述，功能正常，包装完好。',
+                '商品在运输过程中未受损，功能正常，外观良好。',
+                '商品外观无明显损坏，功能正常，整体质量符合要求。',
+                '商品包装完好，质量良好，功能完全正常。',
+                '商品有轻微的划痕，但不影响使用，整体质量满意。',
+                '商品符合描述，无破损，功能正常，状态良好。',
+                '商品在运输过程中无损坏，外观良好，质量符合标准。',
+                '商品轻微瑕疵，但不影响功能，整体状态良好。',
+                '商品符合要求，包装完好，功能正常，外观无瑕疵。',
+                '商品状态良好，质量符合描述，无损坏或缺陷。',
+                '商品有少许划痕，但不影响使用，整体满意。',
+                '商品包装完好，质量正常，功能无异常。',
+                '商品状态符合描述，无明显损坏，功能正常。',
+                '商品外观良好，包装完好，质量符合标准。',
+                '商品轻微瑕疵不影响使用，整体质量符合要求。',
+                '商品功能正常，外观完好，包装未受损。',
+                '商品在运输过程中无损坏，状态良好，符合描述。',
+                '商品质量符合要求，包装良好，所有功能正常。',
+                '商品有轻微瑕疵，整体状态良好，不影响使用。',
+                '商品外观正常，功能无异常，符合质量标准。',
+                '商品状态良好，运输包装完好，质量符合预期。',
+                '商品轻微的瑕疵不影响使用，整体质量符合标准。',
+                '商品包装完好，质量符合描述，功能正常。',
+                '商品符合描述，状态良好，无损坏或缺陷。',
+                '商品在运输过程中无损坏，外观良好，质量满意。',
+                '商品轻微瑕疵不影响功能，整体符合预期。',
+                '商品功能正常，外观完好，包装未见破损。',
+                '商品质量符合标准，外观无瑕疵，功能完全正常。',
+                '商品状态良好，包装完整，符合描述。',
+                '商品外观正常，功能无异常，质量满意。',
+                '商品轻微的瑕疵不影响整体使用，符合要求。',
+                '商品状态符合描述，包装良好，功能正常。',
+                '商品在运输过程中无损坏，整体质量符合预期。',
+                '商品有轻微瑕疵，整体质量符合标准，不影响使用。',
+                '商品功能正常，外观良好，包装完好，无明显缺陷。',
+                '商品状态良好，符合质量标准，无损坏或缺陷。',
+                '商品在运输过程中未受损，外观正常，功能完全正常。',
+                '商品轻微瑕疵不影响使用，整体质量符合要求。',
+                '商品包装完好，功能正常，外观无瑕疵。',
+                '商品质量符合预期，外观良好，功能正常。',
+                '商品状态良好，无明显损坏，符合描述和要求。',
+                '商品在运输过程中未见损坏，功能正常，质量满意。',
+                '商品有轻微瑕疵，但不影响正常使用，整体满意。',
+                '商品功能正常，外观完好，质量符合描述。',
+                '商品状态符合描述，包装完整，质量满意。',
+                '商品轻微瑕疵不影响使用，整体质量符合标准。',
+                '商品外观正常，功能无异常，符合质量标准。',
+                '商品在运输过程中无损坏，状态良好，符合预期。',
+                '商品质量符合标准，包装完好，无明显缺陷。',
+                '商品状态良好，符合描述，功能正常。',
+                '商品在运输过程中无损坏，外观良好，质量符合要求。',
+                '商品有少许瑕疵，但不影响功能，整体质量满意。'
+            ];
+            return contents[Math.floor(Math.random() * contents.length)];
+        }
+
+        // 随机生成验货人姓名
+        function getRandomPerson() {
+            const names = [
+                '李明', '王芳', '张伟', '刘洋', '陈涛', '杨静', '赵丽', '黄勇', '吴敏', '徐浩',
+                '孙丽', '马强', '朱婷', '许丽', '邓超', '郑爽', '贾静雯', '谢娜', '崔永元', '高圆圆',
+                '李鹏', '张婷', '刘佳', '王芳', '陈华', '杨洋', '赵强', '黄小明', '吴彦祖', '徐子涵',
+                '孙小红', '马云', '朱元璋', '许志安', '邓紫棋', '郑中基', '贾玲', '谢霆锋', '崔健', '高晓松',
+                '李伟', '张秀英', '刘静', '王立军', '陈丽', '杨峰', '赵刚', '黄敏', '吴晓波', '徐婉',
+                '孙亮', '马晓丽', '朱军', '许文强', '邓涵文', '郑家榆', '贾青', '谢小梅', '崔如琢', '高天鹤',
+                '李娜', '张志军', '刘伟', '王静', '陈艳', '杨洋', '赵梅', '黄丽', '吴晨', '徐军',
+                '孙冰', '马东', '朱伟', '许晓冬', '邓琳', '郑泽', '贾一鸣', '谢欣', '崔艺', '高明',
+                '李静', '张鹏', '刘慧', '王海', '陈丹', '杨鑫', '赵娜', '黄军', '吴洁', '徐东',
+                '孙莉', '马光辉', '朱莉', '许飞', '邓小平', '郑欣', '贾晟', '谢磊', '崔真', '高博'
+            ];
+            return names[Math.floor(Math.random() * names.length)];
+        }
+
+        // 生成报告
+        function generateReports() {
+            const reportContainer = document.getElementById('reports');
+            reportContainer.innerHTML = '';
+            reports.length = 0; // 清空之前的报告
+
+            while (reports.length < 10) {
+                const reportId = getRandomReportId();
+                const report = {
+                    id: reportId,
+                    inspector: getRandomPerson(),
+                    date: getRandomDate(),
+                    company: getRandomCompany(),
+                    address: getRandomAddress(),
+                    content: getRandomContent(),
+                    productName: '示例商品', // 示例商品名称
+                    image: 'https://via.placeholder.com/100', // 示例图片 URL
+                    inspectionDate: getRandomDate() // 示例验货日期
+                };
+                reports.push(report);
+
+                const reportHtml = `
+                    <div class="report">
+                        <p><strong>验货人:</strong> ${report.inspector}</p>
+                        <p><strong>验货日期:</strong> ${report.date}</p>
+                        <p><strong>验货编号:</strong> ${report.id}</p>
+                        <p><strong>验货公司:</strong> ${report.company}</p>
+                        <p><strong>验货地址:</strong> ${report.address}</p>
+                        <p><strong>商品评价:</strong> ${report.content}</p>
+                        <button onclick="viewCertificate('${report.id}')">查看证书</button>
+                    </div>
+                `;
+                reportContainer.innerHTML += reportHtml;
+            }
+        }
+
+        // 生成条形码
+        function generateBarcode(text) {
+            const barcodeElement = document.getElementById('barcode');
+            if (barcodeElement) {
+                barcodeElement.innerHTML = ''; // 清空旧条形码
+                try {
+                    JsBarcode(barcodeElement, text, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 50, // 调整高度以适应页面
+                        displayValue: true, // 显示条形码下方的文本
+                        fontSize: 16, // 调整字体大小
+                        text: text, // 在条形码下方显示的文本
+                    });
+                } catch (error) {
+                    console.error('Error generating barcode:', error);
+                }
+            } else {
+                console.error('Barcode element not found.');
+            }
+        }
+
+        // 查看证书
+        function viewCertificate(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (report) {
+                // 使用报告中的商品名称和图片
+                document.getElementById('certificateProductName').textContent = product.title || '暂无商品名称';
+                document.getElementById('certificateInspector').textContent = report.inspector;
+                document.getElementById('certificateDate').textContent = report.date;
+                document.getElementById('certificateCompany').textContent = report.company;
+                document.getElementById('certificateAddress').textContent = report.address;
+                document.getElementById('certificateContent').textContent = report.content;
+
+                // 使用与商品详情页面相同的图片
+                document.getElementById('certificateImage').src = product.imageUrl || 'https://via.placeholder.com/100'; // 使用图片路径
+
+                document.getElementById('certificateInspectionDate').textContent = report.inspectionDate;
+
+                generateBarcode(report.id); // 生成条形码
+
+                document.getElementById('certificateModal').style.display = 'flex';
+            }
+        }
+
+        // 关闭证书模态框
+        function closeModal() {
+            document.getElementById('certificateModal').style.display = 'none';
+        }
+
+        // 初始化报告生成
+        window.onload = generateReports;
+
+
+        // 评论区
+        document.addEventListener('DOMContentLoaded', function() {
+        const commentsList = document.getElementById('commentsList');
+        const likedComments = new Set(); // 跟踪已点赞的评论
+
+        // 示例用户名列表
+        const names = [
+            '小白兔',
+            '流星雨',
+            '午夜幽灵',
+            '飞翔的猫',
+            '紫色梦想',
+            '蔚蓝天空',
+            '温柔的风',
+            '闪电侠',
+            '孤独的狼',
+            '星空下的你',
+            '静默的海',
+            '快乐的小猪',
+            '迷你机器人',
+            '晨曦初光',
+            '悠闲的猫咪',
+            '神秘的使者',
+            '光影猎手',
+            '梦想成真',
+            '星星点灯',
+            '花开的季节',
+            '冰雪女王',
+            '甜蜜的回忆',
+            '风中追风',
+            '月光下的诗',
+            '晨光微露',
+            '狂野的狼',
+            '星际探险者',
+            '蓝色旋律',
+            '温暖的心',
+            '夜晚的歌声',
+            '灿烂的笑容',
+            '静谧的湖泊',
+            '魔法师',
+            '阳光少年',
+            '爱心公主',
+            '星际漫游者',
+            '秋风落叶',
+            '夏日清风',
+            '甜蜜的梦想',
+            '海洋之心',
+            '悠扬的乐章',
+            '梦中情人',
+            '冰雪精灵',
+            '自由的灵魂',
+            '星光闪烁',
+            '清晨的露珠',
+            '阳光明媚',
+            '甜美的微笑',
+            '神秘的彩虹',
+            '浪漫的邂逅',
+            '清新的早晨',
+            '欢快的旋律',
+            '温柔的回忆',
+            '蔚蓝的海洋',
+            '深夜思索',
+            '闪耀的星辰',
+            '翩翩起舞',
+            '微笑的天使',
+            '清新的气息',
+            '乐观的心态',
+            '秋意浓浓',
+            '冬日暖阳',
+            '绿意盎然',
+            '梦幻的世界',
+            '繁星点点',
+            '宁静的森林',
+            '悠扬的旋律',
+            '温暖的阳光',
+            '星空探险家',
+            '花香四溢',
+            '甜美的心情',
+            '奇幻的旅程',
+            '闪闪发光',
+            '夏日的晚风',
+            '甜美的笑声',
+            '清新的微风',
+            '神秘的湖泊',
+            '璀璨的星光',
+            '悠闲的午后',
+            '快乐的时光',
+            '温柔的雪花',
+            '秋天的阳光',
+            '暖心的陪伴',
+            '美丽的梦境',
+            '蓝色的海洋',
+            '欢快的节奏',
+            '静谧的星空',
+            '梦中的花园',
+            '星辰大海',
+            '快乐的旅行者',
+            '浪漫的月光',
+            '甜蜜的回忆',
+            '温暖的拥抱',
+            '梦想的起点',
+            '阳光灿烂',
+            '欢乐的旋律',
+            '冰雪精灵',
+            '迷人的笑容',
+            '星星的秘密',
+            '清新的晨光',
+            '阳光下的微笑'
+        ];
+
+
+        // 生成随机内容的函数
+        function generateRandomContent() {
+            const randomPhrases = [
+            '这款商品质量很好，使用效果非常满意！',
+            '非常推荐这款产品，性价比很高。',
+            '这个商品的设计非常人性化，值得购买。',
+            '产品的性能超出了我的预期。',
+            '这次购物体验非常愉快，商品包装也很精美。',
+            '非常满意的一次购物，商品质量不错。',
+            '这款商品非常实用，功能很强大。',
+            '质量很好，客服服务也很到位。',
+            '商品的做工很精致，购买体验非常好。',
+            '这款产品完全符合我的需求，非常推荐。',
+            '商品描述准确，实际效果非常好。',
+            '快递服务很快，商品质量也很好。',
+            '这款商品的性价比很高，值得购买。',
+            '产品的使用效果非常满意，性价比高。',
+            '这次购物体验很好，商品质量值得信赖。',
+            '非常喜欢这个商品，做工非常精细。',
+            '商品的性能稳定，使用效果超出了预期。',
+            '这款商品的设计很有特点，值得推荐。',
+            '非常满意的购物体验，商品完全符合描述。',
+            '质量很好，客服态度也很满意。',
+            '这个商品很实用，性价比高，推荐购买。',
+            '这次购物很愉快，商品的质量很好。',
+            '非常满意的一次购物，商品的功能很强大。',
+            '商品的实际效果与描述一致，非常满意。',
+            '非常推荐这款产品，购物体验很好。',
+            '商品的设计非常合理，使用效果很好。',
+            '质量很好，快递服务也很到位。',
+            '这款商品非常符合我的期望，值得购买。',
+            '产品的性价比很高，使用效果也很满意。',
+            '购物体验非常好，商品质量非常高。',
+            '这款商品的功能很强大，使用效果很好。',
+            '商品的做工非常精致，值得推荐。',
+            '非常喜欢这款商品，质量超出了预期。',
+            '这次购物体验非常满意，商品很实用。',
+            '商品的包装很精美，使用效果很好。',
+            '质量很好，性价比高，非常推荐。',
+            '这款商品非常值得购买，购物体验很好。',
+            '非常满意的一次购物，商品的性能很好。',
+            '商品的实际效果很不错，非常推荐购买。',
+            '这款商品性价比高，使用效果也很满意。',
+            '商品的设计很有特点，值得推荐购买。',
+            '非常喜欢这个商品，质量非常好。',
+            '这次购物非常满意，商品质量很好。',
+            '商品的功能很强大，使用效果非常好。',
+            '质量很好，客服服务也很满意。',
+            '这款商品非常实用，性价比高。',
+            '购物体验非常好，商品的做工很精致。',
+            '商品的实际效果很好，完全符合描述。',
+            '这款产品值得推荐，使用效果非常好。',
+            '商品质量不错，客服服务也很到位。',
+            '非常满意的一次购物，商品性价比高。',
+            '商品的设计非常好，使用效果非常满意。',
+            '这次购物体验很好，商品的性能也很稳定。',
+            '商品质量很好，快递服务也很快。',
+            '非常喜欢这款商品，值得购买。',
+            '这款商品的性价比很高，质量也很好。',
+            '非常满意的一次购物，商品的实际效果很好。',
+            '商品的设计非常人性化，使用效果很好。',
+            '购物体验很满意，商品的质量很好。',
+            '这款商品非常实用，性价比也很高。',
+            '商品的做工很精致，使用效果非常好。',
+            '质量很好，客服服务也很到位。',
+            '这次购物体验非常好，商品的性能也很稳定。',
+            '商品的性价比很高，使用效果很好。',
+            '非常推荐这款商品，购物体验非常满意。',
+            '商品质量很好，快递服务也很快。',
+            '这款商品非常符合我的需求，值得购买。',
+            '商品的实际效果很好，完全符合描述。',
+            '购物体验非常好，商品质量也很好。',
+            '这款商品的设计很有特点，性价比高。',
+            '质量很好，使用效果也很满意。',
+            '非常喜欢这款商品，购物体验很好。',
+            '商品的性能非常稳定，使用效果很好。',
+            '这次购物体验非常满意，商品的设计很出色。',
+            '商品质量很好，客服服务也很到位。',
+            '非常推荐这款商品，使用效果非常好。',
+            '这款商品的性价比很高，使用效果也很好。',
+            '购物体验很好，商品的实际效果超出了预期。',
+            '商品的设计很人性化，使用效果很好。',
+            '非常满意的一次购物，商品的质量很高。',
+            '这款商品非常实用，购物体验非常好。',
+            '商品质量不错，客服服务也很满意。',
+            '商品的实际效果很好，性价比高。',
+            '这次购物体验非常好，商品完全符合描述。',
+            '非常喜欢这款商品，使用效果很满意。',
+            '这款商品的性能很好，购物体验也很棒。',
+            '商品质量很好，性价比高，非常推荐。',
+            '购物体验非常好，商品的做工很精致。',
+            '商品的设计非常好，使用效果也很好。',
+            '这款商品非常符合我的期望，值得购买。',
+            '质量很好，使用效果也很满意。',
+            '这次购物非常满意，商品的实际效果很好。',
+            '非常推荐这款商品，购物体验非常好。',
+            '商品质量不错，性价比高，值得购买。',
+            '这款商品非常实用，使用效果很好。',
+            '购物体验很好，商品的设计很出色。',
+            '商品的实际效果很好，非常推荐购买。',
+            '这款商品的性价比很高，质量也很好。',
+            '非常满意的一次购物，商品的性能很稳定。',
+            '商品质量很好，客服服务也很到位。',
+            '这款商品非常符合我的需求，值得购买。',
+            '购物体验非常好，商品的实际效果超出了预期。',
+            '商品的设计很人性化，使用效果很好。',
+            '这款商品非常实用，性价比高。',
+            '商品质量很好，客服服务也很满意。',
+            '非常喜欢这款商品，购物体验非常好。',
+            '商品的做工很精致，使用效果也很满意。',
+            '这款商品的性价比很高，推荐购买。',
+            '商品质量不错，使用效果很好，非常满意。',
+            '这次购物体验非常满意，商品完全符合描述。',
+            '商品的设计很独特，使用效果也很好。',
+            '非常推荐这款商品，购物体验很好。',
+            '商品质量很好，性价比高，非常满意。',
+            '这款商品的性能非常稳定，购物体验也很好。',
+            '购物体验非常满意，商品的质量很高。',
+            '这款商品非常实用，使用效果很好。',
+            '商品质量很好，客服服务也很到位。',
+            '非常满意的一次购物，商品的设计很出色。',
+            '商品的实际效果很好，性价比高。',
+            '这款商品非常符合我的需求，值得推荐。',
+            '购物体验非常好，商品质量很高。',
+            '这次购物非常满意，商品的做工很精致。',
+            '商品的设计很有特点，使用效果也很好。',
+            '非常喜欢这款商品，质量超出了预期。',
+            '这款商品的性价比很高，使用效果也很满意。',
+            '商品质量很好，购物体验也很棒。',
+            '这款商品非常实用，购物体验非常好。',
+            '商品的实际效果超出了我的预期，非常满意。',
+            '购物体验很好，商品质量非常高。',
+            '这款商品的设计很有特色，使用效果很好。',
+            '非常推荐这款商品，质量和服务都很好。',
+            '商品的性能很稳定，使用效果也很满意。',
+            '购物体验非常好，商品的质量很高。',
+            '这款商品非常符合我的需求，值得购买。'
+        ];
+
+            return randomPhrases[Math.floor(Math.random() * randomPhrases.length)];
+        }
+
+         // 随机生成评论数据
+         const comments = Array.from({ length: 10 }, (_, index) => ({
+            user: names[Math.floor(Math.random() * names.length)],
+            content: `${index + 1}: ${generateRandomContent()}`,
+            likes: Math.floor(Math.random() * 100),
+            subComments: Array.from({ length: Math.floor(Math.random() * 4) }, (_, subIndex) => ({
+                user: names[Math.floor(Math.random() * names.length)],
+                content: `${subIndex + 1}: ${generateRandomContent()}`,
+                likes: Math.floor(Math.random() * 50)
+            }))
+        }));
+
+        // 违规词列表
+        const bannedWords = ['违规词测试']; // 在这里添加所有违规词
+
+        // 检查评论内容是否包含违规词
+        function containsBannedWords(content) {
+            return bannedWords.some(word => content.includes(word));
+        }
+
+        // 渲染评论
+        function renderComments() {
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = comments.map((comment, index) => `
+                <div class="comment" data-index="${index}">
+                    <div class="comment-content">
+                        <p><strong>${comment.user}:</strong> ${comment.content}</p>
+                        <div class="interaction-buttons">
+                            ${comment.user === '管理员大大' ? `
+                            <div class="delete-button">
+                                <img src="../img/删除评论.png" alt="删除" class="delete-img">
+                            </div>
+                            ` : ''}
+                            <div id="like-${index}" class="likes">
+                                <img src="../img/点赞前.png" alt="点赞" class="like-img">
+                            </div>
+                        </div>
+                    </div>
+                    ${comment.subComments.length ? `
+                    <div class="sub-comments">
+                        ${comment.subComments.map((subComment, subIndex) => `
+                            <div class="comment">
+                                <div class="comment-content">
+                                    <p><strong>${subComment.user}:</strong> ${subComment.content}</p>
+                                    <div id="like-${index}-${subIndex}" class="likes">
+                                        <img src="../img/点赞前.png" alt="点赞" class="like-img">
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 处理点赞点击事件
+        function handleLikeClick(event) {
+            const target = event.target.closest('.likes');
+            if (target) {
+                const img = target.querySelector('img');
+                if (img) {
+                    const id = target.id;
+                    const parts = id.split('-');
+
+                    // 添加动画
+                    target.classList.add('heart-beat');
+                    setTimeout(() => target.classList.remove('heart-beat'), 500);
+
+                    // 处理主评论
+                    if (parts.length === 2) {
+                        const commentIndex = parseInt(parts[1], 10);
+                        if (!isNaN(commentIndex)) {
+                            if (likedComments.has(commentIndex)) {
+                                likedComments.delete(commentIndex);
+                                img.src = '../img/点赞前.png';
+                            } else {
+                                likedComments.add(commentIndex);
+                                img.src = '../img/点赞后.png';
+                            }
+                        }
+                    }
+                    // 处理子评论
+                    else if (parts.length === 3) {
+                        const commentIndex = parseInt(parts[1], 10);
+                        const subIndex = parseInt(parts[2], 10);
+                        const fullIndex = `${commentIndex}-${subIndex}`;
+                        if (!isNaN(commentIndex) && !isNaN(subIndex)) {
+                            if (likedComments.has(fullIndex)) {
+                                likedComments.delete(fullIndex);
+                                img.src = '../img/点赞前.png';
+                            } else {
+                                likedComments.add(fullIndex);
+                                img.src = '../img/点赞后.png';
+                            }
+                        }
+                    }
+                } else {
+                    console.error('Image element not found');
+                }
+            }
+        }
+
+        // 处理删除点击事件
+        function handleDeleteClick(event) {
+            const target = event.target.closest('.delete-button');
+            if (target) {
+                const commentElement = target.closest('.comment');
+                if (commentElement) {
+                    const index = parseInt(commentElement.getAttribute('data-index'), 10);
+                    if (!isNaN(index)) {
+                        comments.splice(index, 1);
+                        renderComments();
+                    }
+                }
+            }
+        }
+
+        // 提交评论
+        function submitComment() {
+            const commentInput = document.getElementById('commentInput');
+            const newCommentContent = commentInput.value;
+
+            // 检查评论内容是否包含违规词
+            if (containsBannedWords(newCommentContent)) {
+                alert('评论内容包含违规词，请修改后再提交。');
+                commentInput.value = '';
+                return;
+            }
+
+            const newComment = {
+                user: '管理员大大',
+                content: newCommentContent,
+                likes: 0,
+                subComments: []
+            };
+            comments.push(newComment);
+            renderComments();
+            commentInput.value = '';
+        }
+
+        // 初始化
+        document.getElementById('commentsList').addEventListener('click', handleLikeClick);
+        document.getElementById('commentsList').addEventListener('click', handleDeleteClick);
+        document.getElementById('submitCommentButton').addEventListener('click', submitComment);
+
+        // 渲染评论列表
+        renderComments();
+    });
+            //购物车
+
+            document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for the 'Add to Favorites' button
+            document.getElementById('addToFavorites').addEventListener('click', function() {
+                const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                const product = {
+                    title: document.getElementById('productTitle').innerText,
+                    price: parseFloat(document.getElementById('productPrice').innerText.replace('￥', '')),
+                    location: document.getElementById('productLocation').innerText,
+                    postedDate: document.getElementById('postedDate').innerText,
+                    condition: document.getElementById('productCondition').innerText,
+                    reason: document.getElementById('productReason').innerText,
+                    tradeMethod: document.getElementById('productTradeMethod').innerText,
+                    productDescription: document.getElementById('productDescription').innerHTML,
+                    usageInstructions: document.getElementById('usageInstructions').innerHTML,
+                    maintenanceSuggestions: document.getElementById('maintenanceSuggestions').innerHTML,
+                    imageUrl: document.querySelector('.carousel-item img').src,
+                };
+
+                // Check if product already exists in favorites
+                const existingProductIndex = favorites.findIndex(p => p.title === product.title);
+                if (existingProductIndex === -1) {
+                    favorites.push(product);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    animateFlyToTarget('../img/收藏满.png', 'addToFavorites');
+                    incrementCount('favoritesCount');
+                    showFireworks();
+                }
+            });
+
+            // Add event listener for the 'Add to Cart' button
+            document.getElementById('addToCartButton').addEventListener('click', function() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const product = {
+                    title: document.getElementById('productTitle').innerText,
+                    price: parseFloat(document.getElementById('productPrice').innerText.replace('￥', '')),
+                    location: document.getElementById('productLocation').innerText,
+                    postedDate: document.getElementById('postedDate').innerText,
+                    condition: document.getElementById('productCondition').innerText,
+                    reason: document.getElementById('productReason').innerText,
+                    tradeMethod: document.getElementById('productTradeMethod').innerText,
+                    productDescription: document.getElementById('productDescription').innerHTML,
+                    usageInstructions: document.getElementById('usageInstructions').innerHTML,
+                    maintenanceSuggestions: document.getElementById('maintenanceSuggestions').innerHTML,
+                    imageUrl: document.querySelector('.carousel-item img').src,
+                };
+
+                // Check if product already exists in cart
+                const existingProductIndex = cart.findIndex(p => p.title === product.title);
+                if (existingProductIndex === -1) {
+                    cart.push(product);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    animateFlyToTarget('../img/购物车满.png', 'addToCartButton');
+                    incrementCount('cartCount');
+                    showFireworks();
+                }
+            });
+
+            // Function to animate the flying image effect
+            function animateFlyToTarget(imageSrc, targetId) {
+                const flyImage = document.createElement('img');
+                flyImage.src = imageSrc;
+                flyImage.classList.add('fly-image');
+                document.body.appendChild(flyImage);
+
+                const sourceRect = document.querySelector(`#${targetId}`).getBoundingClientRect();
+                const targetRect = document.getElementById(targetId).getBoundingClientRect();
+
+                flyImage.style.left = sourceRect.left + 'px';
+                flyImage.style.top = sourceRect.top + 'px';
+                flyImage.style.transform = `translate(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px) scale(0.5)`;
+
+                flyImage.addEventListener('animationend', () => {
+                    flyImage.remove();
+                    updateTargetIcon(targetId, imageSrc);
+                });
+            }
+
+            // Function to update the target icon after animation
+            function updateTargetIcon(targetId, imageSrc) {
+                const targetIcon = document.querySelector(`#${targetId} .button-icon`);
+                targetIcon.src = imageSrc;
+            }
+
+            // Function to increment the count displayed on the button
+            function incrementCount(countId) {
+                const countElement = document.getElementById(countId);
+                let currentCount = parseInt(countElement.textContent);
+                countElement.textContent = ++currentCount;
+            }
+
+            // Function to update cart and favorites counts on page load
+            function updateCounts() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                document.getElementById('cartCount').innerText = cart.length;
+                document.getElementById('favoritesCount').innerText = favorites.length;
+            }
+
+            // Update counts on page load
+            updateCounts();
+        });
+
+
+
+        //购买功能
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const buyButton = document.getElementById('buyButton');
+
+            if (buyButton) {
+                buyButton.addEventListener('click', function() {
+                    console.log('Buy button clicked'); // 调试信息
+
+                    // 获取当前商品的属性
+                    const product = {
+                        title: document.getElementById('productTitle').innerText,
+                        price: document.getElementById('productPrice').innerText,
+                        location: document.getElementById('productLocation').innerText,
+                        postedDate: document.getElementById('postedDate').innerText,
+                        condition: document.getElementById('productCondition').innerText,
+                        reason: document.getElementById('productReason').innerText,
+                        tradeMethod: document.getElementById('productTradeMethod').innerText,
+                        productDescription: document.getElementById('productDescription').innerHTML,
+                        usageInstructions: document.getElementById('usageInstructions').innerHTML,
+                        maintenanceSuggestions: document.getElementById('maintenanceSuggestions').innerHTML,
+                        imageUrl: document.querySelector('.carousel-item img').src,
+                        quantity: 1 // 设置数量为 1
+                    };
+
+                    console.log('Product:', product); // 调试信息
+
+                    // 清空 newOrderDetails
+                    localStorage.setItem('newOrderDetails', JSON.stringify([]));
+
+                    // 将新订单添加到新的订单列表
+                    let newOrderDetails = JSON.parse(localStorage.getItem('newOrderDetails')) || [];
+                    newOrderDetails.push(product);
+
+                    // 更新新的本地存储
+                    localStorage.setItem('newOrderDetails', JSON.stringify(newOrderDetails));
+
+                    // 跳转到支付页面
+                    window.location.href = './purchase.html'; // 确保你的支付页面路径正确
+                });
+            } else {
+                console.error('Buy button not found');
+            }
+        });
+
+
+         document.getElementById('favoritesButton').addEventListener('click', function() {
+                window.location.href = './favorites.html';
+            });
+
+            document.getElementById('addToCart').addEventListener('click', function() {
+                window.location.href = './cart.html';
+            });
+    </script>
+</body>
+
+</html>

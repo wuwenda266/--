@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.5/dist/cropper.min.css">
+    <title>用户中心</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center; /* 居中对齐 */
+            gap: 20px; /* 调整间距 */
+            flex-wrap: wrap; /* 支持换行，适应移动端 */
+            padding-top: 20px; /* 上方间距 */
+        }
+
+        .user-info-container, .user-info-form-container {
+            flex: 1;
+            min-width: 300px; /* 设置最小宽度，避免在小屏幕上过窄 */
+            max-width: 600px; /* 设置最大宽度 */
+            margin: 0 ; /* 自动水平居中 */
+        }
+
+        .user-info-container {
+            margin-bottom: 20px; /* 下方间距 */
+        }
+
+        .user-info-form-container {
+            margin-bottom: 20px; /* 下方间距 */
+        }
+
+
+
+        .user-info-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-info-container img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #007bff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info-container h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .user-info-container p {
+            font-size: 16px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .upload-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .upload-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .upload-btn:active {
+            transform: scale(0.98);
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .user-info-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .user-info-form label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .user-info-form input, .user-info-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .user-info-form button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .user-info-form button:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .user-info-form button:active {
+            transform: scale(0.98);
+        }
+
+        .edit-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .edit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .edit-btn.cancel {
+            background-color: #dc3545;
+        }
+
+        .edit-btn.cancel:hover {
+            background-color: #c82333;
+        }
+
+        .edit-btn.cancel:active {
+            transform: scale(0.98);
+        }
+
+        footer {
+            background-color: #ffffff;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .footer-nav a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .footer-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Central alert module styles */
+        #alertModule {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff, #f2f2f2);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            width: 300px; /* Adjust width as needed */
+            max-width: 90%; /* Responsive design */
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        #alertModule h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #alertModule button {
+            margin-top: 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #alertModule button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #alertModule button:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -55%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+                /* 升级弹出框样式 */
+                #upgradeModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            width: 80%; /* 增加宽度 */
+            max-width: 1200px; /* 增加最大宽度 */
+        }
+
+        .membership-options {
+            display: flex;
+            flex-direction: row; /* 横向排列 */
+            gap: 20px; /* 增加间距 */
+            overflow-x: auto; /* 横向滚动条 */
+            padding: 10px 0; /* 上下内边距 */
+            max-height: 600px; /* 增加高度，根据需要调整 */
+        }
+
+        .membership-option {
+            flex: 0 0 auto; /* 确保选项不会缩小 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px; /* 增加内边距 */
+            background: #f9f9f9;
+            width: 300px; /* 增加宽度 */
+            text-align: center;
+            margin-left: 10px;
+        }
+
+        .membership-option img {
+            width: 80px; /* 增加图像大小 */
+            height: 80px; /* 增加图像大小 */
+            border-radius: 50%;
+            margin-bottom: 10px; /* 底部间距 */
+        }
+
+        .membership-option button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 10px; /* 顶部间距 */
+        }
+
+        .membership-option button:hover {
+            background-color: #0056b3;
+        }
+
+        .upgrade-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            margin-left: 5px;
+            width: 80px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .upgrade-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .membership-option button:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .membership-option button:active {
+            transform: scale(0.98);
+        }
+        .purchase-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .purchase-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .purchase-btn:active {
+            transform: scale(0.98);
+        }
+
+        .close-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: #c82333;
+            transform: scale(1.02);
+        }
+
+        .close-btn:active {
+            transform: scale(0.98);
+        }
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .alert-content p {
+            margin: 0 0 15px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .alert-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .alert-button:hover {
+            background-color: #0056b3;
+        }
+        /* 会员 */
+        .points-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recharge-btn, .sign-in-btn {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .recharge-btn:hover, .sign-in-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            padding: 8px;
+            margin-top: 10px;
+            width: 100px;
+            text-align: center;
+        }
+
+        .modal-content button {
+            padding: 8px 16px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+        /* CSS 部分 */
+        #userPoints {
+            position: relative;
+        }
+
+        .points-change {
+            position: absolute;
+            bottom: -70px;
+            left: -70px;
+            width: 100%;
+            color: red;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            opacity: 1;
+            transform: translateY(-20px);
+        }
+        .button-container {
+        display: flex;
+        gap: 10px; /* 按钮之间的间距 */
+        }
+
+        .upload-btn,
+        .change-password-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .change-password-btn {
+            background-color: #28a745; /* 修改密码按钮颜色 */
+        }
+
+        .upload-btn:hover,
+        .change-password-btn:hover {
+            background-color: #0056b3; /* 悬停时的颜色 */
+        }
+
+        .change-password-btn:hover {
+            background-color: #218838; /* 修改密码按钮悬停颜色 */
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .user-info-container {
+                width: 100%;
+                max-width: none;
+                padding: 15px;
+            }
+
+            .user-info-form {
+                max-width: 100%;
+                display: flex;
+                padding: 0;
+            }
+            .user-info-form button {
+                width: 48%; /* 每个按钮占一半的宽度 */
+                margin: 0 1%; /* 两个按钮之间的间隔 */
+            }
+            
+            .user-info-form button:first-child {
+                margin-right: 1%;
+            }
+            
+            .user-info-form button:last-child {
+                margin-left: 1%;
+            }
+            .button-container {
+                display: flex; /* 横向排列子元素 */
+                gap: 10px; /* 按钮之间的间隔 */
+            }
+
+            .button-container button {
+                flex: 1; /* 使按钮占据相等的宽度 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../index.html" class="back-button">返回首页</a>
+        <h1>用户中心</h1>
+    </header>
+
+    <div class="main-content">
+        <div class="user-info-container">
+            <img id="userAvatar" src="default-avatar.jpg" alt="用户头像">
+            <h2 id="userGreeting">欢迎您，用户名</h2>
+            <div class="membership-info" style="display: flex;">
+                <p id="userMembership">会员等级: 普通会员</p>
+                <img id="userMembershipIcon" src="../img/无会员卡.png" alt="会员图标" style="width: 30px; height: 30px;margin-top: 2px;margin-left: 2px;border: 5px solid;">
+                <button class="upgrade-btn" onclick="showUpgradeModal()" style="margin-top: 2px;">升级会员</button>
+            </div>
+            <div class="points-container">
+                <p id="userPoints">会员积分: 0</p>
+                <button class="sign-in-btn" onclick="dailySignIn()">每日签到</button>
+            </div>            
+            <div class="button-container">
+                <button class="upload-btn" onclick="document.getElementById('uploadInput').click()">上传头像</button>
+                <button class="change-password-btn" onclick="window.location.href='./change-password.html'">修改密码</button>
+            </div>            
+            <input type="file" id="uploadInput" class="upload-input" accept="image/*" onchange="uploadImage()">
+        </div>
+
+        <div class="user-info-form-container">
+            <form class="user-info-form" id="userInfoForm">
+                <label for="realName">真实姓名</label>
+                <input type="text" id="realName" name="realName" placeholder="请输入真实姓名" disabled>
+
+                <label for="wechat">绑定微信</label>
+                <input type="text" id="wechat" name="wechat" placeholder="请输入微信号" disabled>
+
+                <label for="alipay">绑定支付宝</label>
+                <input type="text" id="alipay" name="alipay" placeholder="请输入支付宝号" disabled>
+
+                <label for="bankCard">绑定银行卡</label>
+                <input type="text" id="bankCard" name="bankCard" placeholder="请输入银行卡号" disabled>
+
+                <div class="button-container">
+                    <button type="submit" id="saveBtn" style="display: none;">保存信息</button>
+                    <button type="button" id="editBtn" class="edit-btn" onclick="toggleEdit()">编辑</button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-nav">
+            <a href="../index.html">首页</a>
+            <a href="./my-posts.html">我的发布</a>
+            <a href="./favorites.html">我的收藏</a>
+            <a href="./cart.html">我的购物车</a>
+            <a href="./points-mall.html">会员积分商城</a>
+        </nav>
+    </footer>
+
+    <div id="alertModule">
+        <h2>信息已保存</h2>
+        <button onclick="hideAlertModule()">确定</button>
+    </div>
+
+    <div id="upgradeModal" style="display: none;">
+        <h2>选择会员等级</h2>
+        <div class="membership-options">
+            <div class="membership-option" data-type="bronze">
+                <img src="../img/青铜会员.png" alt="青铜会员">
+                <div class="membership-details">
+                    <p class="membership-title">青铜会员</p>
+                    <p class="membership-price">100元</p>
+                    <p class="membership-description">
+                        适合初次体验的用户，享受基本会员权益。作为青铜会员，您将获得以下福利：
+                        <div class="membership-benefits">
+                            <div class="benefit-item">
+                                <span class="benefit-title">专属欢迎礼品包：</span>
+                                <span class="benefit-detail">包含精选优惠券和会员积分。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">每月一次的会员积分赠送：</span>
+                                <span class="benefit-detail">助您更快累积会员积分。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">优先获取平台最新活动信息：</span>
+                                <span class="benefit-detail">特别促销。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">24/7 客服支持：</span>
+                                <span class="benefit-detail">解决您的任何问题。</span>
+                            </div>
+                        </div>
+                       <div style="color: red;">这是一种经济实惠的方式，帮助您开始享受会员特权。</div>
+                    </p>                    
+                    <button class="purchase-btn" onclick="purchaseMembership('青铜')">购买</button>
+                </div>
+            </div>
+            <div class="membership-option" data-type="silver">
+                <img src="../img/黄金会员.png" alt="白银会员">
+                <div class="membership-details">
+                    <p class="membership-title">黄金会员</p>
+                    <p class="membership-price">300元</p>
+                    <p class="membership-description">
+                        提供更多优惠和服务，适合长期使用。作为黄金会员，您将获得以下福利：
+                        <div class="membership-benefits">
+                            <div class="benefit-item">
+                                <span class="benefit-title">专属折扣：</span>
+                                <span class="benefit-detail">享受全平台商品的额外折扣。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">每月会员积分加成：</span>
+                                <span class="benefit-detail">每月获得额外会员积分加成。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">优先参加特定活动：</span>
+                                <span class="benefit-detail">优先报名参加平台专属活动。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">专属客服：</span>
+                                <span class="benefit-detail">享受专属客服支持，提供更快速的服务。</span>
+                            </div>
+                        </div>
+                        <div style="color: red;">这是一个极具性价比的会员等级，为您提供了丰富的权益和服务。</div>
+                    </p>                    
+                    <button class="purchase-btn" onclick="purchaseMembership('黄金')">购买</button>
+                </div>
+            </div>
+            <div class="membership-option" data-type="gold">
+                <img src="../img/铂金会员.png" alt="黄金会员">
+                <div class="membership-details">
+                    <p class="membership-title">铂金会员</p>
+                    <p class="membership-price">600元</p>
+                    <p class="membership-description">
+                        享受高端服务和额外福利，提升用户体验。作为铂金会员，您将获得以下尊贵权益：
+                        <div class="membership-benefits">
+                            <div class="benefit-item">
+                                <span class="benefit-title">专属VIP服务：</span>
+                                <span class="benefit-detail">提供个性化的VIP服务，满足您的特殊需求。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">每周专享会员积分：</span>
+                                <span class="benefit-detail">每周获得专属会员积分，助力您的购物体验。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">优先体验新产品：</span>
+                                <span class="benefit-detail">优先试用最新推出的产品和服务。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">专属客服通道：</span>
+                                <span class="benefit-detail">提供专属客服通道，确保快速响应您的需求。</span>
+                            </div>
+                        </div>
+                        <div style="color: red;">这是一个非常实惠的会员等级，让您在享受更多福利的同时也节省开支。</div>
+                    </p>                    
+                    <button class="purchase-btn" onclick="purchaseMembership('铂金')">购买</button>
+                </div>
+            </div>
+            <div class="membership-option" data-type="platinum">
+                <img src="../img/钻石会员.png" alt="星钻会员">
+                <div class="membership-details">
+                    <p class="membership-title">星钻会员</p>
+                    <p class="membership-price">1000元</p>
+                    <p class="membership-description">
+                        至尊会员，享有最高等级的专属服务和优惠。作为星钻会员，您将体验到以下无与伦比的特权：
+                        <div class="membership-benefits">
+                            <div class="benefit-item">
+                                <span class="benefit-title">终极尊贵服务：</span>
+                                <span class="benefit-detail">享受最高级别的个性化服务，确保每一项需求都得到满足。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">每月豪礼赠送：</span>
+                                <span class="benefit-detail">每月收到精选豪礼包，包括顶级产品和独家优惠。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">优先参与独家活动：</span>
+                                <span class="benefit-detail">优先邀请参加所有独家活动和私人聚会。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">24小时专属客服：</span>
+                                <span class="benefit-detail">提供全天候专属客服支持，随时解决您的任何问题。</span>
+                            </div>
+                        </div>
+                        <div style="color: red;">这是最顶级的会员等级，专为追求极致体验的用户设计。</div>
+                    </p>                    
+                    <button class="purchase-btn" onclick="purchaseMembership('星钻')">购买</button>
+                </div>
+            </div>
+            <div class="membership-option" data-type="supreme">
+                <img src="../img/霸服.png" alt="霸服特权">
+                <div class="membership-details">
+                    <p class="membership-title">霸服特权</p>
+                    <p class="membership-price">10000元</p>
+                    <p class="membership-description">
+                        霸服特权，为您提供极致的专属服务和优待。作为霸服特权会员，您将享受以下超凡特权：
+                        <div class="membership-benefits">
+                            <div class="benefit-item">
+                                <span class="benefit-title">至尊专享服务：</span>
+                                <span class="benefit-detail">享受最高级别的个性化服务，满足您的所有需求。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">季度豪华礼包：</span>
+                                <span class="benefit-detail">每季度赠送豪华礼包，包含顶级产品和独家优惠。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">优先参与尊贵活动：</span>
+                                <span class="benefit-detail">优先邀请参加所有尊贵活动和专属聚会。</span>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-title">全天候顶级客服：</span>
+                                <span class="benefit-detail">提供24小时专属客服支持，随时解决您的任何问题。</span>
+                            </div>
+                        </div>
+                        <div style="color: red;">这是至尊无上的特权等级，为追求顶尖体验的用户精心打造。</div>
+                    </p>
+                    <button class="purchase-btn" onclick="purchaseMembership('霸服')">购买</button>
+                </div>
+            </div>            
+        </div>
+        
+        <button class="close-btn" onclick="hideUpgradeModal()">关闭</button>    
+    
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.5/dist/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('username') || '用户名';
+            const userAvatar = localStorage.getItem('avatar') || 'default-avatar.jpg';
+
+            document.getElementById('userGreeting').textContent = `欢迎您，${userName}`;
+            document.getElementById('userAvatar').src = userAvatar;
+
+            document.getElementById('realName').value = localStorage.getItem('realName') || '';
+            document.getElementById('wechat').value = localStorage.getItem('wechat') || '';
+            document.getElementById('alipay').value = localStorage.getItem('alipay') || '';
+            document.getElementById('bankCard').value = localStorage.getItem('bankCard') || '';
+        });
+
+        function uploadImage() {
+            const fileInput = document.getElementById('uploadInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarImg = document.getElementById('userAvatar');
+                    avatarImg.src = e.target.result;
+                    localStorage.setItem('avatar', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function toggleEdit() {
+            const formElements = document.querySelectorAll('.user-info-form input');
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+
+            if (editBtn.textContent === '编辑') {
+                formElements.forEach(input => input.disabled = false);
+                editBtn.textContent = '取消编辑';
+                saveBtn.style.display = 'block';
+            } else {
+                formElements.forEach(input => input.disabled = true);
+                editBtn.textContent = '编辑';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+            function showAlertModule() {
+                document.getElementById('alertModule').style.display = 'block';
+            }
+
+            function hideAlertModule() {
+                document.getElementById('alertModule').style.display = 'none';
+            }
+
+            document.getElementById('userInfoForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const realName = document.getElementById('realName').value;
+                const wechat = document.getElementById('wechat').value;
+                const alipay = document.getElementById('alipay').value;
+                const bankCard = document.getElementById('bankCard').value;
+
+                localStorage.setItem('realName', realName);
+                localStorage.setItem('wechat', wechat);
+                localStorage.setItem('alipay', alipay);
+                localStorage.setItem('bankCard', bankCard);
+
+                showAlertModule();
+                toggleEdit();
+            });
+
+        //会员升级
+
+        function showUpgradeModal() {
+                document.getElementById('upgradeModal').style.display = 'block';
+            }
+
+            function hideUpgradeModal() {
+                document.getElementById('upgradeModal').style.display = 'none';
+            }
+
+            function purchaseMembership(type) {
+                // 会员价格和标识
+                const membershipDetails = {
+                    青铜: { price: 100, icon: '../img/青铜会员.png' },
+                    黄金: { price: 300, icon: '../img/黄金会员.png' },
+                    铂金: { price: 600, icon: '../img/铂金会员.png' },
+                    星钻: { price: 1000, icon: '../img/钻石会员.png' },
+                    霸服: { price: 10000, icon: '../img/霸服.png' }
+                };
+
+                // 获取当前会员等级
+                const currentMembership = localStorage.getItem('membership') || 'none';
+
+                // 检查是否已购买更高等级的会员
+                const levels = ['青铜', '黄金', '铂金', '星钻', '霸服'];
+                const currentIndex = levels.indexOf(currentMembership);
+                const newIndex = levels.indexOf(type);
+
+                if (newIndex > currentIndex) {
+                    // 保存购买的会员信息到本地缓存
+                    localStorage.setItem('membership', type);
+                    localStorage.setItem('membershipIcon', membershipDetails[type].icon);
+                     // 自定义提示信息
+                     const alertMessage = type === '霸服'
+                    ? `<div style="color: red;">恭喜您成功解锁了霸服特权！您将享有无与伦比的权利和尊贵服务。</div>`
+                    : `恭喜您成功升级为${type}会员！我们诚挚感谢您的支持与信任。`;
+
+                showCustomAlert(alertMessage);
+
+                    // 关闭弹出框
+                    hideUpgradeModal();
+
+                    // 更新用户信息界面
+                    updateUserInfo();
+                } else {
+                    showCustomAlert('您当前的会员等级已经高于或等于所选等级，请不要重复购买。');
+                }
+            }
+
+            function updateUserInfo() {
+                const userMembership = localStorage.getItem('membership');
+                const userMembershipIcon = localStorage.getItem('membershipIcon');
+
+                if (userMembership === '霸服') {
+                document.getElementById('userMembership').innerHTML = `<span style="color: red;">霸服特权</span>`;
+                document.getElementById('userMembershipIcon').src = userMembershipIcon;
+            } else if (userMembership) {
+                document.getElementById('userMembership').textContent = `会员等级: ${capitalizeFirstLetter(userMembership)}会员`;
+                document.getElementById('userMembershipIcon').src = userMembershipIcon;
+            } else {
+                document.getElementById('userMembership').textContent = '会员等级: 普通会员';
+                document.getElementById('userMembershipIcon').src = '../img/无会员卡.png';
+            }
+            }
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            function showCustomAlert(message) {
+                const alertBox = document.createElement('div');
+                alertBox.className = 'custom-alert';
+                alertBox.innerHTML = `
+                    <div class="alert-content">
+                        <p>${message}</p>
+                        <button class="alert-button" onclick="this.parentElement.parentElement.remove()">关闭</button>
+                    </div>
+                `;
+                document.body.appendChild(alertBox);
+            }
+
+            // 在页面加载时更新用户信息
+            document.addEventListener('DOMContentLoaded', updateUserInfo);
+
+            //充值
+        function confirmRecharge() {
+            const rechargeAmount = parseInt(document.getElementById('rechargeAmount').value);
+            if (isNaN(rechargeAmount) || rechargeAmount <= 0) {
+                alert('请输入有效的会员积分数量');
+                return;
+            }
+
+            // 更新本地缓存中的会员积分
+            let currentPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+            currentPoints += rechargeAmount;
+            localStorage.setItem('userPoints', currentPoints);
+
+            // 更新页面显示
+            updatePointsDisplay();
+
+            // 关闭弹出框
+            hideRechargeModal();
+        }
+
+        function dailySignIn() {
+            const lastSignInDate = localStorage.getItem('lastSignInDate');
+            const today = new Date().toDateString();
+
+            if (lastSignInDate === today) {
+                showCustomAlert('您今天已经签到过了，明天再来吧！');
+                return;
+            }
+
+            // 获取当前会员等级
+            const membership = localStorage.getItem('membership') || 'none';
+            let pointsToAdd;
+            let membershipType;
+
+            // 根据会员等级设置不同的会员积分奖励
+            switch (membership) {
+                case '青铜':
+                    pointsToAdd = 20;
+                    membershipType = '青铜会员';
+                    break;
+                case '黄金':
+                    pointsToAdd = 40;
+                    membershipType = '黄金会员';
+                    break;
+                case '铂金':
+                    pointsToAdd = 80;
+                    membershipType = '铂金会员';
+                    break;
+                case '星钻':
+                    pointsToAdd = 160;
+                    membershipType = '星钻会员';
+                    break;
+                case '霸服':
+                    pointsToAdd = 1600;
+                    membershipType = '霸服特权';
+                    break;
+                default:
+                    pointsToAdd = 10;
+                    membershipType = '普通会员';
+            }
+
+            // 更新本地缓存中的会员积分
+            let currentPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+            currentPoints += pointsToAdd;
+            localStorage.setItem('userPoints', currentPoints);
+            localStorage.setItem('lastSignInDate', today);
+
+            // 更新页面显示
+            updatePointsDisplay(pointsToAdd, membershipType);
+        }
+
+
+
+        function updatePointsDisplay(pointsToAdd = 0, membershipType = '') {
+            const userPointsElement = document.getElementById('userPoints');
+            const userPoints = localStorage.getItem('userPoints') || 0;
+
+            // 更新会员积分显示
+            userPointsElement.innerHTML = `会员积分: <span style="color: red;">${userPoints}</span>`;
+
+            // 如果有会员积分增加的动画需要显示
+            if (pointsToAdd > 0 && membershipType) {
+                // 创建一个新的元素来显示会员积分变化的动画
+                const pointsChangeElement = document.createElement('div');
+                pointsChangeElement.className = 'points-change';
+                pointsChangeElement.textContent = `${membershipType} 每日签到赠送 +${pointsToAdd} 会员积分`;
+
+                // 添加到页面中
+                userPointsElement.appendChild(pointsChangeElement);
+
+                // 设置动画的延迟，然后移除动画元素
+                setTimeout(() => {
+                    pointsChangeElement.style.opacity = '0';
+                    setTimeout(() => {
+                        pointsChangeElement.remove();
+                    }, 2500); // 动画时间
+                }, 2200);
+            }
+        }
+
+        // 在页面加载时更新会员积分显示
+        document.addEventListener('DOMContentLoaded', updatePointsDisplay);
+
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 1em;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1em;
+            overflow: auto;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 1em;
+        }
+        .message {
+            padding: 0.5em 1em;
+            border-radius: 15px;
+            margin-bottom: 0.5em;
+            max-width: 60%;
+            line-height: 1.4;
+        }
+        .user-message {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #f8d7da;
+            align-self: flex-start;
+            text-align: left;
+        }
+        .chat-form {
+            display: flex;
+            margin-top: 1em;
+            border-top: 1px solid #ddd;
+            padding-top: 1em;
+        }
+        .chat-form input {
+            flex: 1;
+            padding: 0.5em;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            font-size: 1em;
+        }
+        .chat-form button {
+            padding: 0.5em 1em;
+            margin-left: 0.5em;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+        .chat-form button:hover {
+            background-color: #0056b3;
+        }
+        .suggestions {
+            margin-bottom: 1em;
+            position: relative;
+        }
+        .suggestions-button {
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .suggestions-button:hover {
+            background: #0056b3;
+        }
+        .suggestions-content {
+            display: none; /* 默认隐藏 */
+            flex-direction: column; /* 竖着排列 */
+            position: absolute;
+            top: 50px; /* 展开在按钮下方 */
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 1em;
+            z-index: 1000; /* 确保在其他内容上方显示 */
+        }
+        .suggestions-content button {
+            position: relative; /* 使子元素可以根据这个位置定位 */
+            background: #ffffff; /* 背景色更干净 */
+            color: #333; /* 文本颜色 */
+            border: 1px solid #ddd; /* 边框颜色 */
+            padding: 0.5em 1em; /* 内边距，使按钮更宽 */
+            border-radius: 8px; /* 更圆的角 */
+            margin-bottom: 0.5em;
+            cursor: pointer;
+            transition: all 0.3s ease; /* 平滑过渡效果 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 轻微阴影效果 */
+            font-size: 0.9em; /* 更适中的字体大小 */
+        }
+
+        .suggestions-content button:hover {
+            background: #007bff; /* 鼠标悬停时的背景色 */
+            color: white; /* 鼠标悬停时的文字颜色 */
+            border-color: #0056b3; /* 鼠标悬停时的边框颜色 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 鼠标悬停时的阴影效果 */
+        }
+        /* 动画效果 */
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-10px);
+                }
+                60% {
+                    transform: translateY(-5px);
+                }
+            }
+
+            /* 加粗的省略号和加载提示样式 */
+            .loading-message {
+                font-size: 2em;
+                color: #888;
+                text-align: center;
+            }
+
+            .loading-dots {
+                display: inline-block;
+                font-size: 2em; /* 调整省略号大小 */
+                color: #888;
+                margin-top: 10px;
+            }
+
+            .loading-dots span {
+                display: inline-block;
+                animation: bounce 1.5s infinite;
+            }
+
+            .loading-dots span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .loading-dots span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+
+        /* 移动端样式 */
+        @media (max-width: 768px) {
+            .suggestions-button {
+                font-size: 0.4em; /* 移动端字体大小 */
+                height: 40px;
+                padding: 0.4em 0.8em; /* 移动端内边距 */
+                margin-bottom: 10px; /* 向上移动百叶窗按钮，增加底部外边距 */
+                width: 100px;
+            }
+
+            .suggestions-content {
+                max-height: 300px; /* 控制展开内容的最大高度 */
+                width: 100px;
+                overflow-y: auto; /* 内容溢出时显示滚动条 */
+                margin-top: -5px; /* 使下拉框与百叶窗按钮更接近 */
+            }
+
+            .suggestions-content button {
+                font-size: 0.4em; /* 移动端字体大小 */
+                padding: 0.3em 0.6em; /* 移动端内边距 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>智能客服</h1>
+    </header>
+
+    <section class="chat">
+        <div class="suggestions">
+            <button class="suggestions-button" onclick="toggleSuggestions()">☰ 我能询问什么样的问题？</button>
+            <div class="suggestions-content" id="suggestions-content">
+                <button onclick="sendPresetMessage('你好')">你好</button>
+                <button onclick="sendPresetMessage('有什么便宜的平板推荐吗？')">便宜的平板</button>
+                <button onclick="sendPresetMessage('请问你们的退换货政策是怎样的？')">退换货政策</button>
+                <button onclick="sendPresetMessage('现在几点了？')">现在几点了？</button>
+                <button onclick="sendPresetMessage('请问发货时间多久？')">发货时间</button>
+                <button onclick="sendPresetMessage('你们支持哪些支付方式？')">支付方式</button>
+                <button onclick="sendPresetMessage('你们的库存情况如何？')">库存情况</button>
+                <button onclick="sendPresetMessage('如何申请退换货？')">退换货申请</button>
+                <button onclick="sendPresetMessage('你们的客服联系方式是什么？')">客服联系方式</button>
+                <button onclick="sendPresetMessage('我还能询问哪些问题')">我还能询问什么问题</button>
+            </div>
+        </div>        
+        <div class="chat-messages" id="chat-box">
+            <!-- 消息显示区域 -->
+        </div>
+        <form class="chat-form" id="chat-form">
+            <input type="text" id="user-input" placeholder="输入消息..." required>
+            <button type="submit">发送</button>
+        </form>
+    </section>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+            displayUserMessage(userInput);
+            simulateAIResponse(userInput);
+            document.getElementById('user-input').value = '';
+        });
+
+        function sendPresetMessage(message) {
+            displayUserMessage(message);
+            simulateAIResponse(message);
+        }
+
+        function displayUserMessage(message) {
+            const chatBox = document.getElementById('chat-box');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('message', 'user-message');
+            userMessageDiv.textContent = message;
+            chatBox.appendChild(userMessageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function simulateAIResponse(userInput) {
+                const chatBox = document.getElementById('chat-box');
+                const loadingMessage = document.createElement('div');
+                loadingMessage.classList.add('message', 'ai-message');
+
+                // 添加加载提示和省略号动画
+                loadingMessage.innerHTML = `
+                    <div class="loading-message">
+                        <p>我们的智能客服正在努力处理您的请求。如果您的问题未得到解答，请理解我们的产品仍在逐步完善中。</p>
+                        <div class="loading-dots">
+                            <span>.</span>
+                            <span>.</span>
+                            <span>.</span>
+                        </div>
+                        <p>🤝</p>
+                    </div>
+                `;
+
+                chatBox.appendChild(loadingMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                setTimeout(() => {
+                    loadingMessage.remove();
+                    const aiResponse = getAIResponse(userInput);
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.classList.add('message', 'ai-message');
+                    aiMessageDiv.textContent = aiResponse;
+                    chatBox.appendChild(aiMessageDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 3000); // 模拟1秒的AI响应时间
+            }
+
+
+        function getAIResponse(userMessage) {
+            userMessage = userMessage.toLowerCase().trim();
+
+            const rules = [
+            { pattern: /你好|hi|hello|上午好|下午好|早上好|晚上好|您好/, response: "你好！有什么我可以帮忙的吗？" },
+            { pattern: /商品/, response: "我们有很多商品，请告诉我您需要什么。" },
+            { pattern: /价格/, response: "价格因商品而异，请具体说明商品。" },
+            { pattern: /再见/, response: "再见！祝您有美好的一天。" },
+            { pattern: /帮助/, response: "您可以问我关于商品的信息、价格、售后服务等。" },
+            { pattern: /订单/, response: "请告诉我您的订单号，我会帮您查找相关信息。" },
+            { pattern: /平板|tablet/, response: "我们有多款平板可供选择，请告诉我您对平板的具体要求。" },
+            { pattern: /手机|phone/, response: "手机的选择非常多，请告诉我您的预算和需求。" },
+            { pattern: /电脑|laptop/, response: "电脑有很多种类，请具体说明您需要的配置和品牌。" },
+            { pattern: /天气|气温|温度/, response: "我不确定天气情况，但您可以查看天气预报网站。" },
+            { pattern: /买.*(东西|产品|商品)/, response: "请告诉我您想买什么商品，或者具体的需求。" },
+            { pattern: /需要.*(平板|手机|电脑)/, response: "我们有这些商品，您可以告诉我更具体的需求，比如品牌、型号或价格范围。" },
+            { pattern: /打游戏快的|游戏性能好的|打游戏好的|能打游戏的/, response: "如果您需要用于游戏的平板，我们推荐高性能的型号，例如最新款的游戏平板。请告诉我您的预算和品牌偏好。" },
+            { pattern: /售后服务|保修/, response: "我们提供一定期限的保修服务。如果您有保修相关的问题，请提供您的订单号和商品信息。" },
+            { pattern: /退换货/, response: "请告诉我您的订单号和商品信息，我们会帮您处理退换货事宜。退换货的具体政策请参见我们的退换货政策页面。" },
+            { pattern: /促销|打折/, response: "我们会不定期推出促销活动。请关注我们的官网或订阅新闻通讯以获得最新的优惠信息。" },
+            { pattern: /支付方式/, response: "我们支持信用卡、支付宝、微信支付等多种支付方式。选择您方便的支付方式即可。" },
+            { pattern: /发货时间/, response: "通常情况下，我们在收到订单后的 1-2 个工作日内发货。具体发货时间会在订单确认后通知您。" },
+            { pattern: /库存/, response: "如果您对某个商品的库存情况有疑问，请告诉我具体的商品名称，我会帮您查询。" },
+            { pattern: /物流跟踪|快递/, response: "您可以通过提供的快递单号在快递公司官网上进行物流跟踪。如果需要帮助，请告诉我您的快递单号。" },
+            { pattern: /账户问题|登录/, response: "如果您遇到账户问题或登录问题，请尝试重置密码或联系技术支持。如果还有问题，请提供具体的错误信息。" },
+            { pattern: /优惠券|折扣码/, response: "如果您有优惠券或折扣码，请在结算时输入相应代码。有关优惠券的更多信息，请访问我们的优惠页面。" },
+            
+            { pattern: /联系|客服/, response: "您可以通过我们的客服热线或电子邮件与我们联系。客服热线：123-456-7890，电子邮件：support@example.com" },
+            { pattern: /官网|网站/, response: "我们的官网可以提供更多关于商品和服务的信息，请访问 www.example.com" },
+            { pattern: /购物车/, response: "您可以查看购物车中的商品，修改数量或删除商品。如果需要帮助，请告诉我。" },
+            { pattern: /注册|登录/, response: "要注册或登录，请访问我们的账户页面并按照指示操作。如果遇到问题，请联系技术支持。" },
+            { pattern: /退款/, response: "如果您需要退款，请提供您的订单号和商品信息，我们会处理您的退款请求。退款政策详见我们的退款政策页面。" },
+            { pattern: /配送/, response: "我们提供多种配送选项，包括标准配送和加急配送。请在结算时选择您需要的配送方式。" },
+            { pattern: /会员/, response: "我们提供会员服务，会员可以享受更多优惠和专属权益。请访问我们的会员中心了解更多信息。" },
+            { pattern: /投诉/, response: "如果您有投诉或建议，请联系我们的客户服务部门。我们会尽快处理您的反馈。" },
+            { pattern: /安全|隐私/, response: "我们非常重视您的隐私安全。请查看我们的隐私政策以了解更多关于数据保护的信息。" },
+            { pattern: /我还能询问哪些问题/, response: "您可以询问我关于商品的详细信息、订单状态、支付和配送方式、售后服务等问题。如果有其他疑问，请随时告诉我！(系统正在逐步开发中，后续将引进更多ai智能功能，您现在可以尝试询问客服，我们除了预设的对话还加入了很多对话。)" },
+            { pattern: /什么/, response: "我不确定您的问题具体是什么，可以提供更多细节吗？" },
+            {
+            pattern: /时间|几点/,
+                        response: function() {
+                            const now = new Date();
+                            const hours = now.getHours();
+                            const minutes = now.getMinutes().toString().padStart(2, '0');
+                            let timeOfDay;
+
+                            if (hours >= 5 && hours < 12) {
+                                timeOfDay = "早上";
+                            } else if (hours >= 12 && hours < 14) {
+                                timeOfDay = "中午";
+                            } else if (hours >= 14 && hours < 18) {
+                                timeOfDay = "下午";
+                            } else if (hours >= 18 && hours < 22) {
+                                timeOfDay = "晚上";
+                            } else {
+                                timeOfDay = "夜晚";
+                            }
+
+                            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}`;
+                            return `现在是${timeOfDay} ${formattedTime}`;
+                        }
+                    }
+                    
+                ];
+
+                function getResponse(userMessage) {
+                    for (const rule of rules) {
+                        if (rule.pattern.test(userMessage)) {
+                            // 执行 response 函数并返回结果
+                            return typeof rule.response === 'function' ? rule.response() : rule.response;
+                        }
+                    }
+                    // 默认响应
+                    return "您询问的问题目前不在我们智能客服的理解范畴内，我们会继续努力学习，感谢您的支持！🤝";
+                }
+
+                return getResponse(userMessage);
+            }
+
+            // 示例使用
+            const userMessage = "现在几点了？";
+            console.log(getAIResponse(userMessage));
+
+        function toggleSuggestions() {
+            const content = document.getElementById('suggestions-content');
+            const button = document.querySelector('.suggestions-button');
+
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'flex';
+                button.textContent = '☰ 关闭询问框';
+            } else {
+                content.style.display = 'none';
+                button.textContent = '☰ 我能询问什么样的问题？';
+            }
+        }
+    </script>
+</body>
+</html>

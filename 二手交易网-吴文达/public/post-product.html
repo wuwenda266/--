@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布商品</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #5bc0de;
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input[type="file"] {
+            padding: 0;
+            border: none;
+        }
+
+        .form-group .file-label {
+            display: block;
+            padding: 12px;
+            font-size: 16px;
+            color: #333;
+            background-color: #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-group .file-label:hover {
+            background-color: #ddd;
+        }
+
+        .form-group button {
+            background-color: #5bc0de;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+        }
+
+        .form-group button:hover {
+            background-color: #31b0d5;
+            transform: scale(1.02);
+        }
+
+        .form-group button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .form-group .form-message {
+            color: #d9534f;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Image preview container styles */
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .image-preview-container img {
+            max-width: 220px;
+            max-height: 220px;
+            margin-left: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #eee;
+            object-fit: contain;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .container {
+                width: 80%;
+                padding: 15px;
+            }
+
+            .form-group input, .form-group select, .form-group textarea {
+                font-size: 14px;
+            }
+
+            .form-group button {
+                font-size: 14px;
+            }
+
+            .image-preview-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .image-preview-container img {
+                margin: 10px 0;
+            }
+        }
+
+        /* Cropper modal styles */
+        .cropper-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .cropper-content {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .cropper-content img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+
+        .cropper-buttons {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .cropper-buttons button {
+            background-color: #5bc0de;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .cropper-buttons button:hover {
+            background-color: #31b0d5;
+        }
+
+        .cropper-buttons .cancel-btn {
+            background-color: #d9534f;
+        }
+
+        .cropper-buttons .cancel-btn:hover {
+            background-color: #c9302c;
+        }
+
+        /* Publish modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            max-width: 90%;
+            max-height: 80%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin: 0 0 10px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .modal-content p {
+            margin: 0 0 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            background-color: #5bc0de;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #31b0d5;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>发布商品</h1>
+        <form id="postProductForm">
+            <div class="form-group">
+                <label for="productName">商品名称</label>
+                <input type="text" id="productName" name="productName" required>
+                <div class="form-message" id="productNameMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productPrice">价格 (元)</label>
+                <input type="number" id="productPrice" name="productPrice" step="0.01" required>
+                <div class="form-message" id="productPriceMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productCondition">商品成色</label>
+                <select id="productCondition" name="productCondition" required>
+                    <option value="">请选择状态</option>
+                    <option value="99%">99成新</option>
+                    <option value="95%">95成新</option>
+                    <option value="90%">9成新</option>
+                    <option value="80%">8成新</option>
+                    <option value="70%">7成新</option>
+                </select>
+                <div class="form-message" id="productConditionMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productReason">出售原因</label>
+                <select id="productReason" name="productReason" required>
+                    <option value="">请选择原因</option>
+                    <option value="急需用钱">急需用钱</option>
+                    <option value="换新款">换新款</option>
+                    <option value="闲置">闲置</option>
+                    <option value="不再使用">不再使用</option>
+                </select>
+                <div class="form-message" id="productReasonMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productLocation">货源</label>
+                <select id="productLocation" name="productLocation" required>
+                    <option value="">请选择地区</option>
+                    <option value="北京">北京</option>
+                    <option value="天津">天津</option>
+                    <option value="上海">上海</option>
+                    <option value="重庆">重庆</option>
+                    <option value="河北">河北</option>
+                    <option value="山西">山西</option>
+                    <option value="辽宁">辽宁</option>
+                    <option value="吉林">吉林</option>
+                    <option value="黑龙江">黑龙江</option>
+                    <option value="江苏">江苏</option>
+                    <option value="浙江">浙江</option>
+                    <option value="安徽">安徽</option>
+                    <option value="福建">福建</option>
+                    <option value="江西">江西</option>
+                    <option value="山东">山东</option>
+                    <option value="河南">河南</option>
+                    <option value="湖北">湖北</option>
+                    <option value="湖南">湖南</option>
+                    <option value="广东">广东</option>
+                    <option value="广西">广西</option>
+                    <option value="海南">海南</option>
+                    <option value="四川">四川</option>
+                    <option value="贵州">贵州</option>
+                    <option value="云南">云南</option>
+                    <option value="西藏">西藏</option>
+                    <option value="陕西">陕西</option>
+                    <option value="甘肃">甘肃</option>
+                    <option value="青海">青海</option>
+                    <option value="宁夏">宁夏</option>
+                    <option value="新疆">新疆</option>
+                    <option value="内蒙古">内蒙古</option>
+                    <option value="香港">香港</option>
+                    <option value="澳门">澳门</option>
+                    <option value="台湾">台湾</option>
+                    <!-- 添加更多地区 -->
+                </select>
+                <div class="form-message" id="productLocationMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productTradeMethod">交易方式</label>
+                <select id="productTradeMethod" name="productTradeMethod" required>
+                    <option value="">请选择交易方式</option>
+                    <option value="自取">自取</option>
+                    <option value="快递">快递</option>
+                    <option value="面交">面交</option>
+                </select>
+                <div class="form-message" id="productTradeMethodMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="postedDate">发布日期</label>
+                <input type="date" id="postedDate" name="postedDate" required>
+                <div class="form-message" id="postedDateMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productDescription">商品描述</label>
+                <textarea id="productDescription" name="productDescription" required></textarea>
+                <div class="form-message" id="productDescriptionMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="productImage">商品图片</label>
+                <input type="file" id="productImage" name="productImage" accept="image/*" required>
+                <label for="productImage" class="file-label">选择图片</label>
+                <div class="image-preview-container">
+                    <img id="imagePreview" src="" alt="预览图">
+                </div>
+                <div class="form-message" id="productImageMessage"></div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" id="submitBtn">发布商品</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropperModal" class="cropper-modal">
+        <div class="cropper-content">
+            <img id="cropperImage" src="" alt="Cropper Image">
+            <div class="cropper-buttons">
+                <button id="cropImageBtn">裁剪</button>
+                <button class="cancel-btn" id="cancelCropBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publish Confirmation Modal -->
+    <div id="publishModal" class="modal">
+        <div class="modal-content">
+            <h2>恭喜您，您的商品发布成功！</h2>
+            <p>您的商品已发布成功，我们会尽快审核上架！</p>
+            <button onclick="window.location.href='./my-posts.html'">前往“我的发布”页面</button>
+        </div>
+    </div>
+
+
+    <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <h2>您是否确认发布？</h2>
+                <p>请仔细填写以下信息：<strong style="color: red;">商品成色</strong>、<strong style="color: red;">出售原因</strong>、<strong style="color: red;">交易方式</strong>及<strong style="color: red;">发布时间</strong>。这些信息提交后将无法修改。此外，由于系统资源有限，每位用户的个人空间是有上限的。<strong style="color: red;">请适量发布商品</strong>，以避免数据丢失和页面无法正常使用。感谢您的配合！</p>
+                <button id="confirmSubmitBtn">确认提交</button>
+                <button class="cancel-btn" id="cancelSubmitBtn">取消</button>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('postProductForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const imageInput = document.getElementById('productImage');
+            const imagePreview = document.getElementById('imagePreview');
+            const cropperModal = document.getElementById('cropperModal');
+            const cropperImage = document.getElementById('cropperImage');
+            const cropImageBtn = document.getElementById('cropImageBtn');
+            const cancelCropBtn = document.getElementById('cancelCropBtn');
+            const confirmationModal = document.getElementById('confirmationModal');
+            const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+            const cancelSubmitBtn = document.getElementById('cancelSubmitBtn');
+            let cropper;
+    
+            // Handle image selection and cropping
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        cropperImage.src = e.target.result;
+                        cropperModal.style.display = 'flex';
+                        cropper = new Cropper(cropperImage, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+    
+            cropImageBtn.addEventListener('click', function() {
+                const croppedCanvas = cropper.getCroppedCanvas();
+                imagePreview.src = croppedCanvas.toDataURL();
+                cropperModal.style.display = 'none';
+                cropper.destroy();
+                cropper = null;
+            });
+    
+            cancelCropBtn.addEventListener('click', function() {
+                cropperModal.style.display = 'none';
+                cropper.destroy();
+                cropper = null;
+            });
+    
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+    
+                // Show confirmation modal
+                confirmationModal.style.display = 'flex';
+            });
+    
+            confirmSubmitBtn.addEventListener('click', function() {
+                // Perform form validation
+                let isValid = true;
+                ['productName', 'productPrice', 'productCondition', 'productReason', 'productLocation', 'productTradeMethod', 'postedDate', 'productDescription', 'productImage'].forEach(id => {
+                    const input = document.getElementById(id);
+                    const messageElem = document.getElementById(`${id}Message`);
+                    if (!input.value) {
+                        messageElem.textContent = `${input.previousElementSibling.textContent}不能为空。`;
+                        isValid = false;
+                    } else {
+                        messageElem.textContent = '';
+                    }
+                });
+    
+                if (!isValid) return;
+    
+                // Save data to localStorage
+                const productData = {
+                    name: document.getElementById('productName').value,
+                    price: parseFloat(document.getElementById('productPrice').value),
+                    condition: document.getElementById('productCondition').value,
+                    reason: document.getElementById('productReason').value,
+                    location: document.getElementById('productLocation').value,
+                    tradeMethod: document.getElementById('productTradeMethod').value,
+                    postedDate: document.getElementById('postedDate').value,
+                    description: document.getElementById('productDescription').value,
+                    image: imagePreview.src
+                };
+    
+                let postedProducts = JSON.parse(localStorage.getItem('postedProduct')) || [];
+                if (!Array.isArray(postedProducts)) {
+                    postedProducts = [];
+                }
+                postedProducts.push(productData);
+                localStorage.setItem('postedProduct', JSON.stringify(postedProducts));
+    
+                // Hide confirmation modal and show success modal
+                confirmationModal.style.display = 'none';
+                document.getElementById('publishModal').style.display = 'flex';
+            });
+    
+            cancelSubmitBtn.addEventListener('click', function() {
+                confirmationModal.style.display = 'none';
+            });
+        });
+
+        // Set the default value for postedDate to today's date
+         document.getElementById('postedDate').value = new Date().toISOString().split('T')[0];
+    </script>    
+</body>
+</html>

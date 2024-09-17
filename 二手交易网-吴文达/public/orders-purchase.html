@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 50px;
+        }
+        .order-page {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        .order-page h1 {
+            color: #007bff;
+        }
+        .nav-tabs .nav-item {
+            margin-bottom: -1px;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            text-align: center; /* Center align text */
+        }
+        .order-card img {
+            max-width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin: 0 auto 15px; /* Center align image */
+        }
+        .order-card .details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        .order-card h5 {
+            margin-bottom: 10px;
+        }
+        .order-card p {
+            margin-bottom: 5px;
+        }
+        .order-status {
+            font-weight: bold;
+        }
+        .refund-button {
+            position: static;
+            margin-top: 10px;
+        }
+        .modal-body textarea,
+        .modal-body input {
+            width: 100%;
+        }
+        
+        @media (max-width: 767.98px) {
+            .order-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center; /* Center text on mobile */
+            }
+            .order-card img {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="order-page">
+            <h1 class="display-4">我的订单</h1>
+            <ul class="nav nav-tabs" id="orderTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab" aria-controls="all" aria-selected="true">全部</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pending-shipment-tab" data-toggle="tab" href="#pending-shipment" role="tab" aria-controls="pending-shipment" aria-selected="false">待发货</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pending-receipt-tab" data-toggle="tab" href="#pending-receipt" role="tab" aria-controls="pending-receipt" aria-selected="false">待收货</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="completed-tab" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">已完成</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="orderTabsContent">
+                <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    <div id="allOrders"></div>
+                </div>
+                <div class="tab-pane fade" id="pending-shipment" role="tabpanel" aria-labelledby="pending-shipment-tab">
+                    <div id="pendingShipmentOrders"></div>
+                </div>
+                <div class="tab-pane fade" id="pending-receipt" role="tabpanel" aria-labelledby="pending-receipt-tab">
+                    <div id="pendingReceiptOrders"></div>
+                </div>
+                <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                    <div id="completedOrders"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退款模态框 -->
+    <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="refundModalLabel">申请退款</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="refundForm">
+                        <div class="form-group">
+                            <label for="refundReason">退款理由</label>
+                            <textarea class="form-control" id="refundReason" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactInfo">联系方式</label>
+                            <input type="text" class="form-control" id="contactInfo" placeholder="请输入您的联系方式" pattern="[0-9]{11,15}" required>
+                            <small class="form-text text-muted">请输入有效的联系方式，11-15位数字。</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交退款申请</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 收货模态框 -->
+        <div class="modal fade" id="receiveModal" tabindex="-1" role="dialog" aria-labelledby="receiveModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="receiveModalLabel">确认收货</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>您即将确认收货，请注意，此操作一旦完成，将无法撤销。请确保您已核实商品状态无误后，再进行确认。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="confirmReceiveButton">确认收货</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+           window.onload = function() {
+            // 从本地存储获取订单数据
+            let newOrderDetails = JSON.parse(localStorage.getItem('newOrderDetails')) || [];
+
+            // 确保每个订单都有唯一的订单号
+            function ensureOrderId(order) {
+                if (!order.orderId) {
+                    order.orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                }
+            }
+
+            // 初始化订单数据，确保每个订单都有唯一的订单号
+            newOrderDetails.forEach(order => {
+                ensureOrderId(order);
+                if (!order.status) {
+                    order.status = 'pending-shipment'; // 如果状态不存在，则设置为待发货
+                }
+            });
+
+            // 将更新后的订单数据保存回本地存储
+            localStorage.setItem('newOrderDetails', JSON.stringify(newOrderDetails));
+
+            // 分类订单状态
+            const ordersByStatus = {
+                all: newOrderDetails,
+                pendingShipment: newOrderDetails.filter(order => order.status === 'pending-shipment' && (order.tradeMethod !== '自取' && order.tradeMethod !== '面交')),
+                pendingReceipt: newOrderDetails.filter(order => order.status === 'pending-shipment' && (order.tradeMethod === '自取' || order.tradeMethod === '面交')),
+                completed: newOrderDetails.filter(order => order.status === '已收货')
+            };
+
+            // 生成订单卡片HTML
+            function createOrderCard(order) {
+                // 确保 price 是数字类型
+                const price = parseFloat(order.price) || 0; // 转换为数字，若失败则为 0
+
+                return `
+                    <div class="order-card">
+                        <img src="${order.imageUrl || 'default-image.jpg'}" alt="${order.title}">
+                        <div class="details">
+                            <h5>订单号: ${order.orderId}</h5>
+                            <p>商品名称: ${order.title}</p>
+                            <p>单价: ￥${price.toFixed(2)}</p>
+                            <p>数量: ${order.quantity}</p>
+                            <p class="order-status">交易方式: ${order.tradeMethod}</p>
+                            <p class="order-status">订单状态: ${order.status === 'pending-shipment' ? '待发货' : (order.status === '已收货' ? '已收货' : order.status)}</p>
+                            <p class="order-status">地点: ${order.location || '未提供地点'}</p>
+                            <div class="button-group">
+                                <a href="./order-details-purchase.html?id=${order.orderId}" class="btn btn-info btn-details">查看详情</a>
+                                ${order.status === 'pending-shipment' && (order.tradeMethod === '自取' || order.tradeMethod === '面交') ? `<button class="btn btn-success btn-receive" data-order='${JSON.stringify(order)}'>收货</button>` : ''}
+                                ${order.status !== '已退款' && order.status !== '已收货' ? `<button class="btn btn-danger btn-refund" data-toggle="modal" data-target="#refundModal" data-order='${JSON.stringify(order)}'>申请退款</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 显示订单
+            function displayOrders(orders, containerId) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = orders.map(createOrderCard).join('');
+            }
+
+            // 初始化页面
+            displayOrders(ordersByStatus.all, 'allOrders');
+            displayOrders(ordersByStatus.pendingShipment, 'pendingShipmentOrders');
+            displayOrders(ordersByStatus.pendingReceipt, 'pendingReceiptOrders');
+            displayOrders(ordersByStatus.completed, 'completedOrders');
+
+            // 提交退款申请
+            document.getElementById('refundForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const reason = document.getElementById('refundReason').value.trim();
+                const contactInfo = document.getElementById('contactInfo').value.trim();
+                
+                if (!reason || !contactInfo) {
+                    alert('请填写退款理由和联系方式');
+                    return;
+                }
+
+                if (!/^\d{11,15}$/.test(contactInfo)) {
+                    alert('联系方式必须为11到15位数字');
+                    return;
+                }
+
+                // 找到点击的退款按钮对应的订单
+                const orderButton = document.querySelector('.btn-refund[data-target="#refundModal"]');
+                if (!orderButton) {
+                    alert('未找到对应的退款按钮');
+                    return;
+                }
+                
+                const order = JSON.parse(orderButton.getAttribute('data-order'));
+
+                // 更新订单状态为“已退款”
+                const updatedOrder = newOrderDetails.find(o => o.orderId === order.orderId);
+                if (updatedOrder) {
+                    updatedOrder.status = '已退款';
+                } else {
+                    alert('未找到对应的订单');
+                    return;
+                }
+
+                // 重新分类订单
+                const orders = {
+                    all: newOrderDetails,
+                    pendingShipment: newOrderDetails.filter(o => o.status === 'pending-shipment' && (o.tradeMethod !== '自取' && o.tradeMethod !== '面交')),
+                    pendingReceipt: newOrderDetails.filter(o => o.status === 'pending-shipment' && (o.tradeMethod === '自取' || o.tradeMethod === '面交')),
+                    completed: newOrderDetails.filter(o => o.status === '已收货')
+                };
+
+                // 保存更新后的订单到本地存储
+                localStorage.setItem('newOrderDetails', JSON.stringify(newOrderDetails));
+
+                // 重新显示订单
+                displayOrders(orders.all, 'allOrders');
+                displayOrders(orders.pendingShipment, 'pendingShipmentOrders');
+                displayOrders(orders.pendingReceipt, 'pendingReceiptOrders');
+                displayOrders(orders.completed, 'completedOrders');
+
+                // 关闭模态框
+                $('#refundModal').modal('hide');
+            });
+
+            // 收货按钮点击事件处理
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('btn-receive')) {
+                    const order = JSON.parse(event.target.getAttribute('data-order'));
+                    $('#receiveModal').modal('show');
+
+                    // 处理确认收货
+                    document.getElementById('confirmReceiveButton').addEventListener('click', function() {
+                        // 更新订单状态为“已收货”
+                        const updatedOrder = newOrderDetails.find(o => o.orderId === order.orderId);
+                        if (updatedOrder) {
+                            updatedOrder.status = '已收货';
+                        } else {
+                            alert('未找到对应的订单');
+                            return;
+                        }
+
+                        // 重新分类订单
+                        const orders = {
+                            all: newOrderDetails,
+                            pendingShipment: newOrderDetails.filter(o => o.status === 'pending-shipment' && (o.tradeMethod !== '自取' && o.tradeMethod !== '面交')),
+                            pendingReceipt: newOrderDetails.filter(o => o.status === 'pending-shipment' && (o.tradeMethod === '自取' || o.tradeMethod === '面交')),
+                            completed: newOrderDetails.filter(o => o.status === '已收货')
+                        };
+
+                        // 保存更新后的订单到本地存储
+                        localStorage.setItem('newOrderDetails', JSON.stringify(newOrderDetails));
+
+                        // 重新显示订单
+                        displayOrders(orders.all, 'allOrders');
+                        displayOrders(orders.pendingShipment, 'pendingShipmentOrders');
+                        displayOrders(orders.pendingReceipt, 'pendingReceiptOrders');
+                        displayOrders(orders.completed, 'completedOrders');
+
+                        // 关闭模态框
+                        $('#receiveModal').modal('hide');
+                    });
+                }
+            });
+
+            console.log('订单数据:', newOrderDetails);
+        };
+
+        </script>        
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
+    <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>    
+</body>
+</html>

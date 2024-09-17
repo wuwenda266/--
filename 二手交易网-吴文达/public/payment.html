@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付页面</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        .payment-methods img {
+            max-width: 100px;
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, border 0.3s;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+        .payment-methods img:hover {
+            transform: scale(1.1);
+        }
+        .payment-methods .selected {
+            border: 2px solid #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+        }
+        .btn-pay {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            margin-top: 20px;
+        }
+        .btn-pay:hover {
+            background-color: #218838;
+        }
+        .modal-content {
+            text-align: center;
+        }
+        .currency-selector {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">订单信息</h1>
+        <div id="orderContainer" class="mb-4">
+            <!-- 订单信息将动态插入这里 -->
+        </div>
+        <div class="total-price text-right">
+            总价格: <span id="currencySymbol">￥</span><span id="orderTotalPrice">0</span>
+        </div>
+        <div class="currency-selector">
+            <label for="currencySelect">选择国家:</label>
+            <select id="currencySelect" class="form-control d-inline-block" style="width: auto;">
+                <!-- 选项将动态生成 -->
+            </select>
+        </div>
+        <div class="payment-methods text-center mt-4">
+            <h3>选择支付方式</h3>
+            <!-- 银联支付 -->
+            <img src="../img/银行卡支付.png" alt="银行卡支付" title="银行卡支付" id="paymentCard">
+            <!-- 微信支付 -->
+            <img src="../img/微信支付.png" alt="微信支付" title="微信支付" id="paymentWeChat" style="display: none;">
+            <!-- 支付宝支付 -->
+            <img src="../img/支付宝支付.png" alt="支付宝支付" title="支付宝支付" id="paymentAlipay" style="display: none;">
+        </div>
+        <div class="text-center mt-4">
+            <button id="payButton" class="btn btn-pay btn-lg">确认支付</button>
+        </div>
+    </div>
+
+    <!-- 提示框模态框 -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalLabel">提示</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="alertMessage">请选择支付方式</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+    <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const orderContainer = document.getElementById('orderContainer');
+        const orderTotalPriceElem = document.getElementById('orderTotalPrice');
+        const currencySymbolElem = document.getElementById('currencySymbol');
+        const currencySelect = document.getElementById('currencySelect');
+        const rates = {
+                  WWD: 0,
+                  CNY: 1,
+                  USD: 0.14,
+                  EUR: 0.13,
+                  JPY: 19.01,
+                  GBP: 0.11,
+                  AUD: 0.21,
+                  CAD: 0.19,
+                  CHF: 0.12,
+                  NZD: 0.22,
+                  SEK: 1.45,
+                  MXN: 2.47,
+                  SGD: 0.19,
+                  HKD: 1.09,
+                  NOK: 1.39,
+                  KRW: 185.20,
+                  TRY: 3.65,
+                  INR: 11.54,
+                  RUB: 10.70,
+                  ZAR: 2.67,
+                  BRL: 0.71,
+                  ARS: 19.57,
+                  CLP: 105.22,
+                  COP: 590.00,
+                  PEN: 0.50,
+                  TWD: 4.39,
+                  ILS: 0.49,
+                  DKK: 0.97,
+                  PLN: 0.60,
+                  CZK: 3.06,
+                  HUF: 44.27,
+                  BGN: 0.23,
+                  RON: 0.65,
+                  RSD: 15.45,
+                  HRK: 0.97,
+                  HNL: 3.47,
+                  PAB: 0.13,
+                  BBD: 0.28,
+                  TTD: 0.95,
+                  GHS: 1.56,
+                  NGN: 1.00,
+                  UGX: 488.00,
+                  KES: 18.50,
+                  KWD: 0.042,
+                  OMR: 0.053,
+                  QAR: 0.51,
+                  JOD: 0.10,
+                  BHD: 0.053,
+                  MAD: 1.30,
+                  DZD: 19.60,
+                  TND: 0.39,
+                  LYD: 0.19,
+                  MUR: 6.00,
+                  MZN: 8.75,
+                  MWK: 114.00,
+                  NPR: 18.80,
+                  LKR: 48.50,
+                  THB: 4.64,
+                  MYR: 0.63,
+                  VND: 3373.00,
+                  IDR: 2153.00,
+                  PHP: 7.66,
+                  MOP: 1.10,
+                  KHR: 569.00,
+                  LAK: 1180.00,
+                  MMK: 290.00,
+                  BWP: 1.80,
+                  SZL: 2.70,
+                  ZWL: 1.00,
+                  DOP: 7.70,
+                  GTQ: 1.04,
+                  CRC: 85.00,
+                  CUP: 3.70,
+                  UYU: 5.46,
+                  SVC: 1.13,
+                  BZD: 0.27,
+                  NAD: 2.70,
+                  SCR: 1.88,
+                  STN: 2.75,
+                  XAF: 82.90,
+                  XOF: 82.90,
+                  XPF: 15.30,
+                  SLL: 227.00,
+                  SOS: 85.00,
+                  SSP: 146.00,
+                  TZS: 326.00,
+                  GMD: 7.10,
+                  BIF: 284.00,
+                  DJF: 23.00,
+                  ERN: 2.06,
+                  KMF: 59.00,
+                  MGA: 570.00,
+                  NPR: 18.80
+              };
+
+              const countries = [
+                  { name: '选择国家', code: 'WWD', symbol: '', rate: 0 },
+                  { name: '中国', code: 'CNY', symbol: '￥', rate: 1 },
+                  { name: '美国', code: 'USD', symbol: '$', rate: 0.14 },
+                  { name: '欧元区', code: 'EUR', symbol: '€', rate: 0.13 },
+                  { name: '日本', code: 'JPY', symbol: '¥', rate: 19.01 },
+                  { name: '英国', code: 'GBP', symbol: '£', rate: 0.11 },
+                  { name: '澳大利亚', code: 'AUD', symbol: '$', rate: 0.21 },
+                  { name: '加拿大', code: 'CAD', symbol: '$', rate: 0.19 },
+                  { name: '瑞士', code: 'CHF', symbol: 'CHF', rate: 0.12 },
+                  { name: '新西兰', code: 'NZD', symbol: '$', rate: 0.22 },
+                  { name: '瑞典', code: 'SEK', symbol: 'kr', rate: 1.45 },
+                  { name: '墨西哥', code: 'MXN', symbol: '$', rate: 2.47 },
+                  { name: '新加坡', code: 'SGD', symbol: '$', rate: 0.19 },
+                  { name: '香港', code: 'HKD', symbol: '$', rate: 1.09 },
+                  { name: '挪威', code: 'NOK', symbol: 'kr', rate: 1.39 },
+                  { name: '韩国', code: 'KRW', symbol: '₩', rate: 185.20 },
+                  { name: '土耳其', code: 'TRY', symbol: '₺', rate: 3.65 },
+                  { name: '印度', code: 'INR', symbol: '₹', rate: 11.54 },
+                  { name: '俄罗斯', code: 'RUB', symbol: '₽', rate: 10.70 },
+                  { name: '南非', code: 'ZAR', symbol: 'R', rate: 2.67 },
+                  { name: '巴西', code: 'BRL', symbol: 'R$', rate: 0.71 },
+                  { name: '阿根廷', code: 'ARS', symbol: '$', rate: 19.57 },
+                  { name: '智利', code: 'CLP', symbol: '$', rate: 105.22 },
+                  { name: '哥伦比亚', code: 'COP', symbol: '$', rate: 590.00 },
+                  { name: '秘鲁', code: 'PEN', symbol: 'S/', rate: 0.50 },
+                  { name: '台湾', code: 'TWD', symbol: 'NT$', rate: 4.39 },
+                  { name: '以色列', code: 'ILS', symbol: '₪', rate: 0.49 },
+                  { name: '丹麦', code: 'DKK', symbol: 'kr', rate: 0.97 },
+                  { name: '波兰', code: 'PLN', symbol: 'zł', rate: 0.60 },
+                  { name: '捷克', code: 'CZK', symbol: 'Kč', rate: 3.06 },
+                  { name: '匈牙利', code: 'HUF', symbol: 'Ft', rate: 44.27 },
+                  { name: '保加利亚', code: 'BGN', symbol: 'лв', rate: 0.23 },
+                  { name: '罗马尼亚', code: 'RON', symbol: 'lei', rate: 0.65 },
+                  { name: '塞尔维亚', code: 'RSD', symbol: 'дин.', rate: 15.45 },
+                  { name: '克罗地亚', code: 'HRK', symbol: 'kn', rate: 0.97 },
+                  { name: '洪都拉斯', code: 'HNL', symbol: 'L', rate: 3.47 },
+                  { name: '巴拿马', code: 'PAB', symbol: 'B/.', rate: 0.13 },
+                  { name: '巴巴多斯', code: 'BBD', symbol: '$', rate: 0.28 },
+                  { name: '特立尼达和多巴哥', code: 'TTD', symbol: '$', rate: 0.95 },
+                  { name: '加纳', code: 'GHS', symbol: '₵', rate: 1.56 },
+                  { name: '尼日利亚', code: 'NGN', symbol: '₦', rate: 1.00 },
+                  { name: '乌干达', code: 'UGX', symbol: 'USh', rate: 488.00 },
+                  { name: '肯尼亚', code: 'KES', symbol: 'KSh', rate: 18.50 },
+                  { name: '科威特', code: 'KWD', symbol: 'د.ك', rate: 0.042 },
+                  { name: '阿曼', code: 'OMR', symbol: 'ر.ع.', rate: 0.053 },
+                  { name: '卡塔尔', code: 'QAR', symbol: 'ق.ر', rate: 0.51 },
+                  { name: '约旦', code: 'JOD', symbol: 'د.أ', rate: 0.10 },
+                  { name: '巴林', code: 'BHD', symbol: 'د.ب', rate: 0.053 },
+                  { name: '摩洛哥', code: 'MAD', symbol: 'د.م.', rate: 1.30 },
+                  { name: '阿尔及利亚', code: 'DZD', symbol: 'د.ج', rate: 19.60 },
+                  { name: '突尼斯', code: 'TND', symbol: 'د.ت', rate: 0.39 },
+                  { name: '利比亚', code: 'LYD', symbol: 'د.ل', rate: 0.19 },
+                  { name: '毛里求斯', code: 'MUR', symbol: '₨', rate: 6.00 },
+                  { name: '莫桑比克', code: 'MZN', symbol: 'MT', rate: 8.75 },
+                  { name: '马拉维', code: 'MWK', symbol: 'MK', rate: 114.00 },
+                  { name: '尼泊尔', code: 'NPR', symbol: 'Rs', rate: 18.80 },
+                  { name: '斯里兰卡', code: 'LKR', symbol: 'Rs', rate: 48.50 },
+                  { name: '泰国', code: 'THB', symbol: '฿', rate: 4.64 },
+                  { name: '马来西亚', code: 'MYR', symbol: 'RM', rate: 0.63 },
+                  { name: '越南', code: 'VND', symbol: '₫', rate: 3373.00 },
+                  { name: '印度尼西亚', code: 'IDR', symbol: 'Rp', rate: 2153.00 },
+                  { name: '菲律宾', code: 'PHP', symbol: '₱', rate: 7.66 },
+                  { name: '澳门', code: 'MOP', symbol: 'MOP$', rate: 1.10 },
+                  { name: '柬埔寨', code: 'KHR', symbol: '៛', rate: 569.00 },
+                  { name: '老挝', code: 'LAK', symbol: '₭', rate: 1180.00 },
+                  { name: '缅甸', code: 'MMK', symbol: 'K', rate: 290.00 },
+                  { name: '博茨瓦纳', code: 'BWP', symbol: 'P', rate: 1.80 },
+                  { name: '斯威士兰', code: 'SZL', symbol: 'E', rate: 2.70 },
+                  { name: '津巴布韦', code: 'ZWL', symbol: '$', rate: 1.00 },
+                  { name: '多米尼加', code: 'DOP', symbol: 'RD$', rate: 7.70 },
+                  { name: '危地马拉', code: 'GTQ', symbol: 'Q', rate: 1.04 },
+                  { name: '哥斯达黎加', code: 'CRC', symbol: '₡', rate: 85.00 },
+                  { name: '古巴', code: 'CUP', symbol: '₱', rate: 3.70 },
+                  { name: '乌拉圭', code: 'UYU', symbol: '$U', rate: 5.46 },
+                  { name: '萨尔瓦多', code: 'SVC', symbol: '$', rate: 1.13 },
+                  { name: '伯利兹', code: 'BZD', symbol: '$', rate: 0.27 },
+                  { name: '纳米比亚', code: 'NAD', symbol: '$', rate: 2.70 },
+                  { name: '塞舌尔', code: 'SCR', symbol: '₨', rate: 1.88 },
+                  { name: '圣多美和普林西比', code: 'STN', symbol: 'Db', rate: 2.75 },
+                  { name: '中非法郎', code: 'XAF', symbol: 'FCFA', rate: 82.90 },
+                  { name: '西非法郎', code: 'XOF', symbol: 'CFA', rate: 82.90 },
+                  { name: '太平洋法郎', code: 'XPF', symbol: '₣', rate: 15.30 },
+                  { name: '塞拉利昂', code: 'SLL', symbol: 'Le', rate: 227.00 },
+                  { name: '索马里', code: 'SOS', symbol: 'Sh.So.', rate: 85.00 },
+                  { name: '南苏丹', code: 'SSP', symbol: '£', rate: 146.00 },
+                  { name: '坦桑尼亚', code: 'TZS', symbol: 'TSh', rate: 326.00 },
+                  { name: '冈比亚', code: 'GMD', symbol: 'D', rate: 7.10 },
+                  { name: '布隆迪', code: 'BIF', symbol: 'FBu', rate: 284.00 },
+                  { name: '吉布提', code: 'DJF', symbol: 'Fdj', rate: 23.00 },
+                  { name: '厄立特里亚', code: 'ERN', symbol: 'Nfa', rate: 2.06 },
+                  { name: '科摩罗', code: 'KMF', symbol: 'CF', rate: 59.00 },
+                  { name: '马达加斯加', code: 'MGA', symbol: 'Ar', rate: 570.00 },
+                  { name: '尼泊尔', code: 'NPR', symbol: 'Rs', rate: 18.80 }
+              ];
+
+
+        let selectedPaymentMethod = null;
+
+        function loadOrderDetails() {
+            const orderDetails = JSON.parse(localStorage.getItem('orderDetails')) || [];
+            const convertedOrderDetails = JSON.parse(localStorage.getItem('convertedOrderDetails')) || [];
+            orderContainer.innerHTML = '';
+
+            let totalPrice = 0;
+
+            if (orderDetails.length > 0) {
+                orderDetails.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'order-item';
+                    itemDiv.innerHTML = `
+                        <div>
+                            <p><strong>商品名称:</strong> ${item.name}</p>
+                            <p><strong>原价格:</strong> ￥${item.price.toFixed(2)}</p>
+                            <p><strong>数量:</strong> ${item.quantity}</p>
+                            <p><strong>数量:</strong> ${item.tradeMethod}</p>
+                        </div>
+                    `;
+                    orderContainer.appendChild(itemDiv);
+
+                    totalPrice += convertedOrderDetails[index]?.price * item.quantity || item.price * item.quantity;
+                });
+
+                orderTotalPriceElem.textContent = totalPrice.toFixed(2);
+
+            } else {
+                orderContainer.innerHTML = '<h2>没有订单信息</h2>';
+            }
+        }
+
+        function updateTotalPrice() {
+            const currency = currencySelect.value;
+            const rate = rates[currency];
+            const orderDetails = JSON.parse(localStorage.getItem('orderDetails')) || [];
+            const convertedOrderDetails = [];
+
+            let totalPrice = 0;
+
+            orderDetails.forEach(item => {
+                const convertedPrice = (item.price * rate).toFixed(2);
+                totalPrice += convertedPrice * item.quantity;
+                convertedOrderDetails.push({
+                    ...item,
+                    price: parseFloat(convertedPrice)
+                });
+            });
+
+            // 保存换算后的价格到 localStorage
+            localStorage.setItem('convertedOrderDetails', JSON.stringify(convertedOrderDetails));
+
+            orderTotalPriceElem.textContent = totalPrice.toFixed(2);
+        }
+
+        function showAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            $('#alertModal').modal('show');
+        }
+
+        function togglePaymentMethodSelection(method) {
+            const methodImg = document.getElementById(`payment${method}`);
+            if (methodImg.classList.contains('selected')) {
+                methodImg.classList.remove('selected');
+                selectedPaymentMethod = null;
+            } else {
+                document.querySelectorAll('.payment-methods img').forEach(img => {
+                    img.classList.remove('selected');
+                });
+                methodImg.classList.add('selected');
+                selectedPaymentMethod = method.toLowerCase();
+            }
+        }
+
+        function updatePaymentMethods() {
+            const country = currencySelect.value;
+            const isChina = country === 'CNY';
+
+            document.getElementById('paymentWeChat').style.display = isChina ? 'inline-block' : 'none';
+            document.getElementById('paymentAlipay').style.display = isChina ? 'inline-block' : 'none';
+        }
+
+        function populateCountrySelect() {
+            currencySelect.innerHTML = '';
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.code;
+                option.textContent = country.name;
+                option.setAttribute('data-symbol', country.symbol);
+                option.setAttribute('data-rate', country.rate);
+                currencySelect.appendChild(option);
+            });
+        }
+
+        currencySelect.addEventListener('change', () => {
+            const selectedCountry = currencySelect.value;
+            const currencySymbol = currencySelect.options[currencySelect.selectedIndex].getAttribute('data-symbol');
+            currencySymbolElem.textContent = currencySymbol;
+
+            updateTotalPrice();
+            updatePaymentMethods();
+
+            // 将 selectedCountry 保存到 localStorage
+            localStorage.setItem('selectedCountry', selectedCountry);
+        });
+
+        // 初始化页面
+        populateCountrySelect();
+        loadOrderDetails();
+        updatePaymentMethods();
+
+        // 支付方式选择事件监听
+        document.getElementById('paymentCard').addEventListener('click', () => togglePaymentMethodSelection('Card'));
+        document.getElementById('paymentWeChat').addEventListener('click', () => togglePaymentMethodSelection('WeChat'));
+        document.getElementById('paymentAlipay').addEventListener('click', () => togglePaymentMethodSelection('Alipay'));
+
+        // 支付按钮点击事件监听
+        document.getElementById('payButton').addEventListener('click', () => {
+            if (!selectedPaymentMethod) {
+                showAlert('请选择支付方式');
+            } else {
+                let paymentUrl;
+                switch (selectedPaymentMethod) {
+                    case 'card':
+                        paymentUrl = './payment-card.html';
+                        break;
+                    case 'wechat':
+                        paymentUrl = './wechat-payment.html';
+                        break;
+                    case 'alipay':
+                        paymentUrl = './alipay-payment.html';
+                        break;
+                    default:
+                        paymentUrl = '#';
+                        break;
+                }
+                window.location.href = paymentUrl;
+            }
+        });
+    });
+    </script>
+</body>
+</html>

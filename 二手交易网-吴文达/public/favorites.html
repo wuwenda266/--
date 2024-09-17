@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏夹</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center; /* Center items vertically */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card img {
+            max-width: 100px; /* Adjusted size for mobile */
+            margin-right: 15px;
+            border-radius: 8px;
+            object-fit: cover;
+            align-self: center; /* Vertically center the image */
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 18px; /* Slightly smaller title */
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 16px; /* Slightly smaller price */
+            color: #d9534f;
+            margin-bottom: 10px;
+        }
+
+        .product-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .delete-button, .details-button {
+            background: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-button {
+            position: absolute;
+            top: 15px;
+            right: 120px; /* Adjust position for spacing */
+            background: #d9534f;
+        }
+
+        .delete-button:hover {
+            background: #c9302c;
+        }
+
+        .details-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #5bc0de;
+        }
+
+        .details-button:hover {
+            background: #31b0d5;
+        }
+
+        @media (max-width: 768px) {
+            .product-card {
+                flex-direction: column; /* Stack items vertically */
+                align-items: flex-start; /* Align items to the start */
+            }
+
+            .product-card img {
+                max-width: 100px; /* Adjust size for mobile */
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .delete-button, .details-button {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 10px;
+                width: 100%; /* Full width for mobile */
+                display: block; /* Stack buttons vertically */
+                text-align: center; /* Center text */
+            }
+
+            .delete-button {
+                background: #d9534f;
+                margin-bottom: 5px; /* Space between buttons */
+            }
+
+            .details-button {
+                background: #5bc0de;
+            }
+        }
+
+        #deleteModal, #oneClickDeleteModal {
+            display: none !important; /* Ensure modals are hidden initially */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #deleteModal div, #oneClickDeleteModal div {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #deleteModal button, #oneClickDeleteModal button {
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+
+        #confirmDelete, #confirmOneClickDelete {
+            background: #d9534f;
+            color: #fff;
+        }
+
+        #cancelDelete, #cancelOneClickDelete {
+            background: #ccc;
+            color: #333;
+        }
+        #oneClickDeleteButton {
+        background: #d9534f;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 14px;
+        display: block;
+        margin: 10px 0 20px 0; /* Margin for spacing below the title and above the favorites list */
+        width: auto; /* Adjust width */
+        max-width: 150px; /* Set a max-width for the button */
+        text-align: center;
+        align-self: flex-start; /* Align button to the left */
+    }
+
+    #oneClickDeleteButton:hover {
+        background: #c9302c;
+    }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>我的收藏夹</h1>
+        <button id="oneClickDeleteButton" class="delete-button">清空收藏夹</button>
+        <div id="favoritesList"></div>
+        <div id="emptyMessage" class="empty-message">您的收藏夹是空的，请收藏商品后再来吧！</div>
+    </div>    
+
+    <!-- Delete confirmation modal -->
+    <div id="deleteModal">
+        <div>
+            <p>您确定要删除这个商品吗？</p>
+            <button id="confirmDelete">确定</button>
+            <button id="cancelDelete">取消</button>
+        </div>
+    </div>
+
+    <!-- One-click delete confirmation modal -->
+    <div id="oneClickDeleteModal">
+        <div>
+            <p>您确定要删除所有收藏吗？</p>
+            <button id="confirmOneClickDelete">确定</button>
+            <button id="cancelOneClickDelete">取消</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const favoritesList = document.getElementById('favoritesList');
+            const emptyMessage = document.getElementById('emptyMessage');
+            const deleteModal = document.getElementById('deleteModal');
+            const oneClickDeleteModal = document.getElementById('oneClickDeleteModal');
+            const oneClickDeleteButton = document.getElementById('oneClickDeleteButton');
+            let deleteIndex = null;
+
+            // Define currentPage (set to a default value or retrieve from URL)
+            const currentPage = 1; // Replace this with the actual page number if needed
+
+            // Retrieve favorites from localStorage
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+            if (favorites.length === 0) {
+                emptyMessage.style.display = 'block';
+                favoritesList.style.display = 'none';
+                return;
+            }
+
+            emptyMessage.style.display = 'none';
+            favoritesList.style.display = 'block';
+
+            // Generate HTML for each favorite product
+            favorites.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.classList.add('product-card');
+
+                const productImage = document.createElement('img');
+                productImage.src = product.imageUrl;
+                productImage.alt = product.title;
+
+                const productDetails = document.createElement('div');
+                productDetails.classList.add('product-details');
+
+                const productTitle = document.createElement('div');
+                productTitle.classList.add('product-title');
+                productTitle.textContent = product.title;
+
+                const productPrice = document.createElement('div');
+                productPrice.classList.add('product-price');
+                productPrice.textContent = `价格: ¥${product.price}`;
+
+                const productInfo = document.createElement('div');
+                productInfo.classList.add('product-info');
+                productInfo.innerHTML = `
+                    <p><strong>状态:</strong> ${product.condition}</p>
+                    <p><strong>地点:</strong> ${product.location}</p>
+                    <p><strong>交易方式:</strong> ${product.tradeMethod}</p>
+                    <p><strong>发布时间:</strong> ${product.postedDate}</p>
+                    <p><strong>换新原因:</strong> ${product.reason}</p>
+                `;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', function() {
+                    deleteIndex = index;
+                    deleteModal.style.display = 'flex'; // Show the modal
+                    deleteModal.style.setProperty('display', 'flex', 'important'); // Force display with !important
+                });
+
+                const detailsButton = document.createElement('button');
+                detailsButton.classList.add('details-button');
+                detailsButton.textContent = '查看详细';
+                detailsButton.onclick = function() {
+                    // Redirect to the details page with the product title and page number as query parameters
+                    window.location.href = `./product-details.html?id=${encodeURIComponent(product.title)}&page=${currentPage}`;
+                };
+
+                productDetails.appendChild(productTitle);
+                productDetails.appendChild(productPrice);
+                productDetails.appendChild(productInfo);
+
+                productCard.appendChild(productImage);
+                productCard.appendChild(productDetails);
+                productCard.appendChild(deleteButton);
+                productCard.appendChild(detailsButton);
+
+                favoritesList.appendChild(productCard);
+            });
+
+            // Confirm delete action for individual item
+            document.getElementById('confirmDelete').addEventListener('click', function() {
+                if (deleteIndex !== null) {
+                    favorites.splice(deleteIndex, 1);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    location.reload(); // Reload the page to reflect changes
+                }
+                deleteModal.style.setProperty('display', 'none', 'important'); // Hide the modal
+                deleteIndex = null; // Clear the deleteIndex
+            });
+
+            // Cancel delete action for individual item
+            document.getElementById('cancelDelete').addEventListener('click', function() {
+                deleteModal.style.setProperty('display', 'none', 'important'); // Hide the modal
+                deleteIndex = null; // Clear the deleteIndex
+            });
+
+            // Show one-click delete confirmation modal
+            oneClickDeleteButton.addEventListener('click', function() {
+                oneClickDeleteModal.style.display = 'flex'; // Show the modal
+                oneClickDeleteModal.style.setProperty('display', 'flex', 'important'); // Force display with !important
+            });
+
+            // Confirm delete action for all items
+            document.getElementById('confirmOneClickDelete').addEventListener('click', function() {
+                localStorage.removeItem('favorites'); // Remove all favorites from localStorage
+                favoritesList.innerHTML = ''; // Clear the favorites list on the page
+                emptyMessage.style.display = 'block'; // Show the empty message
+                oneClickDeleteModal.style.setProperty('display', 'none', 'important'); // Hide the modal
+            });
+
+            // Cancel delete action for all items
+            document.getElementById('cancelOneClickDelete').addEventListener('click', function() {
+                oneClickDeleteModal.style.setProperty('display', 'none', 'important'); // Hide the modal
+            });
+        });
+    </script>
+</body>
+</html>

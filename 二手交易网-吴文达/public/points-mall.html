@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员会员积分商城</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f0f2f5;
+          color: #333;
+      }
+
+      header {
+          background-color: #343a40;
+          color: #fff;
+          padding: 20px;
+          text-align: center;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-info {
+          margin-top: 10px;
+          width: 100%;
+          text-align: right;
+          padding: 10px;
+          box-sizing: border-box;
+      }
+
+      #userPoints {
+          font-size: 1.6em;
+          font-weight: bold;
+          color: #ffc107;
+      }
+
+      .membership-info {
+          position: absolute;
+          top: 50%;
+          left: 20px;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+      }
+
+      .membership-info img {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          margin-right: 10px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .membership-info h2 {
+          font-size: 1.6em;
+          margin: 0;
+      }
+
+      .membership-info h2.privileged {
+          color: #ff5722;
+      }
+
+      .product-list {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          padding: 20px;
+      }
+
+      .product-card {
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin: 15px;
+          padding: 20px;
+          width: 260px;
+          text-align: center;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .product-card img {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+      }
+
+      .product-card:hover {
+          transform: scale(1.05);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .product-name {
+          font-size: 1.3em;
+          margin: 10px 0;
+          color: #333;
+      }
+
+      .product-points {
+          color: #ff5722;
+          font-weight: bold;
+      }
+
+      .redeem-btn {
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          padding: 12px;
+          cursor: pointer;
+          margin-top: 10px;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      .redeem-btn:hover {
+          background-color: #218838;
+          transform: translateY(-2px);
+      }
+
+      .discount-info {
+          margin-top: 10px;
+          color: #6c757d;
+          font-size: 1em;
+      }
+
+      .back-btn {
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          padding: 12px 20px;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+          text-align: center;
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          transition: background-color 0.3s ease;
+      }
+
+      .back-btn:hover {
+          background-color: #0056b3;
+      }
+
+      .product-price {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-top: 10px;
+      }
+
+      .original-price {
+          text-decoration: line-through;
+          color: #999;
+          margin-right: 5px;
+      }
+
+      .discounted-price {
+          color: #ff5722;
+          font-weight: bold;
+          font-size: 1.2em;
+      }
+
+      /* Modal styles */
+      .modal {
+          display: none; /* Hidden by default */
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+          justify-content: center;
+          align-items: center;
+      }
+
+      .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+          max-width: 500px;
+          border-radius: 8px;
+          text-align: center;
+      }
+
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+          color: black;
+          text-decoration: none;
+          cursor: pointer;
+      }
+      .privileged {
+          color: red;
+          font-weight: bold;
+      }
+      /* Button styles */
+      #confirmButton, #cancelButton {
+          background-color: #007bff; /* 默认颜色 */
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          padding: 12px 20px;
+          cursor: pointer;
+          font-size: 1em;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          display: inline-block;
+      }
+
+      #confirmButton {
+          background-color: #28a745; /* 确认按钮的颜色 */
+      }
+
+      #confirmButton:hover {
+          background-color: #218838; /* 确认按钮的悬停颜色 */
+          transform: translateY(-2px);
+      }
+
+      #cancelButton {
+          background-color: #dc3545; /* 取消按钮的颜色 */
+      }
+
+      #cancelButton:hover {
+          background-color: #c82333; /* 取消按钮的悬停颜色 */
+          transform: translateY(-2px);
+      }
+
+      .exchange-history {
+          padding: 20px;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin: 20px;
+      }
+
+      .exchange-history h2 {
+          font-size: 1.5em;
+          margin-bottom: 10px;
+      }
+
+      #historyList {
+          list-style-type: none;
+          padding: 0;
+      }
+
+      #historyList li {
+          border-bottom: 1px solid #ddd;
+          padding: 10px 0;
+          display: flex;
+          justify-content: space-between;
+      }
+
+      #historyList li:last-child {
+          border-bottom: none;
+      }
+      .exchange-history {
+          margin: 20px;
+          position: relative;
+      }
+
+      #toggleHistoryButton {
+          position: absolute;
+          right: 0;
+          top: 0;
+          border-radius: 4px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          padding: 10px;
+          cursor: pointer;
+          font-size: 16px;
+      }
+
+      #toggleHistoryButton:hover {
+          background-color: #0056b3;
+      }
+      .button-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Align buttons to the right */
+            width: 100%; /* Ensure container spans the full width */
+            padding: 0 10px; /* Optional: add padding to container if needed */
+            box-sizing: border-box; /* Ensure padding is included in container's width */
+        }
+
+        .back-btn, .btn {
+            display: inline-block;
+            height: 32px;
+            padding: 0 12px;
+            line-height: 32px;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .back-btn {
+            background: #6c757d;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary {
+            background: #007bff;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .image-container {
+            height: 200px; /* Set fixed height */
+            overflow: hidden; /* Hide any overflow */
+            display: flex; /* Flexbox to center image */
+            align-items: center; /* Center image vertically */
+            justify-content: center; /* Center image horizontally */
+        }
+
+        .product-image {
+            height: 100%; /* Set image height to container height */
+            width: auto; /* Adjust width to maintain aspect ratio */
+            object-fit: contain; /* Crop the image to fit the container */
+        }
+
+
+
+        @media (max-width: 768px) {
+          .button-container {
+              justify-content: flex-start; /* Align buttons to the left on mobile */
+              gap: 10px; /* Space between buttons on mobile */
+          }
+
+          .back-btn {
+              margin-right: 10px; /* Optional: additional space if needed */
+          }
+      }
+
+      /* Responsive styles */
+      @media (max-width: 768px) {
+          header {
+              padding: 15px;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+          }
+          h1{
+            margin-left: 10px;
+          }
+          .user-info {
+              text-align: left;
+              padding: 10px;
+              margin-top: 0; /* Remove top margin for better spacing */
+          }
+
+          .membership-info {
+              position: static;
+              margin-bottom: 0px;
+              text-align: center;
+              margin-top: 10px; /* Ensure there is space above the user-info section */
+              margin-left: 10px;
+          }
+
+          .membership-info img {
+              width: 40px;
+              height: 40px;
+          }
+
+          .membership-info h2 {
+              font-size: 1.4em;
+          }
+
+          .product-card {
+              width: 90%;
+              max-width: 320px;
+              margin: 15px auto;
+          }
+
+          .back-btn {
+              position: relative;
+              margin: 10px 0;
+              width: auto;
+              left: auto;
+              top: auto;
+          }
+      }
+
+      @media (max-width: 480px) {
+          .product-card {
+              width: 100%;
+              max-width: 100%;
+          }
+
+          .membership-info img {
+              width: 35px;
+              height: 35px;
+          }
+
+          .membership-info h2 {
+              font-size: 1.2em;
+          }
+
+          .product-name {
+              font-size: 1.1em;
+          }
+
+          .redeem-btn {
+              padding: 10px;
+              font-size: 1em;
+          }
+      }
+    </style>
+</head>
+<body>
+    <header>
+          <div class="button-container">
+            <a href="./user-center.html" class="back-btn">返回个人中心</a>
+            <a href="./points-orders.html" class="btn btn-primary">我的商品订单</a>
+        </div>
+        <h1>会员积分商城</h1>
+        <div class="user-info">
+            <p id="userPoints">会员积分: 0</p>
+        </div>
+        <div class="membership-info">
+            <img id="membershipIcon" src="" alt="会员标识">
+            <h2 id="membershipLevel"></h2>
+        </div>
+    </header>
+
+      <div class="exchange-history" id="exchangeHistory">
+        <h2>积分兑换历史</h2>
+        <button id="toggleHistoryButton">展开历史记录</button>
+        <ul id="historyList" style="display: none;">
+          <li id="noHistory" style="display: list-item;">暂无历史记录</li>
+            <!-- 兑换历史记录将在这里生成 -->
+        </ul>
+    </div>
+  
+    <main>
+        <div class="product-list" id="productList">
+            <!-- 商品卡片将在这里生成 -->
+        </div>
+        
+    </main>
+
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+              <span class="close">&times;</span>
+              <p id="modalMessage"></p>
+          </div>
+      </div>
+
+      <div id="confirmModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeConfirmModal()">&times;</span>
+          <p id="confirmMessage"></p>
+          <button id="confirmButton">确认兑换</button>
+          <button id="cancelButton">取消</button>
+        </div>
+      </div>
+      
+
+      <div class="product-list" id="productList">
+        <!-- 商品卡片将在这里生成 -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          // 读取并显示历史记录
+            const storedHistory = JSON.parse(localStorage.getItem('exchangeHistory')) || [];
+            const historyList = document.getElementById('historyList');
+            const noHistory = document.getElementById('noHistory');
+            
+            if (storedHistory.length > 0) {
+                if (noHistory) {
+                    noHistory.style.display = 'none';
+                }
+                storedHistory.forEach(item => {
+                    const historyElement = document.createElement('li');
+                    historyElement.textContent = item;
+                    historyList.appendChild(historyElement);
+                });
+            }
+            const userPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+            document.getElementById('userPoints').textContent = `您的会员积分剩余: ${userPoints}`;
+
+            const membership = localStorage.getItem('membership') || '普通会员用户！';
+            const membershipIcon = localStorage.getItem('membershipIcon') || '../img/无会员卡.png';
+
+            const membershipLevelElement = document.getElementById('membershipLevel');
+            const membershipWelcomeText = {
+                '青铜': `欢迎您，青铜会员用户！`,
+                '黄金': `欢迎您，黄金会员用户！`,
+                '铂金': `欢迎您，铂金会员用户！`,
+                '星钻': `欢迎您，星钻会员用户！`,
+                '霸服': `欢迎您，尊贵的霸服特权持有者！`
+            };
+
+            if (membership === '霸服') {
+                membershipLevelElement.innerHTML = membershipWelcomeText[membership];
+                membershipLevelElement.classList.add('privileged');
+            } else {
+                membershipLevelElement.textContent = membershipWelcomeText[membership] || `欢迎您，${membership}`;
+            }
+
+            document.getElementById('membershipIcon').src = membershipIcon;
+
+            const products = [
+                { id: 1, name: '豪华耳机', points: 100000, imageUrl: 'https://tse4-mm.cn.bing.net/th/id/OIP-C.YPjVHiHJNKm9AZWsZB8AEwHaIp?rs=1&pid=ImgDetMain', location: '北京总仓', description: '这款豪华耳机采用先进的声音技术，具备超高保真音质和深沉的低音效果。配备舒适的耳垫和可调节头带，长时间佩戴也不会感到疲劳。支持主动噪音取消功能，适合高要求的音乐爱好者和专业音频工程师。' },
+                { id: 2, name: '高端无线鼠标', points: 120000, imageUrl: 'https://cbu01.alicdn.com/img/ibank/2018/286/534/9492435682_1307958616.jpg', location: '上海总仓', description: '高端无线鼠标设计精巧，具有极高的精度和反应速度。采用最新的无线技术，确保信号稳定且无延迟。多功能按键和可调节DPI设置适合各种使用场景，包括游戏、办公和设计工作。' },
+                { id: 3, name: '顶级移动硬盘', points: 150000, imageUrl: 'https://ts1.cn.mm.bing.net/th/id/R-C.1e23ffb3befba0870d58780d1d9f736c?rik=WTKtK5FBrknKTw&riu=http%3a%2f%2fnews.mydrivers.com%2fImg%2f20100106%2f10104796.jpg&ehk=D3jLLdu11iDs66%2bw8fVzARTBl7OQIVeUgcEXu4FA9z4%3d&risl=&pid=ImgRaw&r=0', location: '广州总仓', description: '这款顶级移动硬盘提供超大存储容量和极快的读写速度，满足用户对数据存储的高要求。具备抗震、防水设计，并支持加密功能，确保数据的安全性和可靠性。适合需要大容量数据存储的专业用户。' },
+                { id: 4, name: '超高容量充电宝', points: 180000, imageUrl: 'https://img.alicdn.com/i2/2212693443800/O1CN01en5bed1dwRkwj93il_!!2212693443800.jpg', location: '深圳总仓', description: '超高容量充电宝支持快速充电技术，内置高质量电池，能够为多种设备提供长时间的电力支持。具备多个输出端口，支持同时为多个设备充电。设计紧凑，方便携带，是长途旅行和紧急情况下的理想选择。' },
+                { id: 5, name: '专业机械键盘', points: 110000, imageUrl: 'https://i5.3conline.com/images/piclib/201308/07/batch/1/189033/1375865740557rqmgydct8t_medium.jpg', location: '杭州总仓', description: '这款专业机械键盘采用高品质机械轴体，提供卓越的打字体验和响应速度。每个按键的回弹力和声音经过精心调校，适合长时间打字和游戏使用。支持RGB背光，可自定义光效，满足不同用户的个性化需求。' },
+                { id: 6, name: '高清网络摄像头', points: 130000, imageUrl: 'https://www.wanwupai.com/upload/product/20190702/1562049035uCEih6.jpg', location: '成都总仓', description: '高清网络摄像头支持1080P高清画质，具备高灵敏度麦克风和自动对焦功能。适合视频会议、在线教学和直播使用。配备多种安装方式，方便用户根据需要进行调整，确保最佳拍摄角度和画面清晰度。' },
+                { id: 7, name: '高级游戏耳机', points: 140000, imageUrl: 'https://ts1.cn.mm.bing.net/th/id/R-C.4988188b0b22943173bb35635f0182de?rik=FoLcHMTsPhtnxQ&riu=http%3a%2f%2fimages.wincheers.net%2fUpLoad%2fWeb%2fProductImg%2f2018-01-04%2fNEW_XL%2f2860-0031-001.jpg&ehk=pWQsTUincSmJQZRl92F8wXM5xYbpPfgAA8MLoORyGHE%3d&risl=&pid=ImgRaw&r=0', location: '武汉总仓', description: '高级游戏耳机提供沉浸式音效和精确的声场定位，帮助玩家在游戏中获得更好的体验。配备柔软的耳垫和可调节的头带，确保佩戴舒适。内置高质量麦克风，支持清晰的语音通讯，是游戏玩家的理想选择。' },
+                { id: 8, name: '高端蓝牙音响', points: 200000, imageUrl: 'https://img.alicdn.com/bao/uploaded/O1CN01ZaNNak1gHdNFCdqhg_!!6000000004117-0-yinhe.jpg', location: '重庆总仓', description: '这款高端蓝牙音响具有卓越的音质和强大的音量输出，适合家庭娱乐和户外聚会。支持蓝牙5.0，确保稳定的无线连接。内置长效电池，支持长时间播放，提供丰富的低音和清晰的高音，为用户带来极致的听觉享受。' }
+            ];
+
+            function getRandomProducts(products, count) {
+                const shuffled = products.sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            }
+
+            function renderProducts(products) {
+                const productList = document.getElementById('productList');
+                productList.innerHTML = ''; // Clear existing products
+
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+
+                    let discountInfo = '';
+                    let finalPoints = product.points;
+                    if (membership === '青铜') {
+                        finalPoints = product.points * 0.95;
+                        discountInfo = '青铜会员享受 5% 折扣';
+                    }
+                    else if (membership === '黄金') {
+                        finalPoints = product.points * 0.9;
+                        discountInfo = '黄金会员享受 10% 折扣';
+                    } else if (membership === '铂金') {
+                        finalPoints = product.points * 0.8;
+                        discountInfo = '铂金会员享受 20% 折扣';
+                    } else if (membership === '星钻') {
+                        finalPoints = product.points * 0.75;
+                        discountInfo = '星钻会员享受 25% 折扣';
+                    } else if (membership === '霸服') {
+                        finalPoints = product.points * 0.12;
+                        discountInfo = '<span class="privileged" style="color: red";>霸服特权享受 88% 折扣</span>';
+                    } else {
+                        finalPoints = product.points;
+                        discountInfo = '<span class="privileged" style="color: red";>升级会员后获取优惠价！</span>';
+                    }
+
+                    productCard.innerHTML = `
+                    <div class="image-container">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                    </div>
+                    <p class="product-name">${product.name}</p>
+                    <div class="product-price">
+                        <span class="original-price">${product.points} 会员积分</span>
+                        <span class="discounted-price">${finalPoints.toFixed(0)} 会员积分</span>
+                    </div>
+                    <p class="product-location"><strong>货源:</strong> ${product.location || '未知'}</p>
+                    <p class="product-description">${product.description || '无商品介绍'}</p>
+                    <button class="redeem-btn" onclick="redeemProduct(${product.id}, ${finalPoints.toFixed(0)})">兑换</button>
+                    <p class="discount-info">${discountInfo}</p>
+                `;
+                    productList.appendChild(productCard);
+                });
+            }
+
+            const randomProducts = getRandomProducts(products, 8);
+            renderProducts(randomProducts);
+        });
+
+
+        function redeemProduct(productId, requiredPoints) {
+            const userPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+            const products = [
+                { id: 1, name: '豪华耳机', points: 100000, imageUrl: 'https://tse4-mm.cn.bing.net/th/id/OIP-C.YPjVHiHJNKm9AZWsZB8AEwHaIp?rs=1&pid=ImgDetMain', location: '北京总仓', description: '这款豪华耳机采用先进的声音技术，具备超高保真音质和深沉的低音效果。配备舒适的耳垫和可调节头带，长时间佩戴也不会感到疲劳。支持主动噪音取消功能，适合高要求的音乐爱好者和专业音频工程师。' },
+                { id: 2, name: '高端无线鼠标', points: 120000, imageUrl: 'https://cbu01.alicdn.com/img/ibank/2018/286/534/9492435682_1307958616.jpg', location: '上海总仓', description: '高端无线鼠标设计精巧，具有极高的精度和反应速度。采用最新的无线技术，确保信号稳定且无延迟。多功能按键和可调节DPI设置适合各种使用场景，包括游戏、办公和设计工作。' },
+                { id: 3, name: '顶级移动硬盘', points: 150000, imageUrl: 'https://ts1.cn.mm.bing.net/th/id/R-C.1e23ffb3befba0870d58780d1d9f736c?rik=WTKtK5FBrknKTw&riu=http%3a%2f%2fnews.mydrivers.com%2fImg%2f20100106%2f10104796.jpg&ehk=D3jLLdu11iDs66%2bw8fVzARTBl7OQIVeUgcEXu4FA9z4%3d&risl=&pid=ImgRaw&r=0', location: '广州总仓', description: '这款顶级移动硬盘提供超大存储容量和极快的读写速度，满足用户对数据存储的高要求。具备抗震、防水设计，并支持加密功能，确保数据的安全性和可靠性。适合需要大容量数据存储的专业用户。' },
+                { id: 4, name: '超高容量充电宝', points: 180000, imageUrl: 'https://img.alicdn.com/i2/2212693443800/O1CN01en5bed1dwRkwj93il_!!2212693443800.jpg', location: '深圳总仓', description: '超高容量充电宝支持快速充电技术，内置高质量电池，能够为多种设备提供长时间的电力支持。具备多个输出端口，支持同时为多个设备充电。设计紧凑，方便携带，是长途旅行和紧急情况下的理想选择。' },
+                { id: 5, name: '专业机械键盘', points: 110000, imageUrl: 'https://i5.3conline.com/images/piclib/201308/07/batch/1/189033/1375865740557rqmgydct8t_medium.jpg', location: '杭州总仓', description: '这款专业机械键盘采用高品质机械轴体，提供卓越的打字体验和响应速度。每个按键的回弹力和声音经过精心调校，适合长时间打字和游戏使用。支持RGB背光，可自定义光效，满足不同用户的个性化需求。' },
+                { id: 6, name: '高清网络摄像头', points: 130000, imageUrl: 'https://www.wanwupai.com/upload/product/20190702/1562049035uCEih6.jpg', location: '成都总仓', description: '高清网络摄像头支持1080P高清画质，具备高灵敏度麦克风和自动对焦功能。适合视频会议、在线教学和直播使用。配备多种安装方式，方便用户根据需要进行调整，确保最佳拍摄角度和画面清晰度。' },
+                { id: 7, name: '高级游戏耳机', points: 140000, imageUrl: 'https://ts1.cn.mm.bing.net/th/id/R-C.4988188b0b22943173bb35635f0182de?rik=FoLcHMTsPhtnxQ&riu=http%3a%2f%2fimages.wincheers.net%2fUpLoad%2fWeb%2fProductImg%2f2018-01-04%2fNEW_XL%2f2860-0031-001.jpg&ehk=pWQsTUincSmJQZRl92F8wXM5xYbpPfgAA8MLoORyGHE%3d&risl=&pid=ImgRaw&r=0', location: '武汉总仓', description: '高级游戏耳机提供沉浸式音效和精确的声场定位，帮助玩家在游戏中获得更好的体验。配备柔软的耳垫和可调节的头带，确保佩戴舒适。内置高质量麦克风，支持清晰的语音通讯，是游戏玩家的理想选择。' },
+                { id: 8, name: '高端蓝牙音响', points: 200000, imageUrl: 'https://img.alicdn.com/bao/uploaded/O1CN01ZaNNak1gHdNFCdqhg_!!6000000004117-0-yinhe.jpg', location: '重庆总仓', description: '这款高端蓝牙音响具有卓越的音质和强大的音量输出，适合家庭娱乐和户外聚会。支持蓝牙5.0，确保稳定的无线连接。内置长效电池，支持长时间播放，提供丰富的低音和清晰的高音，为用户带来极致的听觉享受。' }
+            ];
+
+            const product = products.find(p => p.id === productId);
+            const membership = localStorage.getItem('membership') || '普通会员';
+            let membershipPrefix = `尊敬的 ${membership} 会员用户`;
+
+            if (membership === '霸服') {
+                membershipPrefix = `尊贵的<span class="privileged">霸服特权</span>用户，`;
+            }
+
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmButton = document.getElementById('confirmButton');
+            const cancelButton = document.getElementById('cancelButton');
+
+            confirmMessage.innerHTML = `您确认兑换 ${product.name} 吗？这将花费您 ${requiredPoints} 会员积分。`;
+
+            confirmModal.style.display = 'flex';
+
+            confirmButton.onclick = function() {
+                closeConfirmModal();
+
+                if (userPoints >= requiredPoints) {
+                    const newPoints = userPoints - requiredPoints;
+                    localStorage.setItem('userPoints', newPoints);
+                    document.getElementById('userPoints').textContent = `您的会员积分剩余: ${newPoints}`;
+                    showModal(`${membershipPrefix}您已成功兑换 ${product.name}！<br>您的会员积分剩余 ${newPoints}<br>您本次消费了 ${requiredPoints} 会员积分`);
+
+                    // 更新积分兑换历史
+                    updateExchangeHistory(product.name, requiredPoints);
+
+                    // 新增：将兑换商品的所有信息保存到本地存储
+                    const redeemedProducts = JSON.parse(localStorage.getItem('redeemedProducts')) || [];
+                    const redeemedProduct = {
+                        name: product.name,
+                        points: product.points,
+                        imageUrl: product.imageUrl,
+                        location: product.location,
+                        description: product.description
+                    };
+                    redeemedProducts.push(redeemedProduct);
+                    localStorage.setItem('redeemedProducts', JSON.stringify(redeemedProducts));
+                } else {
+                    showModal(`${membershipPrefix}会员积分不足，无法兑换此商品`);
+                }
+            };
+
+            cancelButton.onclick = function() {
+                closeConfirmModal();
+            };
+        }
+
+
+      function closeConfirmModal() {
+        const confirmModal = document.getElementById('confirmModal');
+        confirmModal.style.display = 'none';
+      }
+
+      function showModal(message) {
+        const modal = document.getElementById('myModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeButton = document.querySelector('.close');
+
+        modalMessage.innerHTML = message;
+        modal.style.display = 'flex';
+
+        closeButton.onclick = function() {
+          closeModal();
+        }
+
+        window.onclick = function(event) {
+          if (event.target === modal) {
+            closeModal();
+          }
+        }
+      }
+
+      function closeModal() {
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'none';
+      }
+
+      function updateExchangeHistory(productName, points) {
+            const historyList = document.getElementById('historyList');
+            const noHistory = document.getElementById('noHistory');
+            
+            // Remove the "暂无历史记录" message if it exists
+            if (noHistory) {
+                noHistory.style.display = 'none';
+            }
+
+            // Create the new history item
+            const historyItem = `兑换商品: ${productName} - 消耗积分: ${points}`;
+            
+            // Add the new history item to the UI
+            const historyElement = document.createElement('li');
+            historyElement.textContent = historyItem;
+            historyList.insertBefore(historyElement, historyList.firstChild); // Insert at the top
+
+            // Save the updated history to localStorage
+            const existingHistory = JSON.parse(localStorage.getItem('exchangeHistory')) || [];
+            existingHistory.unshift(historyItem);
+            localStorage.setItem('exchangeHistory', JSON.stringify(existingHistory));
+        }
+
+
+
+      document.querySelectorAll('.close').forEach(element => {
+            element.addEventListener('click', function() {
+                this.parentElement.parentElement.style.display = 'none';
+            });
+        });
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        document.getElementById('toggleHistoryButton').addEventListener('click', function() {
+          const historyList = document.getElementById('historyList');
+          const button = document.getElementById('toggleHistoryButton');
+          
+          if (historyList.style.display === 'none') {
+              historyList.style.display = 'block';
+              button.textContent = '收起历史记录';
+          } else {
+              historyList.style.display = 'none';
+              button.textContent = '展开历史记录';
+          }
+      });
+
+      function checkEmptyHistory() {
+        const historyList = document.getElementById('historyList');
+        const noHistory = document.getElementById('noHistory');
+        
+        if (historyList.children.length === 1) { // Only the "暂无历史记录" item
+            noHistory.style.display = 'list-item';
+        }
+    }
+
+    </script>
+</body>
+</html>

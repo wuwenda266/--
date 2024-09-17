@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银行卡支付</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .payment-form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-row {
+            margin-bottom: 20px;
+        }
+        .form-row .form-group {
+            margin-bottom: 0;
+            padding-right: 10px;
+        }
+        .form-row .form-group:last-child {
+            padding-right: 0;
+        }
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+        .form-check-label {
+            margin-bottom: 0;
+        }
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .form-check {
+            margin-bottom: 15px;
+        }
+        .form-check .form-check-label {
+            font-size: 14px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .price-container {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            line-height: 100vh;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+
+        .overlay .spinner {
+                border: 8px solid rgba(0, 0, 0, 0.1); /* Light grey */
+                border-left: 8px solid white; /* White */
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 30px; /* Increase space between spinner and message */
+                /* You can also use transform for finer control */
+                /* transform: translateY(10px); */
+            }
+
+            .overlay .message {
+                font-size: 24px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+                color: white;
+                border: none;
+                margin-top: 20px !important;
+            }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center">银行卡支付</h1>
+        <form id="paymentForm" class="payment-form">
+            <div class="form-group">
+                <label for="email">联系信息 - 邮箱</label>
+                <input type="email" id="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="cardType">卡种</label>
+                <select id="cardType" class="form-control" required>
+                    <!-- 卡种选项会根据选择的国家动态更新 -->
+                </select>
+            </div>
+            <div class="payment-info">
+                <h5 class="mt-4">银行卡信息</h5>
+                <div class="form-group">
+                    <label for="cardNumber">卡号</label>
+                    <input type="text" id="cardNumber" class="form-control" placeholder="1234 1234 1234 1234" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="expiryDate">月份/年份</label>
+                        <input type="text" id="expiryDate" class="form-control" placeholder="MM/YY" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="cvc">CVC</label>
+                        <input type="text" id="cvc" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cardHolderName">持卡人姓名</label>
+                    <input type="text" id="cardHolderName" class="form-control" required>
+                </div>
+            </div>
+            <h5 class="mt-4">账单地址</h5>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="country">国家</label>
+                    <input type="text" id="country" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="addressLine1">地址第一行</label>
+                    <input type="text" id="addressLine1" class="form-control" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="addressLine2">地址第二行</label>
+                    <input type="text" id="addressLine2" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="postalCode">邮政编码</label>
+                    <input type="text" id="postalCode" class="form-control" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="city">城市</label>
+                    <input type="text" id="city" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="saveInfo" class="form-check-input" required>
+                <label for="saveInfo" class="form-check-label">安全地保存我的信息，用于一键结账</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="linkAccount" class="form-check-input">
+                <label for="linkAccount" class="form-check-label">输入您的手机号来创建 Link 账户，然后在 OpenAI, LLC 及接受 Link 的任何地方上更快支付。</label>
+                <input type="text" id="phoneNumber" class="form-control mt-2" placeholder="+86 138 0013 4567">
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="agreeTerms" class="form-check-input" required>
+                <label for="agreeTerms" class="form-check-label">同意条款以完成交易。</label>
+            </div>
+            <div class="price-container">
+                价格: <span id="price">100.00</span>
+            </div>
+            <button type="submit" class="btn btn-submit btn-lg">确认支付</button>
+            <!-- 模拟支付按钮 -->
+            <button id="simulatePayButton" type="button" class="btn btn-secondary btn-lg mt-2">模拟支付测试</button>
+        </form>
+    </div>
+
+    <!-- 全屏覆盖元素 -->
+    <div id="overlay" class="overlay">
+        <div class="spinner"></div>
+        <div class="message">支付中，请等待...</div>
+    </div>
+    
+
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+    <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('paymentForm');
+            form.addEventListener('submit', function(event) {
+                const requiredFields = form.querySelectorAll('[required]');
+                const isFormValid = Array.from(requiredFields).every(field => field.value.trim() !== '');
+                const isTermsChecked = document.getElementById('agreeTerms').checked;
+
+                if (!isFormValid || !isTermsChecked) {
+                    event.preventDefault();
+                    alert('请填写所有必填字段并同意条款。');
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const countryInput = document.getElementById('country');
+        const cardTypeSelect = document.getElementById('cardType');
+        const currencySymbolElem = document.getElementById('currencySymbol');
+        const priceElem = document.getElementById('price');
+
+        // Retrieve country from localStorage
+        const selectedCountry = localStorage.getItem('selectedCountry') || 'USD';
+        const orderDetails = JSON.parse(localStorage.getItem('convertedOrderDetails')) || [{ price: 100 }];
+
+        // Update form fields based on local storage data
+        if (selectedCountry) {
+            countryInput.value = selectedCountry;
+            updateCardTypeOptions(selectedCountry);
+            updatePriceAndCurrencySymbol(selectedCountry);
+        }
+
+        // 确保 orderDetails 存在且不是空的
+            if (orderDetails.length > 0) {
+                // 计算所有产品的总价格，考虑数量
+                const totalPrice = orderDetails.reduce((sum, product) => sum + (product.price * (product.quantity || 1)), 0);
+
+
+                // 更新页面上的总价格显示
+                priceElem.textContent = formatPrice(totalPrice, selectedCountry);
+            }
+
+
+        // Function to update card type options
+        function updateCardTypeOptions(country) {
+            cardTypeSelect.innerHTML = '';
+            if (country === 'CNY') {
+                cardTypeSelect.innerHTML = `
+                    <option value="ICBC">中国工商银行</option>
+                    <option value="CCB">中国建设银行</option>
+                    <option value="ABC">中国农业银行</option>
+                    <option value="BCOM">中国银行</option>
+                    <option value="CMB">招商银行</option>
+                    <option value="PSBC">中国邮政储蓄银行</option>
+                    <option value="SPDB">上海浦东发展银行</option>
+                    <option value="CITIC">中信银行</option>
+                    <option value="HXB">华夏银行</option>
+                    <option value="GDB">广发银行</option>
+                    <option value="BOS">上海银行</option>
+                `;
+            } else {
+                cardTypeSelect.innerHTML = `
+                    <option value="Visa">Visa</option>
+                    <option value="MasterCard">MasterCard</option>
+                    <option value="American Express">American Express</option>
+                    <option value="Discover">Discover</option>
+                    <option value="JCB">JCB</option>
+                    <option value="Diners Club">Diners Club</option>
+                `;
+            }
+        }
+
+        // Function to update price and currency symbol
+        function updatePriceAndCurrencySymbol(country) {
+            console.log('updatePriceAndCurrencySymbol called with country:', country);
+
+            const currencySymbols = {
+                    'CNY': '￥', // 中国
+                    'USD': '$', // 美国
+                    'EUR': '€', // 欧元区
+                    'JPY': '¥', // 日本
+                    'GBP': '£', // 英国
+                    'AUD': '$', // 澳大利亚
+                    'CAD': '$', // 加拿大
+                    'CHF': 'CHF', // 瑞士
+                    'NZD': '$', // 新西兰
+                    'SEK': 'kr', // 瑞典
+                    'MXN': '$', // 墨西哥
+                    'SGD': '$', // 新加坡
+                    'HKD': '$', // 香港
+                    'NOK': 'kr', // 挪威
+                    'KRW': '₩', // 韩国
+                    'TRY': '₺', // 土耳其
+                    'INR': '₹', // 印度
+                    'RUB': '₽', // 俄罗斯
+                    'ZAR': 'R', // 南非
+                    'BRL': 'R$', // 巴西
+                    'ARS': '$', // 阿根廷
+                    'CLP': '$', // 智利
+                    'COP': '$', // 哥伦比亚
+                    'PEN': 'S/', // 秘鲁
+                    'TWD': 'NT$', // 台湾
+                    'ILS': '₪', // 以色列
+                    'DKK': 'kr', // 丹麦
+                    'PLN': 'zł', // 波兰
+                    'CZK': 'Kč', // 捷克
+                    'HUF': 'Ft', // 匈牙利
+                    'BGN': 'лв', // 保加利亚
+                    'RON': 'lei', // 罗马尼亚
+                    'RSD': 'дин.', // 塞尔维亚
+                    'HRK': 'kn', // 克罗地亚
+                    'HNL': 'L', // 洪都拉斯
+                    'PAB': 'B/.', // 巴拿马
+                    'BBD': '$', // 巴巴多斯
+                    'TTD': '$', // 特立尼达和多巴哥
+                    'GHS': '₵', // 加纳
+                    'NGN': '₦', // 尼日利亚
+                    'UGX': 'USh', // 乌干达
+                    'KES': 'KSh', // 肯尼亚
+                    'KWD': 'د.ك', // 科威特
+                    'OMR': 'ر.ع.', // 阿曼
+                    'QAR': 'ق.ر', // 卡塔尔
+                    'JOD': 'د.أ', // 约旦
+                    'BHD': 'د.ب', // 巴林
+                    'MAD': 'د.م.', // 摩洛哥
+                    'DZD': 'د.ج', // 阿尔及利亚
+                    'TND': 'د.ت', // 突尼斯
+                    'LYD': 'د.ل', // 利比亚
+                    'MUR': '₨', // 毛里求斯
+                    'MZN': 'MT', // 莫桑比克
+                    'MWK': 'MK', // 马拉维
+                    'NPR': 'Rs', // 尼泊尔
+                    'LKR': 'Rs', // 斯里兰卡
+                    'THB': '฿', // 泰国
+                    'MYR': 'RM', // 马来西亚
+                    'VND': '₫', // 越南
+                    'IDR': 'Rp', // 印度尼西亚
+                    'PHP': '₱', // 菲律宾
+                    'MOP': 'MOP$', // 澳门
+                    'KHR': '៛', // 柬埔寨
+                    'LAK': '₭', // 老挝
+                    'MMK': 'K', // 缅甸
+                    'BWP': 'P', // 博茨瓦纳
+                    'SZL': 'E', // 斯威士兰
+                    'ZWL': '$', // 津巴布韦
+                    'DOP': 'RD$', // 多米尼加
+                    'GTQ': 'Q', // 危地马拉
+                    'CRC': '₡', // 哥斯达黎加
+                    'CUP': '₱', // 古巴
+                    'UYU': '$U', // 乌拉圭
+                    'SVC': '$', // 萨尔瓦多
+                    'BZD': '$', // 伯利兹
+                    'NAD': '$', // 纳米比亚
+                    'SCR': '₨', // 塞舌尔
+                    'STN': 'Db', // 圣多美和普林西比
+                    'XAF': 'FCFA', // 中非法郎
+                    'XOF': 'CFA', // 西非法郎
+                    'XPF': '₣', // 太平洋法郎
+                    'SLL': 'Le', // 塞拉利昂
+                    'SOS': 'Sh.So.', // 索马里
+                    'SSP': '£', // 南苏丹
+                    'TZS': 'TSh', // 坦桑尼亚
+                    'GMD': 'D', // 冈比亚
+                    'BIF': 'FBu', // 布隆迪
+                    'DJF': 'Fdj', // 吉布提
+                    'ERN': 'Nfa', // 厄立特里亚
+                    'KMF': 'CF', // 科摩罗
+                    'MGA': 'Ar', // 马达加斯加
+                };
+
+
+            const symbol = currencySymbols[country] || '$'; // Default to $
+            console.log('Currency symbol being set to:', symbol);
+
+            if (currencySymbolElem) {
+                currencySymbolElem.textContent = symbol;
+            } else {
+                console.error('Currency symbol element not found');
+            }
+        }
+
+        // Function to format price with currency symbol
+        function formatPrice(price, countryCode) {
+            const currencySymbols = {
+                'CNY': '￥', // 中国
+                    'USD': '$', // 美国
+                    'EUR': '€', // 欧元区
+                    'JPY': '¥', // 日本
+                    'GBP': '£', // 英国
+                    'AUD': '$', // 澳大利亚
+                    'CAD': '$', // 加拿大
+                    'CHF': 'CHF', // 瑞士
+                    'NZD': '$', // 新西兰
+                    'SEK': 'kr', // 瑞典
+                    'MXN': '$', // 墨西哥
+                    'SGD': '$', // 新加坡
+                    'HKD': '$', // 香港
+                    'NOK': 'kr', // 挪威
+                    'KRW': '₩', // 韩国
+                    'TRY': '₺', // 土耳其
+                    'INR': '₹', // 印度
+                    'RUB': '₽', // 俄罗斯
+                    'ZAR': 'R', // 南非
+                    'BRL': 'R$', // 巴西
+                    'ARS': '$', // 阿根廷
+                    'CLP': '$', // 智利
+                    'COP': '$', // 哥伦比亚
+                    'PEN': 'S/', // 秘鲁
+                    'TWD': 'NT$', // 台湾
+                    'ILS': '₪', // 以色列
+                    'DKK': 'kr', // 丹麦
+                    'PLN': 'zł', // 波兰
+                    'CZK': 'Kč', // 捷克
+                    'HUF': 'Ft', // 匈牙利
+                    'BGN': 'лв', // 保加利亚
+                    'RON': 'lei', // 罗马尼亚
+                    'RSD': 'дин.', // 塞尔维亚
+                    'HRK': 'kn', // 克罗地亚
+                    'HNL': 'L', // 洪都拉斯
+                    'PAB': 'B/.', // 巴拿马
+                    'BBD': '$', // 巴巴多斯
+                    'TTD': '$', // 特立尼达和多巴哥
+                    'GHS': '₵', // 加纳
+                    'NGN': '₦', // 尼日利亚
+                    'UGX': 'USh', // 乌干达
+                    'KES': 'KSh', // 肯尼亚
+                    'KWD': 'د.ك', // 科威特
+                    'OMR': 'ر.ع.', // 阿曼
+                    'QAR': 'ق.ر', // 卡塔尔
+                    'JOD': 'د.أ', // 约旦
+                    'BHD': 'د.ب', // 巴林
+                    'MAD': 'د.م.', // 摩洛哥
+                    'DZD': 'د.ج', // 阿尔及利亚
+                    'TND': 'د.ت', // 突尼斯
+                    'LYD': 'د.ل', // 利比亚
+                    'MUR': '₨', // 毛里求斯
+                    'MZN': 'MT', // 莫桑比克
+                    'MWK': 'MK', // 马拉维
+                    'NPR': 'Rs', // 尼泊尔
+                    'LKR': 'Rs', // 斯里兰卡
+                    'THB': '฿', // 泰国
+                    'MYR': 'RM', // 马来西亚
+                    'VND': '₫', // 越南
+                    'IDR': 'Rp', // 印度尼西亚
+                    'PHP': '₱', // 菲律宾
+                    'MOP': 'MOP$', // 澳门
+                    'KHR': '៛', // 柬埔寨
+                    'LAK': '₭', // 老挝
+                    'MMK': 'K', // 缅甸
+                    'BWP': 'P', // 博茨瓦纳
+                    'SZL': 'E', // 斯威士兰
+                    'ZWL': '$', // 津巴布韦
+                    'DOP': 'RD$', // 多米尼加
+                    'GTQ': 'Q', // 危地马拉
+                    'CRC': '₡', // 哥斯达黎加
+                    'CUP': '₱', // 古巴
+                    'UYU': '$U', // 乌拉圭
+                    'SVC': '$', // 萨尔瓦多
+                    'BZD': '$', // 伯利兹
+                    'NAD': '$', // 纳米比亚
+                    'SCR': '₨', // 塞舌尔
+                    'STN': 'Db', // 圣多美和普林西比
+                    'XAF': 'FCFA', // 中非法郎
+                    'XOF': 'CFA', // 西非法郎
+                    'XPF': '₣', // 太平洋法郎
+                    'SLL': 'Le', // 塞拉利昂
+                    'SOS': 'Sh.So.', // 索马里
+                    'SSP': '£', // 南苏丹
+                    'TZS': 'TSh', // 坦桑尼亚
+                    'GMD': 'D', // 冈比亚
+                    'BIF': 'FBu', // 布隆迪
+                    'DJF': 'Fdj', // 吉布提
+                    'ERN': 'Nfa', // 厄立特里亚
+                    'KMF': 'CF', // 科摩罗
+                    'MGA': 'Ar', // 马达加斯加
+                // Add other currencies here as needed
+            };
+            const symbol = currencySymbols[countryCode] || '$'; // Default to $
+            console.log('formatPrice called with price:', price, 'and countryCode:', countryCode);
+            return `${symbol}${price.toFixed(2)}`;
+        }
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+            const cardNumberInput = document.getElementById('cardNumber');
+            
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = cardNumberInput.value.replace(/\s+/g, ''); // 移除所有空格
+                if (value.length > 0) {
+                    value = value.match(/.{1,4}/g).join(' '); // 每4个字符加一个空格
+                }
+                cardNumberInput.value = value;
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const cardNumberInput = document.getElementById('cardNumber');
+        const expiryDateInput = document.getElementById('expiryDate');
+        const cvcInput = document.getElementById('cvc');
+        const form = document.getElementById('paymentForm');
+
+        // Card Number Formatting
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = cardNumberInput.value.replace(/\s+/g, ''); // Remove all spaces
+            if (value.length > 0) {
+                value = value.match(/.{1,4}/g).join(' '); // Add a space every 4 characters
+            }
+            cardNumberInput.value = value;
+        });
+
+        // Expiry Date Validation
+        expiryDateInput.addEventListener('input', function(e) {
+            let value = expiryDateInput.value.replace(/\D/g, ''); // Remove non-numeric characters
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4); // Format as MM/YY
+            }
+            expiryDateInput.value = value;
+        });
+
+        // CVC Validation
+        cvcInput.addEventListener('input', function(e) {
+            let value = cvcInput.value.replace(/\D/g, ''); // Remove non-numeric characters
+            if (value.length > 4) {
+                value = value.slice(0, 4); // Limit to 4 digits
+            }
+            cvcInput.value = value;
+        });
+
+        // Form Validation on Submit
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Validate Expiry Date
+            const expiryDate = expiryDateInput.value.split('/');
+            if (expiryDate.length !== 2 || expiryDate[0].length !== 2 || expiryDate[1].length !== 2) {
+                isValid = false;
+                alert('请输入有效的月份/年份格式（MM/YY）');
+                e.preventDefault(); // Prevent form submission if expiry date is invalid
+                return; // Exit function if expiry date is invalid
+            }
+
+            // Validate CVC
+            const cvcValue = cvcInput.value;
+            if (cvcValue.length < 3 || cvcValue.length > 4) {
+                isValid = false;
+                alert('请输入有效的 CVC 码（3 位或 4 位数字）');
+                e.preventDefault(); // Prevent form submission if CVC is invalid
+                return; // Exit function if CVC is invalid
+            }
+
+            if (!isValid) {
+                e.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    });
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('paymentForm');
+            const overlay = document.getElementById('overlay');
+            const simulatePayButton = document.getElementById('simulatePayButton');
+
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent form submission
+
+                    // Show overlay
+                    overlay.style.display = 'flex';
+
+                    // Simulate payment processing delay
+                    setTimeout(function() {
+                        // Redirect to success page
+                        window.location.href = './success.html'; // Replace with your success page URL
+                    }, 2000);
+                });
+            }
+
+            if (simulatePayButton) {
+                simulatePayButton.addEventListener('click', function() {
+                    // Simulate a payment process (success condition)
+                    const paymentSuccessful = true; // Set to true when payment is successful
+
+                    if (paymentSuccessful) {
+                        // Show overlay
+                        overlay.style.display = 'flex';
+
+                        // Redirect to success page after 2 seconds
+                        setTimeout(function() {
+                            window.location.href = './success.html'; // Success page URL
+                        }, 2000);
+                    } else {
+                        // Handle payment failure case if needed
+                        alert('支付失败，请重试');
+                    }
+                });
+            }
+        });
+
+
+    </script>
+</body>
+</html>

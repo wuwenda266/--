@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 50px;
+        }
+        .order-details {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+        }
+        .order-details img {
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 80%; /* 缩小图片大小 */
+            height: auto;
+            display: block; /* 图片居中显示 */
+        }
+        .order-details h1 {
+            margin-bottom: 20px;
+        }
+        .order-details .details {
+            font-size: 1.1rem;
+        }
+        .order-details .status {
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .order-details .btn-back {
+            margin-top: 20px;
+        }
+        .order-details .order-meta {
+            margin-top: 20px;
+        }
+        .order-details .order-meta p {
+            margin: 5px 0;
+        }
+        .order-details .order-meta p strong {
+            font-weight: bold;
+        }
+        .order-details .order-summary {
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .order-details .order-summary p {
+            margin: 5px 0;
+        }
+        .order-details .contact-info {
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            background-color: #f1f1f1;
+        }
+        .map-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px; /* 设置按钮之间的间距 */
+            justify-content: space-between; /* 在容器内均匀分布按钮 */
+        }
+        .map-button {
+            flex: 1; /* 使按钮在容器内均匀分布 */
+            padding: 10px;
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0; /* 去除按钮的外边距 */
+        }
+        /* 当屏幕宽度小于 768px 时，调整按钮样式 */
+        @media (max-width: 768px) {
+            .map-buttons {
+                flex-direction: column; /* 垂直排列按钮 */
+            }
+            
+            .map-button {
+                width: 100%; /* 按钮宽度占满容器 */
+                margin-bottom: 10px; /* 按钮之间的间距 */
+            }
+
+            .map-button:last-child {
+                margin-bottom: 0; /* 最后一个按钮不需要底部间距 */
+            }
+        }
+        .map-button:hover {
+            background-color: #0056b3;
+        }
+        .countdown {
+            font-weight: bold;
+            color: #d9534f;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+      <div class="container">
+        <div class="order-details" style="position: relative;">
+            <a href="./orders-purchase.html" class="btn btn-secondary btn-back" style="position: absolute; left: 10px; top: 10px; padding: 5px 10px; margin-bottom: 20px;">返回我的订单</a>
+            <h1 class="display-4" style="margin-top: 60px;">订单详情</h1>
+            <p class="countdown" id="countdown"></p>
+            <div id="orderDetailContent" class="details"></div>
+        </div>
+    </div>
+
+    <script>
+        function getDetailedAddress(location) {
+                  const addressMap = {
+            '北京': '北京市朝阳区建国路88号',
+            '上海': '上海市浦东新区陆家嘴金融贸易区88号',
+            '广州': '广州市天河区黄埔大道中22号',
+            '深圳': '深圳市福田区深南大道100号',
+            '天津': '天津市和平区南京路218号',
+            '重庆': '重庆市渝中区解放碑步行街88号',
+            '成都': '成都市锦江区春熙路68号',
+            '武汉': '武汉市武昌区洪山路1号',
+            '南京': '南京市玄武区珠江路88号',
+            '西安': '西安市碑林区环城东路2号',
+            '石家庄': '石家庄市桥东区建华南大街',
+            '太原': '太原市小店区亲贤北街',
+            '呼和浩特': '呼和浩特市赛罕区赛罕路',
+            '沈阳': '沈阳市和平区南九马路',
+            '长春': '长春市南关区长春路',
+            '哈尔滨': '哈尔滨道里区中央大街',
+            '杭州': '杭州市上城区延安路1号',
+            '合肥': '合肥市包河区芜湖路',
+            '福州': '福州市鼓楼区湖东路',
+            '南昌': '南昌市西湖区中山路',
+            '济南': '济南市历下区泉城路',
+            '郑州': '郑州市金水区花园路',
+            '长沙': '长沙市芙蓉区五一广场',
+            '海口': '海口市美兰区海甸岛',
+            '贵阳': '贵阳市南明区中华北路',
+            '昆明': '昆明市五华区青年路',
+            '兰州': '兰州市城关区人民广场',
+            '西宁': '西宁市城中区西宁路',
+            '银川': '银川市兴庆区解放西街',
+            '乌鲁木齐': '乌鲁木齐市天山区人民路',
+            '河北': '河北省石家庄市桥东区建华南大街',
+            '山西': '山西省太原市小店区亲贤北街',
+            '内蒙古': '内蒙古自治区呼和浩特市赛罕区赛罕路',
+            '辽宁': '辽宁省沈阳市和平区南九马路',
+            '吉林': '吉林省长春市南关区长春路',
+            '黑龙江': '黑龙江省哈尔滨市道里区中央大街',
+            '江苏': '江苏省南京市玄武区珠江路88号',
+            '浙江': '浙江省杭州市上城区延安路1号',
+            '安徽': '安徽省合肥市包河区芜湖路',
+            '福建': '福建省福州市鼓楼区湖东路',
+            '江西': '江西省南昌市西湖区中山路',
+            '山东': '山东省济南市历下区泉城路',
+            '河南': '河南省郑州市金水区花园路',
+            '湖北': '湖北省武汉市武昌区洪山路',
+            '湖南': '湖南省长沙市芙蓉区五一广场',
+            '广东': '广东省广州市天河区体育西路',
+            '海南': '海南省海口市美兰区海甸岛',
+            '四川': '四川省成都市锦江区春熙路',
+            '贵州': '贵州省贵阳市南明区中华北路',
+            '云南': '云南省昆明市五华区青年路',
+            '陕西': '陕西省西安市碑林区长安路',
+            '甘肃': '甘肃省兰州市城关区人民广场',
+            '青海': '青海省西宁市城中区西宁路',
+            '宁夏': '宁夏回族自治区银川市兴庆区解放西街',
+            '新疆': '新疆维吾尔自治区乌鲁木齐市天山区人民路',
+            '澳门': '澳门特别行政区澳门半岛新马路',
+            '香港': '香港特别行政区中环',
+            '台湾': '台北市中正区市民大道',
+            // 继续添加其他城市和地址
+        };
+            return addressMap[location] || location;
+        }
+
+          function getAddressForMaps(detailedLocation) {
+          const encodedAddress = encodeURIComponent(detailedLocation);
+          return {
+              googleMaps: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
+              baiduMaps: `https://map.baidu.com/search/${encodedAddress}/@0,0,15z?querytype=s&da_src=shareurl&wd=${encodedAddress}&c=191`,
+              gaodeMaps: `https://www.amap.com/search?query=${encodedAddress}`
+          };
+      }
+
+          function getTimeDiff(ms) {
+              const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              return `${days}天 ${hours}小时`;
+          }
+
+          function updateCountdown(endTime, elementId, actionType) {
+              const now = new Date().getTime();
+              const distance = endTime - now;
+
+              if (distance <= 0) {
+                  document.getElementById(elementId).innerHTML = '已超过预定时间，请尽快领取！';
+                  return;
+              }
+
+              const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+              const address = actionType === '面交' ? '沈阳工学院' : '';
+
+              document.getElementById(elementId).innerHTML = `请于<strong>${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒</strong>后进行${actionType}。${address ? ' 交易地址：' + address : ''}`;
+              setTimeout(() => updateCountdown(endTime, elementId, actionType), 1000); // 每秒更新一次
+          }
+
+          function getRandomExpressCompany() {
+        const companies = ['顺丰快递', '中通快递', '圆通快递', '申通快递', '韵达快递'];
+        return companies[Math.floor(Math.random() * companies.length)];
+    }
+
+    function getTrackingNumberForCompany(company) {
+        switch (company) {
+            case '顺丰快递':
+                return 'SF' + Math.random().toString(36).substr(2, 12).toUpperCase();
+            case '中通快递':
+                return 'ZT' + Math.random().toString(36).substr(2, 12).toUpperCase();
+            case '圆通快递':
+                return 'YT' + Math.random().toString(36).substr(2, 12).toUpperCase();
+            case '申通快递':
+                return 'ST' + Math.random().toString(36).substr(2, 12).toUpperCase();
+            case '韵达快递':
+                return 'YD' + Math.random().toString(36).substr(2, 12).toUpperCase();
+            default:
+                return 'UNKNOWN' + Math.random().toString(36).substr(2, 12).toUpperCase();
+        }
+    }
+
+        window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+
+        const newOrderDetails = JSON.parse(localStorage.getItem('newOrderDetails')) || [];
+        const order = newOrderDetails.find(o => o.orderId === orderId);
+
+        const newOrderDetailsElement = document.getElementById('orderDetailContent');
+        if (newOrderDetailsElement) {
+            if (order) {
+                // 确保 order.price 是一个数字
+                const price = typeof order.price === 'number' ? order.price : parseFloat(order.price) || 0;
+
+                let detailedLocation = '';
+                let googleMapsLink = '';
+                let baiduMapsLink = '';
+                let gaodeMapsLink = '';
+
+                if (order.tradeMethod === '面交') {
+                    detailedLocation = '沈阳工学院';
+                    googleMapsLink = getAddressForMaps('沈阳工学院').googleMaps;
+                    baiduMapsLink = getAddressForMaps('沈阳工学院').baiduMaps;
+                    gaodeMapsLink = getAddressForMaps('沈阳工学院').gaodeMaps;
+                } else {
+                    detailedLocation = getDetailedAddress(order.location);
+                    const { googleMaps, baiduMaps, gaodeMaps } = getAddressForMaps(detailedLocation);
+                    googleMapsLink = googleMaps;
+                    baiduMapsLink = baiduMaps;
+                    gaodeMapsLink = gaodeMaps;
+                }
+
+                const now = new Date();
+                let timeInfo = '';
+                let countdownMessage = '';
+
+                if (order.status === '已退款' || order.status === '已收货') {
+                    document.getElementById('countdown').innerHTML = ''; // 已退款和已收货状态下不显示倒计时
+
+                    if (order.status === '已退款') {
+                        // 在已退款状态下添加退款信息
+                        const maskedCardNumber = '**** **** **** 1234'; // 隐藏卡号的示例
+                        timeInfo = `此订单已退款。退款金额已原路退回至您的银行卡：${maskedCardNumber}。`;
+                    }
+                } else if (order.tradeMethod === '面交') {
+                    const meetingTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                    timeInfo = `请于 ${meetingTime.toLocaleDateString()} 前到沈阳工学院进行面交，由平台担保。`;
+                    countdownMessage = '面交';
+                    updateCountdown(meetingTime.getTime(), 'countdown', countdownMessage);
+                } else if (order.tradeMethod === '自取') {
+                    const pickUpTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                    timeInfo = `请于 ${pickUpTime.toLocaleDateString()} 前到以下位置自取。`;
+                    countdownMessage = '自取';
+                    updateCountdown(pickUpTime.getTime(), 'countdown', countdownMessage);
+                } else if (order.tradeMethod === '快递') {
+                    const deliveryTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    const expressCompany = getRandomExpressCompany();
+                    timeInfo = `预计送达时间为 ${deliveryTime.toLocaleDateString()}。快递公司：${expressCompany}，快递单号：${getTrackingNumberForCompany(expressCompany)}`;
+                    document.getElementById('countdown').innerHTML = ''; // 快递不需要倒计时
+                }
+
+                newOrderDetailsElement.innerHTML = `
+                    <h2>订单号: ${order.orderId}</h2>
+                    <div class="order-meta">
+                        <p><strong>商品名称:</strong> ${order.title}</p>
+                        <p><strong>单价:</strong> ￥${price.toFixed(2)}</p>
+                        <p><strong>数量:</strong> ${order.quantity}</p>
+                        <p><strong>交易方式:</strong> ${order.tradeMethod}</p>
+                        <p><strong>时间信息:</strong> ${timeInfo}</p>
+                        ${order.tradeMethod === '面交' ? `<p><strong>交易地址:</strong> 沈阳工学院</p>` :
+                          (order.tradeMethod === '自取' ? `<p><strong>交易地址:</strong> ${detailedLocation}</p>` :
+                          (order.location ? `<p><strong>发货地址:</strong> ${detailedLocation}</p>` : ''))}
+                        <div class="map-buttons">
+                            <a id="googleMapsLink" class="map-button" href="${googleMapsLink}" target="_blank">在 Google map中查看发货地</a>
+                            <a id="baiduMapsLink" class="map-button" href="${baiduMapsLink}" target="_blank">在 百度 地图中查看发货地</a>
+                            <a id="gaodeMapsLink" class="map-button" href="${gaodeMapsLink}" target="_blank">在 高德 地图中查看发货地</a>
+                        </div>
+                        <p class="status"><strong>订单状态:</strong> ${order.status === 'pending-shipment' ? '待发货' : order.status}</p>
+                        <p id="countdown" class="countdown"></p>
+                    </div>
+                    <img src="${order.imageUrl}" alt="${order.title}">
+                    <div class="order-summary">
+                        <p><strong>支付金额:</strong> ￥${(price * order.quantity).toFixed(2)}</p>
+                        <p><strong>下单时间:</strong> ${now.toLocaleDateString()}</p>
+                        ${order.tradeMethod === '快递' ? `<p><strong>预计发货时间:</strong> ${new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleDateString()}</p>` : ''}
+                    </div>
+                    <div class="contact-info">
+                        <p><strong>客户服务:</strong> 400-123-4567</p>
+                        <p><strong>邮箱:</strong> support@example.com</p>
+                    </div>
+                `;
+            } else {
+                newOrderDetailsElement.innerHTML = '<p>没有找到订单信息。</p>';
+            }
+        } else {
+            console.error('未找到 id 为 "orderDetailContent" 的元素');
+        }
+      };
+    </script>
+
+      <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+      <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
+      <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+</body>
+</html>

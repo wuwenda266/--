@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分商品详细页面</title>
+    <style>
+        /* 样式代码 */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            color: #333;
+            font-size: 32px;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .product-details img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .product-details h2 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            color: #333;
+        }
+
+        .product-details p {
+            margin: 10px 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .shipping-info {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .shipping-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .shipping-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .shipping-info strong {
+            color: #007bff;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #fff;
+            z-index: 10;
+            position: absolute;
+            width: 100%;
+        }
+
+        .loading div {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #007bff;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            .product-details img {
+                max-width: 90%;
+            }
+
+            .back-button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div></div>
+    </div>
+    <div class="container">
+        <h1>商品详细信息</h1>
+        <div class="product-details">
+            <img id="productImage" src="" alt="商品图片">
+            <h2 id="productTitle">商品名称</h2>
+            <p><strong>花费积分:</strong> <span id="productPoints">积分</span></p>
+            <p><strong>发货仓库:</strong> <span id="productLocation">发货仓库</span></p>
+            <p><strong>商品描述:</strong> <span id="productDescription">商品描述</span></p>
+            <div class="shipping-info">
+                <h3>发货信息</h3>
+                <p><strong>预计发货时间:</strong> <span id="shippingTime">发货时间</span></p>
+                <p><strong>购买时间:</strong> <span id="purchaseTime">购买时间</span></p>
+                <p><strong>发货快递:</strong> <span id="shippingCourier">发货快递</span></p>
+                <p><strong>发货单号:</strong> <span id="trackingNumber">发货单号</span></p>
+            </div>
+            <a href="javascript:history.back()" class="back-button">返回</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingElement = document.getElementById('loading');
+            loadingElement.style.display = 'flex';
+
+            // 获取 URL 查询参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const productName = urlParams.get('name');
+
+            if (!productName) {
+                document.querySelector('.product-details').innerHTML = '<p>没有找到商品信息。</p>';
+                loadingElement.style.display = 'none';
+                return;
+            }
+
+            // 从本地存储获取商品数据
+            const redeemedProducts = JSON.parse(localStorage.getItem('redeemedProducts')) || [];
+            const product = redeemedProducts.find(p => p.name === productName);
+
+            if (product) {
+                // 更新页面内容
+                document.getElementById('productImage').src = product.imageUrl;
+                document.getElementById('productTitle').textContent = product.name;
+                document.getElementById('productPoints').textContent = product.points;
+                document.getElementById('productLocation').textContent = product.location;
+                document.getElementById('productDescription').textContent = product.description;
+
+                // 生成随机发货信息
+                const shippingCouriers = ['顺丰快递', '圆通快递', '申通快递', '中通快递'];
+                const randomCourier = shippingCouriers[Math.floor(Math.random() * shippingCouriers.length)];
+                const randomTrackingNumber = Math.random().toString(36).substr(2, 12).toUpperCase();
+                const today = new Date().toISOString().split('T')[0]; // 格式化为 yyyy-mm-dd
+
+                document.getElementById('shippingTime').textContent = today + ' 23:30:00';
+                document.getElementById('purchaseTime').textContent = today;
+                document.getElementById('shippingCourier').textContent = randomCourier;
+                document.getElementById('trackingNumber').textContent = randomTrackingNumber;
+            } else {
+                document.querySelector('.product-details').innerHTML = '<p>没有找到商品信息。</p>';
+            }
+            
+            loadingElement.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

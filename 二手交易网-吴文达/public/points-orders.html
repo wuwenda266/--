@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分订单</title>
+    <style>
+        /* 样式代码保持不变 */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px 5px 0 0;
+            padding: 10px 20px;
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab-button.active, .tab-button:hover {
+            background-color: #fff;
+            border-bottom: 2px solid #007bff;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .tab-content {
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            opacity: 1;
+            max-height: 1000px; /* 足够大以适应内容 */
+        }
+
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px; /* 减少底部间距 */
+            padding: 15px;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .order-card img {
+            max-width: 120px;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+
+        .order-card .details {
+            flex: 1;
+        }
+
+        .order-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .order-card p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .order-card .btn-details {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .order-card .btn-details:hover {
+            background-color: #0056b3;
+        }
+
+        .order-card .btn-refund {
+            position: absolute;
+            top: 15px; /* 从顶部距离 */
+            right: 15px; /* 从右边距离 */
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #dc3545;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .order-card .btn-refund:hover {
+            background-color: #c82333;
+        }
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .confirmation-dialog .dialog-buttons {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .confirmation-dialog .dialog-buttons button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .confirmation-dialog .confirm-button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .confirmation-dialog .cancel-button {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>积分订单</h1>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('all')">全部</button>
+            <button class="tab-button" onclick="showTab('shipped')">待发货</button>
+            <button class="tab-button" onclick="showTab('pending')">待收货</button>
+            <button class="tab-button" onclick="showTab('completed')">已完成</button>
+        </div>
+        <div id="all" class="tab-content active"></div>
+        <div id="shipped" class="tab-content"></div>
+        <div id="pending" class="tab-content"></div>
+        <div id="completed" class="tab-content"></div>
+    </div>
+
+    <div id="confirmation-dialog" class="confirmation-dialog">
+        <p>您确认退款吗？此操作无法取消，请谨慎操作！</p>
+        <div class="dialog-buttons">
+            <button class="confirm-button" onclick="confirmRefund()">确认</button>
+            <button class="cancel-button" onclick="cancelRefund()">取消</button>
+        </div>
+    </div>
+
+    <script>
+        let currentProduct = null;
+        let currentPoints = 0;
+
+        function renderOrders(status, container) {
+            const redeemedProducts = JSON.parse(localStorage.getItem('redeemedProducts')) || [];
+
+            container.innerHTML = '';
+
+            // 输出数据以帮助调试
+            console.log('Filtered Products for status:', status, redeemedProducts);
+
+            const filteredProducts = redeemedProducts.filter(product => {
+                if (status === 'all' || status === 'shipped') {
+                    return true;
+                }
+                return product.status === status;
+            });
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = '<p>没有符合条件的商品。</p>';
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const orderCard = document.createElement('div');
+                orderCard.classList.add('order-card');
+                orderCard.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <div class="details">
+                        <h2>${product.name}</h2>
+                        <p><strong>花费积分:</strong> ${product.points}</p>
+                        <p><strong>发货仓库:</strong> ${product.location}</p>
+                        <a href="./points-product-details.html?name=${encodeURIComponent(product.name)}" class="btn-details">查看详细</a>
+                        <button class="btn-refund" onclick="initiateRefund('${product.name}', ${product.points})">退款</button>
+                    </div>
+                `;
+                container.appendChild(orderCard);
+            });
+        }
+
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                if (tab.id === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+
+            const currentTab = document.getElementById(tabId);
+            renderOrders(tabId, currentTab);
+        }
+
+        function initiateRefund(productName, points) {
+            currentProduct = productName;
+            currentPoints = points;
+            document.getElementById('confirmation-dialog').style.display = 'block';
+        }
+
+        function confirmRefund() {
+            const redeemedProducts = JSON.parse(localStorage.getItem('redeemedProducts')) || [];
+            const updatedProducts = redeemedProducts.filter(product => product.name !== currentProduct);
+
+            // 更新 localStorage
+            localStorage.setItem('redeemedProducts', JSON.stringify(updatedProducts));
+
+            // 返还积分到 userPoints
+            const userPoints = JSON.parse(localStorage.getItem('userPoints')) || 0;
+            localStorage.setItem('userPoints', userPoints + currentPoints);
+
+            // 重新渲染订单列表
+            showTab(document.querySelector('.tab-button.active').getAttribute('onclick').split("'")[1]);
+
+            // 关闭确认框
+            document.getElementById('confirmation-dialog').style.display = 'none';
+        }
+
+        function cancelRefund() {
+            currentProduct = null;
+            currentPoints = 0;
+            document.getElementById('confirmation-dialog').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始加载全部订单
+            showTab('all');
+        });
+    </script>
+</body>
+</html>

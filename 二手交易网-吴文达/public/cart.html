@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的购物车</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .cart-product {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .cart-product img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 8px;
+        }
+        .cart-product-details {
+            flex: 1;
+            margin-right: 20px; /* 增加与选择按钮的距离 */
+        }
+        .cart-product-details p {
+            margin: 5px 0;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            position: absolute;
+            right: 20px; /* 右对齐 */
+        }
+        .quantity-control button {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .quantity-control input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+            padding: 5px;
+        }
+        .btn-buy {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            margin-top: 20px;
+        }
+        .btn-buy:hover {
+            background-color: #218838;
+            color: white;
+        }
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .cart-header {
+            margin-bottom: 20px;
+        }
+        .cart-header input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .cart-header label {
+            font-size: 16px;
+        }
+        .total-info {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .total-info span {
+            margin-right: 20px;
+        }
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 300px;
+            white-space: normal;
+        }
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent transparent #fff;
+        }
+        .tooltip-box p {
+            margin: 0;
+            word-wrap: break-word;
+        }
+        .btn-select {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .btn-select:hover {
+            background-color: #0056b3;
+        }
+        .select-all {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 768px) {
+        .cart-product-details p {
+            margin: 5px 0;
+            word-wrap: break-word; /* 强制单词在边界处换行 */
+            max-width: 160px; /* 设置最大宽度 */
+        }
+      }
+    </style>
+</head>
+<body>
+  <div class="container mt-4">
+      <h1 class="mb-4">我的购物车</h1>
+      <div class="cart-header">
+          <div class="select-all">
+              <input type="checkbox" id="selectAll" class="btn-select">
+              <label for="selectAll">全选商品</label>
+          </div>
+      </div>
+      <div id="cartContainer" class="mt-4">
+          <!-- 购物车商品将被动态添加到这里 -->
+      </div>
+      <div class="text-center total-info" style="text-align: center;">
+          <span>已选: <span id="selectedCount" style="color: red;font-size: 30px;font-weight: 800;">0</span>件</span>
+          总价格: <span style="color: red;font-size: 30px;font-weight: 800;">￥<span id="totalPrice">0</span></span>
+      </div>
+      <div class="text-center mt-4">
+          <button id="buyButton" class="btn btn-buy btn-lg">去结算</button>
+      </div>
+  </div>
+
+  <!-- 模态框 -->
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="confirmDeleteModalLabel">确认删除</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  确定要删除此商品吗？
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                  <button type="button" id="confirmDeleteButton" class="btn btn-danger">删除</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+  <script src="../bootstrap-4.5.2-dist/js/bootstrap.min.js"></script> 
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const cartContainer = document.getElementById('cartContainer');
+        const totalPriceElem = document.getElementById('totalPrice');
+        const selectedCountElem = document.getElementById('selectedCount');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        let deleteIndex = null;
+
+        function updateCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cartContainer.innerHTML = '';
+
+            if (cart.length > 0) {
+                cart.forEach((product, index) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'cart-product';
+                    productDiv.dataset.index = index;
+                    productDiv.innerHTML = `
+                        <input type="checkbox" class="product-select" style="margin-right: 15px;">
+                        <img src=${product.imageUrl} class="product-image" alt="商品图片">
+                        <div class="cart-product-details">
+                            <p class="product-name"><strong>商品名称:</strong> ${product.title}</p>
+                            <p class="product-location"><strong>地点:</strong> ${product.location}</p>
+                            <p><strong>发布日期:</strong> ${product.postedDate}</p>
+                            <p><strong>状态:</strong> ${product.condition}</p>
+                            <p><strong>原因:</strong> ${product.reason}</p>
+                            <p class="product-tradeMethod"><strong>交易方式:</strong> ${product.tradeMethod}</p>
+                            <p style="color: red;font-size: 30px;font-weight: 800;"><strong></strong> ￥<span class="product-price">${product.price}</span></p>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="btn-decrease">-</button>
+                            <input type="number" value="1" min="1" class="quantity-input">
+                            <button class="btn-increase">+</button>
+                        </div>
+                        <button class="btn btn-remove" data-toggle="modal" data-target="#confirmDeleteModal">删除</button>
+                    `;
+                    cartContainer.appendChild(productDiv);
+                });
+
+                // 绑定删除按钮事件
+                document.querySelectorAll('.btn-remove').forEach(button => {
+                    button.addEventListener('click', function() {
+                        deleteIndex = this.parentElement.dataset.index;
+                    });
+                });
+
+                // 绑定确认删除按钮事件
+                document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+                    if (deleteIndex !== null) {
+                        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        cart.splice(deleteIndex, 1);
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        updateCart();
+                        $('#confirmDeleteModal').modal('hide'); // 关闭模态框
+                        deleteIndex = null;
+                    }
+                });
+
+                // 绑定数量调整按钮事件
+                document.querySelectorAll('.btn-decrease').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const input = this.nextElementSibling;
+                        let quantity = parseInt(input.value);
+                        if (quantity > 1) {
+                            input.value = quantity - 1;
+                            updateTotalPrice();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-increase').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const input = this.previousElementSibling;
+                        let quantity = parseInt(input.value);
+                        input.value = quantity + 1;
+                        updateTotalPrice();
+                    });
+                });
+
+                // 绑定选择按钮事件
+                document.querySelectorAll('.product-select').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateTotalPrice);
+                });
+
+                // 绑定全选按钮事件
+                selectAllCheckbox.addEventListener('change', function() {
+                    document.querySelectorAll('.product-select').forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                    updateTotalPrice();
+                });
+            } else {
+                cartContainer.innerHTML = '<h2>您的购物车是空的，请添加商品后再来吧！</h2>';
+            }
+        }
+
+        function updateTotalPrice() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const selectedCheckboxes = document.querySelectorAll('.product-select:checked');
+            let totalPrice = 0;
+
+            selectedCheckboxes.forEach(checkbox => {
+                const productDiv = checkbox.closest('.cart-product');
+                const price = parseFloat(productDiv.querySelector('.product-price').textContent.replace('￥', ''));
+                const quantity = parseInt(productDiv.querySelector('.quantity-input').value);
+                totalPrice += price * quantity;
+            });
+
+            totalPriceElem.textContent = totalPrice.toFixed(2);
+            selectedCountElem.textContent = selectedCheckboxes.length;
+        }
+
+
+        // 处理去结算按钮点击事件
+        document.getElementById('buyButton').addEventListener('click', function() {
+        const selectedCheckboxes = document.querySelectorAll('.product-select:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('请先选择商品');
+            return;
+        }
+
+        const orderDetails = [];
+        selectedCheckboxes.forEach(checkbox => {
+            const productDiv = checkbox.closest('.cart-product');
+            const productNameElem = productDiv.querySelector('.product-name');
+            const productPriceElem = productDiv.querySelector('.product-price');
+            const productQuantityElem = productDiv.querySelector('.quantity-input');
+            const producttradeMethodElem = productDiv.querySelector('.product-tradeMethod');
+            const productimageElem = productDiv.querySelector('.product-image');
+            const productlocation = productDiv.querySelector('.product-location');
+            
+            if (productNameElem && productPriceElem && productQuantityElem) {
+                orderDetails.push({
+                    name: productNameElem.textContent.replace('商品名称:', '').trim(),
+                    price: parseFloat(productPriceElem.textContent.replace('￥', '').trim()),
+                    quantity: parseInt(productQuantityElem.value),
+                    tradeMethod: producttradeMethodElem.textContent.replace('交易方式:', '').trim(),
+                    image: productimageElem.src,
+                    location: productlocation.textContent.replace('地点:', '').trim()
+                });
+            }
+        });
+
+        console.log('订单详情:', orderDetails); // 调试信息，确保订单详情正确
+        localStorage.setItem('orderDetails', JSON.stringify(orderDetails));
+        window.location.href = './payment.html'; // 跳转到支付页面
+    });
+
+        updateCart();
+    });
+</script>

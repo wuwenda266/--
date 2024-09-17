@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的发布</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        header a:hover {
+            color: #dff0d8;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .my-posts {
+            padding: 20px;
+        }
+
+        .product {
+            display: flex;
+            background-color: white;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .product img {
+            width: auto; /* 保持宽高比 */
+            height: 120px; /* 统一高度 */
+            object-fit: cover; /* 填充容器 */
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .product-info {
+            flex-grow: 1;
+        }
+
+        .product-info h3 {
+            margin: 0 0 5px;
+            font-size: 18px;
+        }
+
+        .product-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-left: 20px;
+        }
+
+        .product-actions button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-actions button:hover {
+            background-color: #388E3C;
+        }
+
+        .product-actions .delete-btn {
+            background-color: #f44336;
+        }
+
+        .product-actions .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .notice {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content input[readonly] {
+            background-color: #cfc9c9; /* 只读状态背景颜色 */
+            cursor: not-allowed; /* 显示禁用指针 */
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover, .close:focus {
+            color: #000;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 20%;
+            font-size: 16px;
+        }
+
+        .modal-content button:hover {
+            background-color: #388E3C;
+        }
+
+        /* 在移动端时，按钮宽度设置为一致 */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 90%;
+                flex-direction: row; /* 横向排列按钮 */
+                justify-content: space-between; /* 按钮之间的间隔 */
+                align-items: center; /* 垂直居中对齐按钮 */
+            }
+
+            .modal-content button {
+                width: 30%; /* 设置按钮宽度，确保两个按钮在一行内 */
+                height: 40px; /* 设置按钮高度 */
+                margin: 0; /* 移除上下边距 */
+                box-sizing: border-box; /* 确保内边距和边框在高度计算内 */
+                margin-right: 20px;
+            }
+
+            .product-info h3 {
+                margin: 0 0 5px;
+                font-size: 18px;
+                white-space: normal; /* 允许换行 */
+                overflow: hidden;
+                max-width: 140px;
+                text-overflow: ellipsis; /* 溢出文本用省略号表示（如果需要） */
+                word-break: break-word; /* 打断长单词以避免溢出 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="./post-product.html">返回商品发布页</a>
+        <h1>我的发布</h1>
+    </header>
+
+    <section class="my-posts" id="postedProduct">
+        <!-- 动态生成的商品发布信息将插入这里 -->
+    </section>
+
+    <div class="notice">
+        该功能暂为试用阶段。
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>编辑商品</h2>
+            <input type="text" id="editTitle" placeholder="商品名称">
+            <input type="text" id="editPrice" placeholder="价格">
+            <input type="text" id="editLocation" placeholder="所在地">
+            <input type="text" id="editPostedDate" placeholder="发布时间" readonly>
+            <button onclick="saveChanges()">保存</button>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <h2>确认删除</h2>
+            <p>您确定要删除该商品吗？此操作无法撤销。</p>
+            <div style="display: flex;">
+                <button class="delete-confirm-btn" onclick="deletePost()">确认删除</button>
+                <button class="cancel-btn" onclick="closeDeleteModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 从本地存储获取数据
+        function getStoredPosts() {
+            const storedPosts = localStorage.getItem('postedProduct');
+            try {
+                const parsedPosts = JSON.parse(storedPosts);
+                return Array.isArray(parsedPosts) ? parsedPosts : [];
+            } catch (e) {
+                console.error("解析本地存储数据时出错：", e);
+                return [];
+            }
+        }
+
+        // 渲染发布的商品
+        function renderPosts() {
+            const posts = getStoredPosts();
+            const container = document.getElementById('postedProduct');
+            container.innerHTML = ''; // 清空现有内容
+            posts.forEach((post, index) => {
+                const postElement = document.createElement('div');
+                postElement.className = 'product';
+                postElement.innerHTML = `
+                    <img src="${post.image || '../img/default-image.png'}" alt="${post.name}">
+                    <div class="product-info">
+                        <h3>${post.name}</h3>
+                        <p>价格: ${post.price}元</p>
+                        <p>商品状态: ${post.condition}</p>
+                        <p>出售原因: ${post.reason}</p>
+                        <p>交易方式: ${post.tradeMethod}</p>
+                        <p>发布时间: ${post.postedDate}</p>
+                        <p>货源: ${post.location}</p>
+                    </div>
+                    <div class="product-actions">
+                        <button class="edit-btn" onclick="openEditModal(${index})">编辑</button>
+                        <button class="delete-btn" onclick="openDeleteModal(${index})">删除</button>
+                    </div>
+                `;
+                container.appendChild(postElement);
+            });
+        }
+
+        // 打开编辑模态框
+        function openEditModal(index) {
+            const posts = getStoredPosts();
+            const post = posts[index];
+            document.getElementById('editTitle').value = post.name || '';
+            document.getElementById('editPrice').value = post.price || '';
+            document.getElementById('editLocation').value = post.location || '';
+            document.getElementById('editPostedDate').value = post.postedDate || '';
+            document.getElementById('editModal').style.display = 'block';
+            document.getElementById('editModal').dataset.index = index; // 存储索引
+        }
+
+        // 关闭编辑模态框
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // 保存更改
+        function saveChanges() {
+            const index = document.getElementById('editModal').dataset.index;
+            const posts = getStoredPosts();
+            const updatedPost = {
+                name: document.getElementById('editTitle').value,
+                price: document.getElementById('editPrice').value,
+                location: document.getElementById('editLocation').value,
+                postedDate: document.getElementById('editPostedDate').value,
+                condition: posts[index]?.condition || '', // 保留原有值
+                reason: posts[index]?.reason || '', // 保留原有值
+                tradeMethod: posts[index]?.tradeMethod || '', // 保留原有值
+                image: posts[index]?.image || '' // 保留原有值
+            };
+            posts[index] = updatedPost;
+            localStorage.setItem('postedProduct', JSON.stringify(posts));
+            closeModal();
+            renderPosts();
+        }
+
+        // 打开删除模态框
+        function openDeleteModal(index) {
+            document.getElementById('deleteModal').style.display = 'block';
+            document.getElementById('deleteModal').dataset.index = index; // 存储索引
+        }
+
+        // 关闭删除模态框
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // 删除发布
+        function deletePost() {
+            const index = document.getElementById('deleteModal').dataset.index;
+            let posts = getStoredPosts();
+            posts = posts.filter((_, i) => i !== parseInt(index));
+            localStorage.setItem('postedProduct', JSON.stringify(posts));
+            closeDeleteModal();
+            renderPosts();
+        }
+
+        // 初始化页面
+        renderPosts();
+    </script>
+</body>
+</html>
